@@ -1,4 +1,4 @@
-package main.java.cs455.overlay.dijkstra;
+package cs455.overlay.dijkstra;
 
 public class RoutingCache {
 

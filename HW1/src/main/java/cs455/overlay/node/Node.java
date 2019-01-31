@@ -1,5 +1,5 @@
-package main.java.cs455.overlay.node;
+package cs455.overlay.node;
 
-public interface Node {
-
+public abstract class Node implements INode{
+    //TODO Fill these out more
 }

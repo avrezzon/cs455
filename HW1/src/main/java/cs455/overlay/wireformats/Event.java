@@ -1,5 +1,5 @@
-package main.java.cs455.overlay.wireformats;
+package cs455.overlay.wireformats;
 
-public interface Event {
+public abstract class Event implements IEvent{
 
 }
