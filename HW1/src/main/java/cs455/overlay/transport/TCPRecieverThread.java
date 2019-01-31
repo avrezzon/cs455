@@ -1,4 +1,4 @@
-package main.java.cs455.overlay.transport;
+package cs455.overlay.transport;
 
 import java.io.DataInputStream;
 import java.io.IOException;
