@@ -15,8 +15,8 @@ public class MessagingNode {
     this.senderSock = new TCPSender(new Socket(hostname, port_number));
   }
 
+  //TODO verify the input paramaters
   public static void main(String[] args){
-    //Does
-    System.out.print("Hello from messaginh");
+
   }
 }
