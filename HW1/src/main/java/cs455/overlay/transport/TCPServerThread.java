@@ -14,6 +14,7 @@ public class TCPServerThread implements Runnable{
 
   public TCPServerThread(int port_number) throws IOException {
     this.port_number = port_number;
+    //This should really be in a loop that determines if a port is open and the loops through the possible options
     server = new ServerSocket(port_number);
   }
 
