@@ -6,25 +6,25 @@ Event (abstract):
 
 REGISTER_REQUEST:
 
-  Message Type (int): REGISTER_REQUEST
+  *Message Type (int): REGISTER_REQUEST
   IP address (String):
   Port number (int):
 
 REGISTER_RESPONSE:
 
-  Message Type (int): REGISTER_RESPONSE
+  *Message Type (int): REGISTER_RESPONSE
   Status Code (byte): SUCCESS or FAILURE
   Additional Info (String):
 
 DEREGISTER_REQUEST:
 
-  Message Type (int): DEREGISTER_REQUEST
+  *Message Type (int): DEREGISTER_REQUEST
   Node IP address (String):
   Node Port number (int):
 
 DEREGISTER_RESPONSE:
 
-  Message Type (int): DEREGISTER_RESPONSE
+  *Message Type (int): DEREGISTER_RESPONSE
   Status Code (byte): SUCCESS or FAILURE
   Additional Info (String):
 

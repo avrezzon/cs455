@@ -1,13 +1,12 @@
 package cs455.overlay.wireformats;
 
-public class TaskInitiate extends Event {
+public class RegisterRequest extends Event {
 
   public int getType(){
-    return Protocol.TASK_INIT;
+    return Protocol.REGISTER_RQ;
   }
 
   public byte[] getBytes(){
     return null; //TODO
   }
-
 }
