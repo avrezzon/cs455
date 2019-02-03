@@ -14,7 +14,7 @@ public class MessagingNode {
 
   public MessagingNode(String hostname, int port_number) throws UnknownHostException , IOException {
     this.ipAddr = InetAddress.getLocalHost().toString();
-    this.server = new TCPServerThread(); //TODO create constructor
+    this.server = new TCPServerThread(0); //TODO create constructor
     this.senderSocket = new TCPSender(new Socket(hostname, port_number));
   }
 
