@@ -1,5 +1,8 @@
 package cs455.overlay.wireformats;
 
-public abstract class Event implements IEvent{
-  int type;
+import java.io.IOException;
+
+public interface Event {
+    int getType(); //TODO
+    byte[] getBytes() throws IOException;
 }

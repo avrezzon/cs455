@@ -1,10 +1,11 @@
 package cs455.overlay.node;
 
+import cs455.overlay.wireformats.*;
 import java.io.IOException;
 import java.net.*;
 import cs455.overlay.transport.*;
 
-public class MessagingNode {
+public class MessagingNode implements Node{
 
   private String ipAddr;
   private TCPServerThread server; //This will spawn at runtime to accept messages from other nodes
@@ -24,6 +25,10 @@ public class MessagingNode {
 
   public TCPSender getSenderSocket(){
     return this.senderSocket;
+  }
+
+  public void onEvent(Event e){
+
   }
 
   //TODO verify the input paramaters

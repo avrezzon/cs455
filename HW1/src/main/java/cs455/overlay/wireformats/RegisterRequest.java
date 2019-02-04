@@ -5,7 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class RegisterRequest extends Event {
+public class RegisterRequest extends Message {
 
   private final int type = Protocol.REGISTER_RQ;
   private String ip_addr;
