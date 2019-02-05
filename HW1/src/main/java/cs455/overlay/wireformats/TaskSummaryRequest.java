@@ -7,7 +7,7 @@ public class TaskSummaryRequest extends Message{
   }
 
   public byte[] getBytes(){
-    return null; //TODO
+    return null;
   }
 
 }

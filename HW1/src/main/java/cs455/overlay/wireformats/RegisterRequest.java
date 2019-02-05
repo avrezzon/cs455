@@ -22,6 +22,7 @@ public class RegisterRequest extends Message {
 
   public byte[] getBytes() throws IOException {
     byte[] marshalledBytes = null;
+    byte[] finalMsg = null;
     ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
     DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(baOutputStream));
 
@@ -34,18 +35,16 @@ public class RegisterRequest extends Message {
 
     marshalledBytes = baOutputStream.toByteArray();
 
+    //TODO verify that this works
+    baOutputStream.reset();
+    dout.write(marshalledBytes.length);
+    dout.write(marshalledBytes,0, marshalledBytes.length);
+
+    finalMsg = baOutputStream.toByteArray();
+
     baOutputStream.close();
     dout.close();
 
-    int packet_size = marshalledBytes.length;
-    ByteArrayOutputStream final_packet = new ByteArrayOutputStream();
-    final_packet.write(packet_size);
-    final_packet.write(marshalledBytes,0, packet_size);
-
-    marshalledBytes = final_packet.toByteArray();
-
-    final_packet.close();
-
-    return marshalledBytes;
+    return finalMsg;
   }
 }

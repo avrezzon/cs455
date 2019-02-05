@@ -8,7 +8,7 @@ public class TaskComplete extends Message {
   }
 
   public byte[] getBytes(){
-    return null; // TODO
+    return null;
   }
 
 }

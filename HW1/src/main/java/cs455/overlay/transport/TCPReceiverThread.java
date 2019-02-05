@@ -26,6 +26,7 @@ public class TCPReceiverThread implements Runnable {
         byte[] data = new byte[dataLength];
         din.readFully(data, 0, dataLength);
         eventFactory.createEvent(data); //TODO Check the validity of this
+        System.err.println("YOU GOT SOMETHING");
 
       }catch (SocketException se){
         System.err.println(se.getMessage());

@@ -10,14 +10,16 @@ public class MessagingNode implements Node{
   private EventFactory eventFactory_instance;
   private String ipAddr;
   private TCPServerThread server; //This will spawn at runtime to accept messages from other nodes
-
+  private TCPSender sender;
+  private TCPReceiverThread receiver;
   //Data structure for the connections table
 
 
   public MessagingNode(String hostname, int port_number) throws UnknownHostException , IOException {
     this.ipAddr = InetAddress.getLocalHost().toString();
     this.server = new TCPServerThread(0); //TODO create constructor
-    //this.senderSocket = new TCPSender(new Socket(hostname, port_number));
+    this.sender = new TCPSender(new Socket(hostname, port_number));
+    this.receiver = new TCPReceiverThread(new Socket(hostname, port_number));
     this.eventFactory_instance = EventFactory.getInstance();
     eventFactory_instance.addListener(this); //This should correctly add the Messaging node to listen to the eventfactorys events
   }
@@ -26,9 +28,9 @@ public class MessagingNode implements Node{
     return this.ipAddr;
   }
 
-  //public TCPSender getSenderSocket(){
-    //return this.senderSocket;
-  //}
+  public TCPSender getSenderSocket(){
+    return this.sender;
+  }
 
   public void onEvent(Event e){
     switch (e.getType()){
@@ -49,15 +51,19 @@ public class MessagingNode implements Node{
   //TODO verify the input paramaters
   public static void main(String[] args){
 
-    String hostname = ""; // default values that will need to be changed
-    int port_number = 6003;
+    String hostname = "RezzLinux"; // default values that will need to be changed
+    int port_number = 8088;
     MessagingNode node = null;
 
     try {
       node = new MessagingNode(hostname, port_number);
+      new Thread(node.receiver).run();
+      new Thread(node.server).run();
 
+      //TODO run a mock connection to see if i can transport data
+      //Event e = new RegisterRequest(node.ipAddr,8088);
+      //node.sender.sendData(e.getBytes());
 
-      //Create the TCPServer constructor
     }catch(UnknownHostException uhe){
       System.err.println("An unknown host exception occured in MessagingNode.java!!!\n" + uhe.getMessage());
       System.exit(-1);

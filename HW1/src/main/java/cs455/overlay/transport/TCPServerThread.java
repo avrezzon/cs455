@@ -27,11 +27,15 @@ public class TCPServerThread implements Runnable{
     while(true){
       try{
 
+        System.out.println("Waiting for a connection");  //Will need to remove these later
         inc_socket = server.accept();
+        System.out.println("Recieved a connection");
 
         inputStream = new DataInputStream(inc_socket.getInputStream());
         int packet_length = inputStream.readInt();
+        System.out.println(packet_length);
         byte[] byteString = new byte[packet_length];
+
         inputStream.readFully(byteString, 0 ,packet_length);
         inputStream.close();
         EventFactory.getInstance().createEvent(byteString);

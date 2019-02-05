@@ -7,7 +7,7 @@ public class TaskInitiate extends Message {
   }
 
   public byte[] getBytes(){
-    return null; //TODO
+    return null;
   }
 
 }
