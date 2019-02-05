@@ -15,7 +15,7 @@ public class MessagingNode implements Node{
   //Data structure for the connections table
 
 
-  public MessagingNode(String hostname, int port_number) throws UnknownHostException , IOException {
+  public MessagingNode(String hostname, int port_number) throws IOException {
     this.ipAddr = InetAddress.getLocalHost().toString();
     this.server = new TCPServerThread(0); //TODO create constructor
     this.sender = new TCPSender(new Socket(hostname, port_number));
@@ -61,8 +61,8 @@ public class MessagingNode implements Node{
       new Thread(node.server).run();
 
       //TODO run a mock connection to see if i can transport data
-      //Event e = new RegisterRequest(node.ipAddr,8088);
-      //node.sender.sendData(e.getBytes());
+      Event e = new RegisterRequest(node.ipAddr,8088);
+      node.sender.sendData(e.getBytes());
 
     }catch(UnknownHostException uhe){
       System.err.println("An unknown host exception occured in MessagingNode.java!!!\n" + uhe.getMessage());
