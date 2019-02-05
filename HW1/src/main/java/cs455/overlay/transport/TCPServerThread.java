@@ -13,10 +13,17 @@ public class TCPServerThread implements Runnable{
   private ServerSocket server;
   private int port_number;
 
+  public int getPortnumber(){return this.port_number;}
+
   public TCPServerThread(int port_number) throws IOException {
     this.port_number = port_number;
     //This should really be in a loop that determines if a port is open and the loops through the possible options
-    server = new ServerSocket(port_number);
+    server = new ServerSocket(this.port_number);
+  }
+
+  public TCPServerThread() throws IOException{
+    this.server = new ServerSocket(0);
+    this.port_number = this.server.getLocalPort();
   }
 
   public void run(){
