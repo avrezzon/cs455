@@ -10,14 +10,14 @@ public class MessagingNode implements Node{
   private EventFactory eventFactory_instance;
   private String ipAddr;
   private TCPServerThread server; //This will spawn at runtime to accept messages from other nodes
-  private TCPSender senderSocket; //This will be done to initate a message with the Registry
+
   //Data structure for the connections table
 
 
   public MessagingNode(String hostname, int port_number) throws UnknownHostException , IOException {
     this.ipAddr = InetAddress.getLocalHost().toString();
     this.server = new TCPServerThread(0); //TODO create constructor
-    this.senderSocket = new TCPSender(new Socket(hostname, port_number));
+    //this.senderSocket = new TCPSender(new Socket(hostname, port_number));
     this.eventFactory_instance = EventFactory.getInstance();
     eventFactory_instance.addListener(this); //This should correctly add the Messaging node to listen to the eventfactorys events
   }
@@ -26,12 +26,24 @@ public class MessagingNode implements Node{
     return this.ipAddr;
   }
 
-  public TCPSender getSenderSocket(){
-    return this.senderSocket;
-  }
+  //public TCPSender getSenderSocket(){
+    //return this.senderSocket;
+  //}
 
   public void onEvent(Event e){
-
+    switch (e.getType()){
+      case Protocol.REGISTER_RQ:
+        break;
+      case Protocol.REGISTER_RS:
+        break;
+      case Protocol.DEREGISTER_RQ:
+        break;
+      case Protocol.DEREGISTER_RS:
+        break;
+      default:
+        System.err.println("RECEIVED AN EVENT OF TYPE " + e.getType());
+        break;
+    }
   }
 
   //TODO verify the input paramaters

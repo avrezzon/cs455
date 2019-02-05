@@ -1,6 +1,6 @@
 package cs455.overlay.wireformats;
 
-public class TaskInitiate extends Event {
+public class TaskInitiate extends Message {
 
   public int getType(){
     return Protocol.TASK_INIT;
