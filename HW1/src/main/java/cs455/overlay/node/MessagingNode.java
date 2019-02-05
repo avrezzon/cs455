@@ -7,6 +7,7 @@ import cs455.overlay.transport.*;
 
 public class MessagingNode implements Node{
 
+  private EventFactory eventFactory_instance;
   private String ipAddr;
   private TCPServerThread server; //This will spawn at runtime to accept messages from other nodes
   private TCPSender senderSocket; //This will be done to initate a message with the Registry
@@ -17,6 +18,8 @@ public class MessagingNode implements Node{
     this.ipAddr = InetAddress.getLocalHost().toString();
     this.server = new TCPServerThread(0); //TODO create constructor
     this.senderSocket = new TCPSender(new Socket(hostname, port_number));
+    this.eventFactory_instance = EventFactory.getInstance();
+    eventFactory_instance.addListener(this); //This should correctly add the Messaging node to listen to the eventfactorys events
   }
 
   public String getIpAddr(){
@@ -40,6 +43,7 @@ public class MessagingNode implements Node{
 
     try {
       node = new MessagingNode(hostname, port_number);
+
 
       //Create the TCPServer constructor
     }catch(UnknownHostException uhe){

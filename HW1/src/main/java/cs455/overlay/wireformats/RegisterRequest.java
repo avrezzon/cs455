@@ -37,6 +37,15 @@ public class RegisterRequest extends Message {
     baOutputStream.close();
     dout.close();
 
+    int packet_size = marshalledBytes.length;
+    ByteArrayOutputStream final_packet = new ByteArrayOutputStream();
+    final_packet.write(packet_size);
+    final_packet.write(marshalledBytes,0, packet_size);
+
+    marshalledBytes = final_packet.toByteArray();
+
+    final_packet.close();
+
     return marshalledBytes;
   }
 }
