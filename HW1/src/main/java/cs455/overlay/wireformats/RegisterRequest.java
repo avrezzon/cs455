@@ -33,12 +33,13 @@ public class RegisterRequest extends Message {
     dout.writeInt(this.port_number);
     dout.flush();
 
+    int packet_length = baOutputStream.size();
     marshalledBytes = baOutputStream.toByteArray();
 
     //TODO verify that this works
     baOutputStream.reset();
-    dout.write(marshalledBytes.length);
-    dout.write(marshalledBytes,0, marshalledBytes.length);
+    dout.write(packet_length);
+    dout.write(marshalledBytes,0, packet_length);
 
     finalMsg = baOutputStream.toByteArray();
 

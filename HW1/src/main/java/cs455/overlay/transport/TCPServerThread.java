@@ -40,7 +40,6 @@ public class TCPServerThread implements Runnable{
 
         inputStream = new DataInputStream(inc_socket.getInputStream());
         int packet_length = inputStream.readInt();
-        System.out.println(packet_length);
         byte[] byteString = new byte[packet_length];
 
         inputStream.readFully(byteString, 0 ,packet_length);

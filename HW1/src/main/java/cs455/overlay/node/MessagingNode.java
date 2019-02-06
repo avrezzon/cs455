@@ -9,17 +9,20 @@ public class MessagingNode implements Node{
 
   private EventFactory eventFactory_instance;
   private String ipAddr;
+  private int portnumber;
   private TCPServerThread server; //This will spawn at runtime to accept messages from other nodes
   private TCPSender sender;
   private TCPReceiverThread receiver;
   //Data structure for the connections table
 
 
-  public MessagingNode(String hostname, int port_number) throws IOException {
+  public MessagingNode(String server_hostname, int server_portnumber) throws IOException {
     this.ipAddr = InetAddress.getLocalHost().toString();
-    this.server = new TCPServerThread(0); //TODO create constructor
-    this.sender = new TCPSender(new Socket(hostname, port_number));
-    this.receiver = new TCPReceiverThread(new Socket(hostname, port_number));
+    this.server = new TCPServerThread();
+    this.portnumber = this.server.getPortnumber();
+
+    this.sender = new TCPSender(new Socket(server_hostname, server_portnumber));
+    this.receiver = new TCPReceiverThread(new Socket(server_hostname, server_portnumber));
     this.eventFactory_instance = EventFactory.getInstance();
     eventFactory_instance.addListener(this); //This should correctly add the Messaging node to listen to the eventfactorys events
   }
@@ -48,21 +51,32 @@ public class MessagingNode implements Node{
     }
   }
 
+  private void startup() throws IOException{
+    new Thread(this.receiver).start();
+    new Thread(this.server).start();
+    Event bootupEvent = new RegisterRequest(this.ipAddr, this.portnumber);
+    this.sender.sendData(bootupEvent.getBytes());
+  }
+
   //TODO verify the input paramaters
   public static void main(String[] args){
 
-    String hostname = "RezzLinux"; // default values that will need to be changed
-    int port_number = 8088;
     MessagingNode node = null;
+    String registry_hostname;
+    int registry_portnunmber;
+
+    if(args.length != 2){
+      System.err.println("Recieved " + args.length + " arguements.");
+      System.err.println("Usage: cs455.overlay.node.MessagingNode [hostname] [portnumber]");
+      System.exit(-1);
+    }
+
+    registry_hostname = args[0];
+    registry_portnunmber = Integer.parseInt(args[1]);
 
     try {
-      node = new MessagingNode(hostname, port_number);
-      new Thread(node.receiver).run();
-      new Thread(node.server).run();
-
-      //TODO run a mock connection to see if i can transport data
-      Event e = new RegisterRequest(node.ipAddr,8088);
-      node.sender.sendData(e.getBytes());
+      node = new MessagingNode(registry_hostname, registry_portnunmber);
+      node.startup();
 
     }catch(UnknownHostException uhe){
       System.err.println("An unknown host exception occured in MessagingNode.java!!!\n" + uhe.getMessage());
@@ -71,8 +85,5 @@ public class MessagingNode implements Node{
       System.err.println("An IOexception occured in MessagingNode.java!!!\n" + ioe.getMessage());
       System.exit(-1);
     }
-
-
-
   }
 }

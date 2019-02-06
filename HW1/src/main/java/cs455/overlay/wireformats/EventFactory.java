@@ -24,8 +24,9 @@ public class EventFactory {
 
   public void createEvent(byte[] byteString){
 
+    //TODO this is where I need to start
     Event temp = new RegisterRequest("192.87.0.0", 90);
-    listening_node.onEvent(temp); //TODO Verify the validity of this statement
+    listening_node.onEvent(temp);
 
   }
 
