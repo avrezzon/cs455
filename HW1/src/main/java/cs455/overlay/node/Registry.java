@@ -20,7 +20,13 @@ public class Registry implements Node {
     switch (event.getType()){
       case Protocol.REGISTER_RQ:
         System.out.println(event.getType());
-
+        try {
+          RegisterRequest rrq = new RegisterRequest(event.getBytes());
+          System.out.println("IP Address: " + rrq.getIP());
+          System.out.println("Port number: " + rrq.getPort());
+        }catch (IOException e){
+          System.err.println(e.getMessage());
+        }
         break;
     }
   }

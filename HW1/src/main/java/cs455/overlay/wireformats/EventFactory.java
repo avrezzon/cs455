@@ -1,6 +1,11 @@
 package cs455.overlay.wireformats;
 
 import cs455.overlay.node.*;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 
 public class EventFactory {
 
@@ -22,17 +27,25 @@ public class EventFactory {
     this.listening_node = null;
   }
 
-  public void createEvent(byte[] byteString){
 
-    //TODO this is where I need to start
-    Event temp = new RegisterRequest("192.87.0.0", 90);
-    listening_node.onEvent(temp);
+  //This class is responsible for holding the type of the message
+  public void createEvent(byte[] byteString) throws IOException {
+
+    int type = Protocol.REGISTER_RQ;
+
+    switch (type){
+      case Protocol.REGISTER_RQ:
+        System.out.println("Within the Registry");
+        System.out.println(byteString);
+        listening_node.onEvent(new RegisterRequest(byteString));
+        break;
+    }
 
   }
 
   //Precondition is that the message type has already been striped
-  private RegisterRequest createRegisterRQ(byte[] byteString){
-    return null;
+  private RegisterRequest createRegisterRQ(byte[] byteString) throws IOException {
+    return new RegisterRequest(byteString); //TODO there is probably a better approach
   }
 
 
