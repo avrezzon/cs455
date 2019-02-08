@@ -1,6 +1,6 @@
 package cs455.overlay.wireformats;
 
-public class TaskSummaryRequest extends Message{
+public class TaskSummaryRequest {
 
   public int getType(){
     return Protocol.TASK_SUMMARY_RQ;

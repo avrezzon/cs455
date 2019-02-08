@@ -5,7 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class RegisterResponse extends Message {
+public class RegisterResponse{
 
   private final int type = Protocol.REGISTER_RS;
   private byte status_code;

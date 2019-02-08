@@ -31,12 +31,14 @@ public class EventFactory {
   //This class is responsible for holding the type of the message
   public void createEvent(byte[] byteString) throws IOException {
 
+    //TODO extract the type
     int type = Protocol.REGISTER_RQ;
 
     switch (type){
       case Protocol.REGISTER_RQ:
         System.out.println("Within the Registry");
         System.out.println(byteString);
+        //TODO new things need to happen here
         listening_node.onEvent(new RegisterRequest(byteString));
         break;
     }

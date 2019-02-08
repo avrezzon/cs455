@@ -13,17 +13,18 @@ public class RegisterRequest extends Message {
   private final int type = Protocol.REGISTER_RQ;
   private String ip_addr;
   private int port_number;
-  private byte[] source;
 
   public RegisterRequest(String ip_addr, int port_number)throws IOException{
     this.ip_addr = ip_addr;
     this.port_number = port_number;
-    this.source = this.getBytes().clone();
+  }
+
+  public RegisterRequest getSource(){
+    return this;
   }
 
   public RegisterRequest(byte[] byteString) throws IOException{
 
-    this.source = byteString.clone();
     ByteArrayInputStream baInputStream = new ByteArrayInputStream(byteString);
     DataInputStream din = new DataInputStream(new BufferedInputStream(baInputStream));
 

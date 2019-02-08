@@ -1,6 +1,6 @@
 package cs455.overlay.wireformats;
 
-public class DeregisterResponse extends Message{
+public class DeregisterResponse {
 
   public int getType(){
     return Protocol.DEREGISTER_RS;
