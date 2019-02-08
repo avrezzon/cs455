@@ -19,24 +19,23 @@ public class RegisterRequest extends Message {
     this.port_number = port_number;
   }
 
-  public RegisterRequest getSource(){
-    return this;
-  }
-
   public RegisterRequest(byte[] byteString) throws IOException{
 
     ByteArrayInputStream baInputStream = new ByteArrayInputStream(byteString);
     DataInputStream din = new DataInputStream(new BufferedInputStream(baInputStream));
 
-    din.readInt(); //This will read the type
+    //din.readInt(); //This will read the type
     int ip_len = din.readInt();
     byte[] ip_addr_bytes = new byte[ip_len];
     din.readFully(ip_addr_bytes, 0 ,ip_len);
-    this.ip_addr = new String(ip_addr_bytes);
-    this.port_number = din.readInt();
+    String ip_addr = new String(ip_addr_bytes);
+    int port_number = din.readInt();
 
     baInputStream.close();
     din.close();
+
+    this.ip_addr = ip_addr;
+    this.port_number = port_number;
   }
 
   public String getIP(){return this.ip_addr;}

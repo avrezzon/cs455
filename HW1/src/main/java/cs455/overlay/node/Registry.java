@@ -19,14 +19,9 @@ public class Registry implements Node {
   public void onEvent(Event event){
     switch (event.getType()){
       case Protocol.REGISTER_RQ:
-        System.out.println(event.getType());
-        try {
-          RegisterRequest rrq = new RegisterRequest(event.getBytes());
-          System.out.println("IP Address: " + rrq.getIP());
-          System.out.println("Port number: " + rrq.getPort());
-        }catch (IOException e){
-          System.err.println(e.getMessage());
-        }
+        RegisterRequest rrq = (RegisterRequest)event;
+        System.out.println("IP Address: " + rrq.getIP());
+        System.out.println("Port number: " + rrq.getPort());
         break;
     }
   }
