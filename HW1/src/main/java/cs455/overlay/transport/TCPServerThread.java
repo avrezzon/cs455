@@ -36,7 +36,7 @@ public class TCPServerThread implements Runnable{
 
         System.out.println("Waiting for a connection");  //Will need to remove these later
         inc_socket = server.accept();
-        System.out.println("Recieved a connection");
+        //System.out.println("Recieved a connection");
 
         inputStream = new DataInputStream(inc_socket.getInputStream());
         int packet_length = inputStream.readInt();
@@ -44,7 +44,8 @@ public class TCPServerThread implements Runnable{
 
         inputStream.readFully(byteString, 0 ,packet_length);
         inputStream.close();
-        EventFactory.getInstance().createEvent(byteString);
+        System.out.println (byteString);
+        EventFactory.getInstance().createEvent(byteString.clone());
 
       }catch(IOException e){
         System.err.println(e.getMessage());

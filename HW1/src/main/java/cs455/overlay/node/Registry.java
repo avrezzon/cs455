@@ -17,6 +17,7 @@ public class Registry implements Node {
   }
 
   public void onEvent(Event event){
+    System.out.println("Made it to registries onEvent");
     switch (event.getType()){
       case Protocol.REGISTER_RQ:
         RegisterRequest rrq = (RegisterRequest)event;
