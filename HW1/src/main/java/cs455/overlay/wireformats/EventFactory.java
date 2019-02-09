@@ -27,7 +27,6 @@ public class EventFactory {
     this.listening_node = null;
   }
 
-
   //This class is responsible for holding the type of the message
   public synchronized void createEvent(byte[] byteString) throws IOException {
 
@@ -61,7 +60,5 @@ public class EventFactory {
       System.out.println(port_number);
       return new RegisterRequest(ip_addr, port_number);
   }
-
-
 
 }

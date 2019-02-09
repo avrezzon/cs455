@@ -21,12 +21,15 @@ public class Registry implements Node {
 
         switch (event.getType()) {
             case Protocol.REGISTER_RQ:
-                RegisterRequest rrq = (RegisterRequest) event;
-                System.out.println("IP Address: " + rrq.getIP());
-                System.out.println("Port number: " + rrq.getPort());
+                registryRqValidation(event);
                 break;
         }
     }
+
+    private void registryRqValidation(Event event){
+
+    }
+
 
     private void startup() {
         new Thread(this.server).start();

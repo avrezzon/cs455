@@ -21,7 +21,7 @@ public class RegisterResponse{
   }
 
   public byte[] getBytes() throws IOException {
-    byte[] marshalledBytes = null;
+    byte[] marshalledBytes;
     ByteArrayOutputStream baOutputStream = new ByteArrayOutputStream();
     DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(baOutputStream));
 
@@ -38,16 +38,6 @@ public class RegisterResponse{
     baOutputStream.close();
     dout.close();
 
-    //TODO VERIFY
-
-    int packet_size = marshalledBytes.length;
-    ByteArrayOutputStream final_packet = new ByteArrayOutputStream();
-    final_packet.write(packet_size);
-    final_packet.write(marshalledBytes,0, packet_size);
-
-    marshalledBytes = final_packet.toByteArray();
-
-    final_packet.close();
     return marshalledBytes;
   }
 }

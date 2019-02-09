@@ -35,17 +35,13 @@ public class TCPServerThread implements Runnable{
 
         System.out.println("SERVER THREAD: WAITING FOR CONNECTION");  //Will need to remove these later
         inc_socket = server.accept();
-        System.out.println("SERVER THREAD: RECIEVED A REQUEST");
-
         inputStream = new DataInputStream(inc_socket.getInputStream());
 
         int packet_length = inputStream.readInt();
-        System.out.println("SERVER_THREAD: RECIEVED PACKET LENGTH HEADER OF " + packet_length);
         byte[] byteString = new byte[packet_length];
 
         inputStream.readFully(byteString, 0 ,packet_length);
-        inputStream.close();
-        System.out.println ("SERVER THREAD: RECIEVED PACKET OF LENGTH " + packet_length + " OF CONTENTS " + byteString);
+        inputStream.close();  //TODO revise and look at
         EventFactory.getInstance().createEvent(byteString.clone());
 
       }catch(IOException e){
