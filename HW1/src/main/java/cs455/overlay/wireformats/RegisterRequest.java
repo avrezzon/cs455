@@ -45,8 +45,9 @@ public class RegisterRequest extends Message {
 
     //TODO verify that this works
     baOutputStream.reset();
-    dout.write(packet_length);
+    dout.writeInt(packet_length);
     dout.write(marshalledBytes,0, packet_length);
+    dout.flush();
 
     finalMsg = baOutputStream.toByteArray();
 
