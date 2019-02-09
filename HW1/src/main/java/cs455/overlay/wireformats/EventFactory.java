@@ -31,34 +31,35 @@ public class EventFactory {
   //This class is responsible for holding the type of the message
   public synchronized void createEvent(byte[] byteString) throws IOException {
 
-    System.out.println("Unaltered bytestring " + byteString);
-
     ByteArrayInputStream baInputStream = new ByteArrayInputStream(byteString);
     DataInputStream din = new DataInputStream(new BufferedInputStream(baInputStream));
 
-    System.out.println("did i make3 it this far4?");
-
     int type = din.readInt(); //This will read the type
-    System.out.println("TYPE: "+type);
-    //int type = Protocol.REGISTER_RQ;
+
+    Event event = null;
 
     switch (type){
       case Protocol.REGISTER_RQ:
-        System.out.println("dideeeeeeeeeeeeeeeee?");
-        //TODO the request HAS to be incorrect thats why things are messed
-        int ip_len = din.readInt();
-        System.out.println(ip_len);
-        byte[] ip_addr_bytes = new byte[ip_len];
-        din.readFully(ip_addr_bytes, 0 ,ip_len);
-        String ip_addr = new String(ip_addr_bytes);
-        System.out.println(ip_addr);
-        int port_number = din.readInt();
-        System.out.println(port_number);
-        RegisterRequest rrq = new RegisterRequest(ip_addr, port_number);
-        System.out.println(rrq.getIP());
-        listening_node.onEvent(rrq);
+        event = createRegisterRQ(din);
         break;
     }
+
+    baInputStream.close();
+    din.close();
+
+    this.listening_node.onEvent(event);
+  }
+
+  private RegisterRequest createRegisterRQ(DataInputStream din)throws IOException{
+      int ip_len = din.readInt();
+      System.out.println(ip_len);
+      byte[] ip_addr_bytes = new byte[ip_len];
+      din.readFully(ip_addr_bytes, 0 ,ip_len);
+      String ip_addr = new String(ip_addr_bytes);
+      System.out.println(ip_addr);
+      int port_number = din.readInt();
+      System.out.println(port_number);
+      return new RegisterRequest(ip_addr, port_number);
   }
 
 

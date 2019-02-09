@@ -17,7 +17,7 @@ public class MessagingNode implements Node{
 
 
   public MessagingNode(String server_hostname, int server_portnumber) throws IOException {
-    this.ipAddr = InetAddress.getLocalHost().toString();
+    this.ipAddr = InetAddress.getLocalHost().getHostAddress();
     this.server = new TCPServerThread();
     this.portnumber = this.server.getPortnumber();
 
@@ -58,10 +58,9 @@ public class MessagingNode implements Node{
     this.sender.sendData(bootupEvent.getBytes());
   }
 
-  //TODO verify the input paramaters
   public static void main(String[] args){
 
-    MessagingNode node = null;
+    MessagingNode node;
     String registry_hostname;
     int registry_portnunmber;
 
