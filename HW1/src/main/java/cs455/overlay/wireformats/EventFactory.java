@@ -49,6 +49,8 @@ public class EventFactory {
     this.listening_node.onEvent(event);
   }
 
+
+  //This section is responsible for creating the register request
   private RegisterRequest createRegisterRQ(DataInputStream din)throws IOException{
       int ip_len = din.readInt();
       System.out.println(ip_len);

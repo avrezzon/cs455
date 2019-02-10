@@ -28,9 +28,10 @@ DEREGISTER_RESPONSE:
   Status Code (byte): SUCCESS or FAILURE
   Additional Info (String):
 
-MESSAGE (abstract):
-**This will be the protocol set for when dealing with lists of nodes
-# defines the message body
+//TODO This will need to be updated when I get that far
+MESSAGE:
+  Message Type (int):
+  Sink node
 
 MESSAGING_NODE_LIST:
 

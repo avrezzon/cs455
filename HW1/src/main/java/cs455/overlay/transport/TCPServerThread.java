@@ -1,5 +1,6 @@
 package cs455.overlay.transport;
 
+import cs455.overlay.node.Registry;
 import cs455.overlay.wireformats.EventFactory;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -28,21 +29,18 @@ public class TCPServerThread implements Runnable{
   public void run(){
 
     Socket inc_socket;
-    DataInputStream inputStream;
 
     while(true){
       try{
 
-        System.out.println("SERVER THREAD: WAITING FOR CONNECTION");  //Will need to remove these later
+        System.out.println("SERVER THREAD: WAITING FOR CONNECTION");
         inc_socket = server.accept();
-        inputStream = new DataInputStream(inc_socket.getInputStream());
+        System.out.println("SERVER THREAD: ACCEPTED CONNECTION, SPAWNED NEW REGULAR SOCKET");
+        TCPRegularSocket socket = new TCPRegularSocket(inc_socket);
 
-        int packet_length = inputStream.readInt();
-        byte[] byteString = new byte[packet_length];
+        //Registry.connections.put(String, TCPRegularSocket)
+        //TODO add this regular socket into the dictionary ex: {"192.23.032.123:3551" : new TCPRegularSocket(inc_socket)}
 
-        inputStream.readFully(byteString, 0 ,packet_length);
-        inputStream.close();  //TODO revise and look at
-        EventFactory.getInstance().createEvent(byteString.clone());
 
       }catch(IOException e){
         System.err.println(e.getMessage());

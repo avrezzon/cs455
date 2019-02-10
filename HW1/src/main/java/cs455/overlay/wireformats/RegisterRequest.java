@@ -1,14 +1,11 @@
 package cs455.overlay.wireformats;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class RegisterRequest extends Message {
+public class RegisterRequest implements Event {
 
     private final int type = Protocol.REGISTER_RQ;
     private String ip_addr;
