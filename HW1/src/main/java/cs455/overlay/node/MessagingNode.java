@@ -40,6 +40,8 @@ public class MessagingNode implements Node{
       case Protocol.REGISTER_RQ:
         break;
       case Protocol.REGISTER_RS:
+        RegisterResponse rrs = (RegisterResponse) e;
+        System.out.println("RECIEVED RESPONSE: " + rrs.getStatus());
         break;
       case Protocol.DEREGISTER_RQ:
         break;

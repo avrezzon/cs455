@@ -22,6 +22,7 @@ public class Registry implements Node {
         event_queue = new EventQueueThread();
         eventFactory_instance = EventFactory.getInstance();
         eventFactory_instance.addListener(this);
+        connections = new Dictionary<String, TCPRegularSocket>();
     }
 
     //onEvent should add stuff to the event queue so that the queue can process the events in a seperate thread

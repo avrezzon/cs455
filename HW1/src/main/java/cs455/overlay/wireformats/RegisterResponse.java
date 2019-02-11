@@ -11,10 +11,23 @@ public class RegisterResponse implements Event{
   private byte status_code;
   private String Additional_Info;
 
+  public RegisterResponse(byte success){
+    this.status_code = success;
+    this.Additional_Info = null;
+  }
+
   public RegisterResponse(byte success, String info){
     this.status_code = success;
     this.Additional_Info = info;
   }
+
+  public boolean getStatus() {
+    if(this.status_code == Protocol.success) return true;
+    return false;
+  }
+
+  //NOTE anytime that we evaluate this we need to check to see if it is null
+  public String getAdditionalInfo(){return this.Additional_Info;}
 
   public int getType(){
     return this.type;
@@ -39,5 +52,10 @@ public class RegisterResponse implements Event{
     dout.close();
 
     return marshalledBytes;
+  }
+
+  public void resolve(){
+    //This is void and does nothing since nothing needs to happen
+    //Acknowledgement
   }
 }

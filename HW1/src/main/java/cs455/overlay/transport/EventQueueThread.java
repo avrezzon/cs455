@@ -27,6 +27,13 @@ public class EventQueueThread implements Runnable {
             //TODO this will need to pull items out of the event queue
             //each event should have a .resolve() to make this easier when dealing with the context
             //eventBuffer.
+            Event event;
+            try {
+                event = eventBuffer.take();
+                event.resolve();
+            }catch (InterruptedException ie){
+                System.err.println("ERROR OCCURED IN EVENT_QUEUE_THREAD: " + ie.getMessage());
+            }
         }
     }
 }
