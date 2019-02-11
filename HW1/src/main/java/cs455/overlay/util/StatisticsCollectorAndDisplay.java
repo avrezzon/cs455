@@ -1,4 +1,4 @@
-package main.java.cs455.overlay.util;
+package cs455.overlay.util;
 
 public class StatisticsCollectorAndDisplay {
 

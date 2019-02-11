@@ -1,13 +1,13 @@
 package cs455.overlay.wireformats;
 
-public class TaskInitiate {
+public class DeregisterResponse {
 
   public int getType(){
-    return Protocol.TASK_INIT;
+    return Protocol.DEREGISTER_RS;
   }
 
   public byte[] getBytes(){
-    return null;
+    return null; //TODO
   }
 
 }
