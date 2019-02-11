@@ -7,6 +7,8 @@ import cs455.overlay.wireformats.*;
 
 import java.io.IOException;
 import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Registry implements Node {
 
@@ -14,7 +16,7 @@ public class Registry implements Node {
     private TCPServerThread server;
     private EventQueueThread event_queue;
     private EventFactory eventFactory_instance;
-    public static Dictionary<String, TCPRegularSocket> connections; //Defined as static so that the
+    public static Map<String, TCPRegularSocket> connections; //Defined as static so that the
     //Other classes especially the EventQueue can access the critical info
 
     public Registry(int port_number) throws IOException {
@@ -22,7 +24,7 @@ public class Registry implements Node {
         event_queue = new EventQueueThread();
         eventFactory_instance = EventFactory.getInstance();
         eventFactory_instance.addListener(this);
-        connections = new Dictionary<String, TCPRegularSocket>();
+        connections = new HashMap<String, TCPRegularSocket>();
     }
 
     //onEvent should add stuff to the event queue so that the queue can process the events in a seperate thread

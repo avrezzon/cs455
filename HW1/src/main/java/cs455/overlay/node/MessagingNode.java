@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.*;
 import cs455.overlay.transport.*;
 
+//TODO refcator
 public class MessagingNode implements Node{
 
   private EventFactory eventFactory_instance;
