@@ -10,7 +10,7 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Registry implements Node {
+public final class Registry implements Node {
 
 
     private TCPServerThread server;
@@ -40,6 +40,7 @@ public class Registry implements Node {
     private void startup() {
         new Thread(this.server).start();
         new Thread(this.event_queue).start();
+
     }
 
     public static void main(String[] args) {
