@@ -6,9 +6,11 @@ import cs455.overlay.transport.TCPServerThread;
 import cs455.overlay.wireformats.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 public final class Registry implements Node {
 
@@ -16,14 +18,31 @@ public final class Registry implements Node {
     private TCPServerThread server;
     private EventQueueThread event_queue;
     private EventFactory eventFactory_instance;
-    public static Map<String, TCPRegularSocket> connections; //Defined as static so that the
+    private static ArrayList<String> connections_list;
+    private static Map<String, TCPRegularSocket> connections; //Defined as static so that the
     //Other classes especially the EventQueue can access the critical info
+
+    public static void addConnection(String key, TCPRegularSocket socket){
+        connections_list.add(key);
+        connections.put(key, socket);
+    }
+
+    public static void removeConnection(String key){
+        connections_list.remove(key);
+        TCPRegularSocket socket = connections.remove(key);
+        socket.kilSocket();
+    }
+
+    public static ArrayList<String> getConnectionsList(){return connections_list;}
+
+    public static Map<String, TCPRegularSocket> getConnections(){return connections;}
 
     public Registry(int port_number) throws IOException {
         server = new TCPServerThread(port_number);
         event_queue = new EventQueueThread();
         eventFactory_instance = EventFactory.getInstance();
         eventFactory_instance.addListener(this);
+        connections_list = new ArrayList<String>();
         connections = new HashMap<String, TCPRegularSocket>();
     }
 
@@ -58,11 +77,42 @@ public final class Registry implements Node {
         try {
             registry = new Registry(registry_portnumber);
             registry.startup();
+            Scanner scnr = new Scanner(System.in);
+            String input;
+            String[] input_split;
+
+            while(true){
+                input = scnr.nextLine();
+                input_split = input.split(" ");  //Check to make sure this means
+                //"setup-etc 9" evals. ["setup-etc", "9"]
+                if(input_split[0].equals("list-messaging-nodes")){
+                    registry.listMessagingNodes();
+                }else if(input_split[0].equals("list-weights")){
+                    registry.listWeights();
+                }else if(input_split[0].equals("setup-overlay") ){
+                    registry.setupOverlay(0); //TODO change the number
+                }else if(input_split[0].equals("send-overlay-link-weights")){
+                    registry.sendOverlayLinkWeights();
+                }else if(input_split[0].equals("start")){
+                    registry.startNumRound(0);
+                }else{
+                    System.err.println("Please enter in a valid command");
+                }
+            }
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
-
-        //TODO this portion will be dedicated to receiving input from the console
-
     }
+
+    public void listMessagingNodes(){
+        System.out.println("Create the list messaging nodes fn");
+    }
+
+    public void listWeights() {System.out.println("Create the list weights fn");}
+
+    public void setupOverlay(int num_connections){System.out.println("Create the setupOverlay fn");}
+
+    public void sendOverlayLinkWeights(){System.out.println("Create sendoverlayLinkWeights fn");}
+
+    public void startNumRound(int rounds){System.out.println("Create start number of rounds");}
 }

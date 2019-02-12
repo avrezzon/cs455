@@ -42,11 +42,12 @@ public class EventFactory {
       case Protocol.REGISTER_RQ:
         event = createRegisterRQ(din);
         break;
-
       case Protocol.REGISTER_RS:
         event = createRegisterRS(din);
         break;
-
+      case Protocol.DEREGISTER_RQ:
+        event = createDeregisterRQ(din);
+        break;
     }
 
     baInputStream.close();
@@ -83,4 +84,29 @@ public class EventFactory {
       return rrs;
   }
 
+  private DeregisterRequest createDeregisterRQ(DataInputStream din)throws IOException{
+    int ip_len = din.readInt();
+    byte[] ip_addr_bytes = new byte[ip_len];
+    din.readFully(ip_addr_bytes, 0 ,ip_len);
+    String ip_addr = new String(ip_addr_bytes);
+    int port_number = din.readInt();
+    return new DeregisterRequest(ip_addr, port_number);
+  }
+
+  private DeregisterResponse createDeregisterRS(DataInputStream din)throws  IOException{
+    byte success = din.readByte();
+    int add_len = din.readInt();
+    String add_info;
+    DeregisterResponse drs;
+
+    if(add_len != 0){
+      byte[] add_info_b = new byte[add_len];
+      add_info = new String(add_info_b);
+      drs = new DeregisterResponse(success, add_info);
+    }else{
+      drs = new DeregisterResponse(success);
+    }
+
+    return drs;
+  }
 }
