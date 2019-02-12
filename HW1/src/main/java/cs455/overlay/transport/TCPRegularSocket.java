@@ -15,7 +15,12 @@ public class TCPRegularSocket {
     this.socket = socket;
     this.receiverThread = new TCPReceiverThread(socket);
     this.sender = new TCPSender(socket);
+    this.verified = false;
   }
+
+  public void verifyConnection() {this.verified = true;}
+
+  public boolean getVerficationStatus(){return this.verified;}
 
   public String getConnectionInfo() {return this.IP_Addr_Port;}
 
