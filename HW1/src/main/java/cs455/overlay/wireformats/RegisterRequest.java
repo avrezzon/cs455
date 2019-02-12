@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 public class RegisterRequest implements Event {
 
@@ -48,29 +49,38 @@ public class RegisterRequest implements Event {
 
         baOutputStream.close();
         dout.close();
-
         return marshalledBytes;
     }
 
     public void resolve(){
 
+        byte success;
+        String additional_info;
+        RegisterResponse rrs = null;
+
         String key = new String(this.ip_addr + ":" + this.getPort());
         System.out.println("The key for this node is  " + key);
-        TCPRegularSocket socket;
-
-        try{
-            socket = Registry.connections.get(key);
-        }catch(NullPointerException ne){
-            //If we reach this portion of the block that means the node has not already registered with the Registry
+        TCPRegularSocket socket = Registry.connections.get(key);
+        if(socket == null){
+            success = 1;
             try {
                 socket = new TCPRegularSocket(new Socket(this.ip_addr, this.port_number));
-                new Thread(socket.getReceiverThread()).start();
                 Registry.connections.put(key, socket);
-                Event rrs = new RegisterResponse( (byte)1 );
-                socket.getSender().sendData(rrs.getBytes());
+                rrs = new RegisterResponse(success);
             }catch (IOException ie){
-                System.err.println("IOException occured within REGISTER RQ .resolve(): " + ie.getMessage());
+                System.err.println("ERROR IN REGISTRY.reslove() ln 64: " + ie.getMessage());
             }
+        }else {
+            success = 0;
+            //TODO Check to see if the message actually originated from the requested node
+            additional_info = "Error in Register Request: Node already Exists in the Registry connections table.";
+            rrs = new RegisterResponse(success, additional_info);
+        }
+
+        try {
+            socket.getSender().sendData(rrs.getBytes());
+        }catch (IOException ie){
+            System.err.println("ERRROR IN REGISTER_RQ: " + ie.getMessage());
         }
     }
 

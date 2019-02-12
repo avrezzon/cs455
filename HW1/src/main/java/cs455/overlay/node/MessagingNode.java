@@ -14,6 +14,7 @@ public final class MessagingNode implements Node{
   private String ipAddr;
   private int portnumber;
   private TCPServerThread server;
+  private EventQueueThread eventQueue;
   private TCPRegularSocket registry_socket;
   public static Map<String, TCPRegularSocket> connections;
 
@@ -22,6 +23,8 @@ public final class MessagingNode implements Node{
     this.server = new TCPServerThread();
     this.ipAddr = InetAddress.getLocalHost().getHostAddress();
     this.portnumber = this.server.getPortnumber();
+
+    this.eventQueue = new EventQueueThread();
 
     String server_ip = InetAddress.getByName(server_hostname).getHostAddress();
 
@@ -44,23 +47,16 @@ public final class MessagingNode implements Node{
   private void startup() throws IOException{
     new Thread(this.server).start();
     new Thread(this.registry_socket.getReceiverThread()).start();
+    new Thread(this.eventQueue).start();
     Event bootupEvent = new RegisterRequest(this.ipAddr, this.portnumber);
     this.registry_socket.getSender().sendData(bootupEvent.getBytes());
   }
 
   public void onEvent(Event e){
-    switch (e.getType()){
-      case Protocol.REGISTER_RQ:
-        break;
-      case Protocol.REGISTER_RS:
-        break;
-      case Protocol.DEREGISTER_RQ:
-        break;
-      case Protocol.DEREGISTER_RS:
-        break;
-      default:
-        System.err.println("RECEIVED AN EVENT OF TYPE " + e.getType());
-        break;
+    try {
+      this.eventQueue.addEvent(e);
+    }catch(InterruptedException ie){
+      System.err.println(ie.getMessage());
     }
   }
 

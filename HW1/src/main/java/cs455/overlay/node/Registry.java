@@ -29,6 +29,13 @@ public final class Registry implements Node {
 
     //onEvent should add stuff to the event queue so that the queue can process the events in a seperate thread
     public void onEvent(Event event) {
+
+        try {
+            System.out.println("REGISTRY onEvent: " + event.getBytes());
+        }catch (Exception e){
+
+        }
+
         try {
             event_queue.addEvent(event);
         }catch(InterruptedException ie){

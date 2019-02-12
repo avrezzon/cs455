@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import javax.xml.crypto.Data;
 
 public class EventFactory {
 
@@ -39,8 +40,17 @@ public class EventFactory {
 
     switch (type){
       case Protocol.REGISTER_RQ:
+        System.out.println("EVENT FACTORY: Request made");
         event = createRegisterRQ(din);
+        System.out.println("EVENT FACTORY: rrq " + event.getBytes());
         break;
+
+      case Protocol.REGISTER_RS:
+        System.out.println("Register Response created");
+        event = createRegisterRS(din);
+        System.out.println("EVENT FACTORY: rrs " + event.getBytes() );
+        break;
+
     }
 
     baInputStream.close();
@@ -53,14 +63,28 @@ public class EventFactory {
   //This section is responsible for creating the register request
   private RegisterRequest createRegisterRQ(DataInputStream din)throws IOException{
       int ip_len = din.readInt();
-      System.out.println(ip_len);
       byte[] ip_addr_bytes = new byte[ip_len];
       din.readFully(ip_addr_bytes, 0 ,ip_len);
       String ip_addr = new String(ip_addr_bytes);
-      System.out.println(ip_addr);
       int port_number = din.readInt();
-      System.out.println(port_number);
       return new RegisterRequest(ip_addr, port_number);
+  }
+
+  private RegisterResponse createRegisterRS(DataInputStream din)throws IOException{
+      byte success = din.readByte();
+      int add_len = din.readInt();
+      String add_info;
+      RegisterResponse rrs;
+
+      if(add_len != 0){
+        byte[] add_info_b = new byte[add_len];
+        add_info = new String(add_info_b);
+        rrs = new RegisterResponse(success, add_info);
+      }else{
+        rrs = new RegisterResponse(success);
+      }
+
+      return rrs;
   }
 
 }

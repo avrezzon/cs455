@@ -14,7 +14,6 @@ public class TCPRegularSocket {
     this.socket = socket;
     this.receiverThread = new TCPReceiverThread(socket);
     this.sender = new TCPSender(socket);
-    new Thread(this.receiverThread).start();
   }
 
   public String getConnectionInfo() {return this.IP_Addr_Port;}

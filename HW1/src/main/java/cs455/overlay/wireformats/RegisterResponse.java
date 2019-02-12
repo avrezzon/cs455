@@ -40,10 +40,13 @@ public class RegisterResponse implements Event{
 
     dout.writeInt(this.type);
     dout.write(this.status_code);
-    dout.write(this.Additional_Info.length());
-    if(Additional_Info.length() != 0){
+
+    if(Additional_Info != null){
+      dout.write(this.Additional_Info.length());
       byte[] msg = this.Additional_Info.getBytes();
       dout.write(msg, 0, Additional_Info.length());
+    }else{
+      dout.writeInt(0);
     }
 
     dout.flush();
