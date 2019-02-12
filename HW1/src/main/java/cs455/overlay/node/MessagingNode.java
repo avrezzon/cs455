@@ -6,6 +6,7 @@ import java.net.*;
 import cs455.overlay.transport.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 //TODO refcator
 public final class MessagingNode implements Node{
@@ -76,8 +77,25 @@ public final class MessagingNode implements Node{
     registry_portnunmber = Integer.parseInt(args[1]);
 
     try {
+
       node = new MessagingNode(registry_hostname, registry_portnunmber);
       node.startup();
+      Scanner scnr = new Scanner(System.in);
+      String input;
+      String[] input_split;
+
+      while(true){
+        input = scnr.nextLine();
+        input_split = input.split(" ");  //Check to make sure this means
+        //"setup-etc 9" evals. ["setup-etc", "9"]
+        if(input_split[0].equals("print-shortest-path")){
+          node.printShortestPath();
+        }else if(input_split[0].equals("exit-overlay")){
+          node.exitOverlay();
+        }else {
+          System.err.println("Please enter in a valid command");
+        }
+      }
 
     }catch(UnknownHostException uhe){
       System.err.println("An unknown host exception occured in MessagingNode.java!!!\n" + uhe.getMessage());
@@ -86,5 +104,12 @@ public final class MessagingNode implements Node{
       System.err.println("An IOexception occured in MessagingNode.java!!!\n" + ioe.getMessage());
       System.exit(-1);
     }
+
+    System.exit(0);
   }
+
+  public void printShortestPath(){System.out.println("Implement print shortest path");}
+
+  public void exitOverlay(){System.out.println("Implement exit overlay");}
+
 }

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 public final class Registry implements Node {
 
@@ -61,11 +62,6 @@ public final class Registry implements Node {
 
     }
 
-    //TODO Implement
-    public void createOverlay(){
-
-    }
-
     public static void main(String[] args) {
 
         Registry registry = null;
@@ -81,11 +77,42 @@ public final class Registry implements Node {
         try {
             registry = new Registry(registry_portnumber);
             registry.startup();
+            Scanner scnr = new Scanner(System.in);
+            String input;
+            String[] input_split;
+
+            while(true){
+                input = scnr.nextLine();
+                input_split = input.split(" ");  //Check to make sure this means
+                //"setup-etc 9" evals. ["setup-etc", "9"]
+                if(input_split[0].equals("list-messaging-nodes")){
+                    registry.listMessagingNodes();
+                }else if(input_split[0].equals("list-weights")){
+                    registry.listWeights();
+                }else if(input_split[0].equals("setup-overlay") ){
+                    registry.setupOverlay(0); //TODO change the number
+                }else if(input_split[0].equals("send-overlay-link-weights")){
+                    registry.sendOverlayLinkWeights();
+                }else if(input_split[0].equals("start")){
+                    registry.startNumRound(0);
+                }else{
+                    System.err.println("Please enter in a valid command");
+                }
+            }
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
-
-        //TODO this portion will be dedicated to receiving input from the console
-
     }
+
+    public void listMessagingNodes(){
+        System.out.println("Create the list messaging nodes fn");
+    }
+
+    public void listWeights() {System.out.println("Create the list weights fn");}
+
+    public void setupOverlay(int num_connections){System.out.println("Create the setupOverlay fn");}
+
+    public void sendOverlayLinkWeights(){System.out.println("Create sendoverlayLinkWeights fn");}
+
+    public void startNumRound(int rounds){System.out.println("Create start number of rounds");}
 }
