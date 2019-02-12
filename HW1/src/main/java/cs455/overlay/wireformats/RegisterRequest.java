@@ -59,14 +59,15 @@ public class RegisterRequest implements Event {
         RegisterResponse rrs = null;
 
         String key = new String(this.ip_addr + ":" + this.getPort());
-        System.out.println("The key for this node is  " + key);
         TCPRegularSocket socket = Registry.connections.get(key);
+
         if(socket == null){
             success = 1;
             try {
                 socket = new TCPRegularSocket(new Socket(this.ip_addr, this.port_number));
                 Registry.connections.put(key, socket);
                 rrs = new RegisterResponse(success);
+                System.out.println("Registration request successful. The number of messaging nodes currently constituting the overlay is (" + Registry.connections.size() + ")");
             }catch (IOException ie){
                 System.err.println("ERROR IN REGISTRY.reslove() ln 64: " + ie.getMessage());
             }
