@@ -6,6 +6,7 @@ import cs455.overlay.transport.TCPServerThread;
 import cs455.overlay.wireformats.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,14 +17,31 @@ public final class Registry implements Node {
     private TCPServerThread server;
     private EventQueueThread event_queue;
     private EventFactory eventFactory_instance;
-    public static Map<String, TCPRegularSocket> connections; //Defined as static so that the
+    private static ArrayList<String> connections_list;
+    private static Map<String, TCPRegularSocket> connections; //Defined as static so that the
     //Other classes especially the EventQueue can access the critical info
+
+    public static void addConnection(String key, TCPRegularSocket socket){
+        connections_list.add(key);
+        connections.put(key, socket);
+    }
+
+    public static void removeConnection(String key){
+        connections_list.remove(key);
+        TCPRegularSocket socket = connections.remove(key);
+        socket.kilSocket();
+    }
+
+    public static ArrayList<String> getConnectionsList(){return connections_list;}
+
+    public static Map<String, TCPRegularSocket> getConnections(){return connections;}
 
     public Registry(int port_number) throws IOException {
         server = new TCPServerThread(port_number);
         event_queue = new EventQueueThread();
         eventFactory_instance = EventFactory.getInstance();
         eventFactory_instance.addListener(this);
+        connections_list = new ArrayList<String>();
         connections = new HashMap<String, TCPRegularSocket>();
     }
 
@@ -40,6 +58,11 @@ public final class Registry implements Node {
     private void startup() {
         new Thread(this.server).start();
         new Thread(this.event_queue).start();
+
+    }
+
+    //TODO Implement
+    public void createOverlay(){
 
     }
 
