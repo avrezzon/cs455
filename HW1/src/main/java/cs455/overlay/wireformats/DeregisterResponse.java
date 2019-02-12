@@ -62,8 +62,8 @@ public class DeregisterResponse implements Event{
   }
 
   public void resolve() {
-    //This is void and does nothing since nothing needs to happen
-    //Acknowledgement
+    //TODO exit based upon the response
+    System.out.println("Recieved response from exiting the overlay");
   }
 
 }
