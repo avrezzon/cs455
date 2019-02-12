@@ -9,6 +9,7 @@ public class TCPRegularSocket {
   private TCPReceiverThread receiverThread;
   private TCPSender sender;
   private String IP_Addr_Port;
+  private boolean verified; //TODO implement this so that when we do have an incsocket that we can add to the connections and if the request isnt verified its gets pulled
 
   public TCPRegularSocket(Socket socket) throws IOException {
     this.socket = socket;

@@ -1,5 +1,7 @@
 package cs455.overlay.wireformats;
 
+import cs455.overlay.node.MessagingNode;
+
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -64,6 +66,13 @@ public class DeregisterResponse implements Event{
   public void resolve() {
     //TODO exit based upon the response
     System.out.println("Recieved response from exiting the overlay");
+    if(status_code == Protocol.success){
+      System.out.println("Killing threads");
+      MessagingNode.getEventQueue().killThread();
+      MessagingNode.getServer().killThread();
+      //TODO follow up with other cleanup needed
+    }
+
   }
 
 }

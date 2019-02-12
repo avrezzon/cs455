@@ -65,10 +65,12 @@ public class DeregisterRequest implements Event{
       try {
         socket = new TCPRegularSocket(new Socket(this.ip_addr, this.port_number));
         Registry.removeConnection(key);
+        socket.killSocket();
         drs = new DeregisterResponse(success);
         System.out.println(
             "Deregistration request successful. The number of messaging nodes currently constituting the overlay is ("
                 + Registry.getConnections().size() + ")");
+        //need to kill the thread associated with this
       }catch (IOException ie){
         System.err.println("ERROR IN REGISTRY.reslove() ln 64: " + ie.getMessage());
       }

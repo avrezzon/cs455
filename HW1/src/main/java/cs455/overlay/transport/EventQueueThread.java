@@ -12,17 +12,24 @@ public class EventQueueThread implements Runnable {
     //http://tutorials.jenkov.com/java-util-concurrent/blockingqueue.html
     //The link will contain enough info above to explain more of the blocking queue
     private static BlockingQueue<Event> eventBuffer;
+    private static volatile boolean alive;
 
     public EventQueueThread(){
+
         eventBuffer = new LinkedBlockingQueue<Event>();
+        this.alive = true;
     }
 
     public synchronized void addEvent(Event event) throws InterruptedException{
         eventBuffer.put(event);
     }
 
+    public static void killThread(){ alive = false;}
+
+    private static boolean getAlive(){return alive;}
+
     public void run(){
-        while(true){
+        while(this.getAlive()){
             //each event should have a .resolve() to make this easier when dealing with the context
             //eventBuffer.
             Event event;
@@ -33,5 +40,6 @@ public class EventQueueThread implements Runnable {
                 System.err.println("ERROR OCCURED IN EVENT_QUEUE_THREAD: " + ie.getMessage());
             }
         }
+        System.out.println("EVENT QUEUE THREAD WINDING DOWN");
     }
 }

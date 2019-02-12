@@ -15,9 +15,9 @@ public final class MessagingNode implements Node{
   private EventFactory eventFactory_instance;
   private String ipAddr;
   private int portnumber;
-  private TCPServerThread server;
-  private EventQueueThread eventQueue;
   private TCPRegularSocket registry_socket;
+  private static EventQueueThread eventQueue;
+  private static TCPServerThread server;
   private static ArrayList<String> connections_list;
   private static Map<String, TCPRegularSocket> connections; //Defined as static so that the
   //Other classes especially the EventQueue can access the critical info
@@ -58,6 +58,10 @@ public final class MessagingNode implements Node{
   public String getIP(){return this.ipAddr;}
 
   public int getPortnumber(){return this.portnumber;}
+
+  public static EventQueueThread getEventQueue(){return eventQueue;}
+
+  public static TCPServerThread getServer(){return server;}
 
   public static ArrayList<String> getConnectionsList(){return connections_list;}
 

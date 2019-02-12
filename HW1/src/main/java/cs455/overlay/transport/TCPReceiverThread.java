@@ -37,7 +37,7 @@ public class TCPReceiverThread implements Runnable {
         break;
       }
     }
-
+    System.out.println("RECEIVING THREAD WINDING DOWN");
   }
 
 }
