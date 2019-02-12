@@ -19,7 +19,6 @@ public class TCPReceiverThread implements Runnable {
   }
 
   public void run(){
-    System.out.println("RECEIVER THREAD IS ALIVE AND WELL");
     int dataLength;
     while(socket != null){
       try{
@@ -27,7 +26,6 @@ public class TCPReceiverThread implements Runnable {
         dataLength = din.readInt();
         byte[] data = new byte[dataLength];
         din.readFully(data, 0, dataLength);
-        System.out.println("RECEIVING THREAD: JUST RECEIVED A PACKET!");
         eventFactory.createEvent(data);
 
       }catch (SocketException se){

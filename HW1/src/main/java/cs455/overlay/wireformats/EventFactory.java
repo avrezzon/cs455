@@ -40,15 +40,11 @@ public class EventFactory {
 
     switch (type){
       case Protocol.REGISTER_RQ:
-        System.out.println("EVENT FACTORY: Request made");
         event = createRegisterRQ(din);
-        System.out.println("EVENT FACTORY: rrq " + event.getBytes());
         break;
 
       case Protocol.REGISTER_RS:
-        System.out.println("Register Response created");
         event = createRegisterRS(din);
-        System.out.println("EVENT FACTORY: rrs " + event.getBytes() );
         break;
 
     }
