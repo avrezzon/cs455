@@ -27,6 +27,6 @@ public class TCPRegularSocket {
   public TCPSender getSender() {  return this.sender; }
 
   //This should be used to terminate a socket that either is invalid or needs to deregister
-  public void kilSocket() { this.socket = null; }
+  public void killSocket() { this.socket = null; }
 
 }

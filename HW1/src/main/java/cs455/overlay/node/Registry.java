@@ -30,7 +30,7 @@ public final class Registry implements Node {
     public static void removeConnection(String key){
         connections_list.remove(key);
         TCPRegularSocket socket = connections.remove(key);
-        socket.kilSocket();
+        socket.killSocket();
     }
 
     public static ArrayList<String> getConnectionsList(){return connections_list;}

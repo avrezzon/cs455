@@ -10,7 +10,7 @@ import java.net.Socket;
 
 public class DeregisterRequest implements Event{
 
-  private final int type = Protocol.REGISTER_RQ;
+  private final int type = Protocol.DEREGISTER_RQ;
   private String ip_addr;
   private int port_number;
 
@@ -60,7 +60,7 @@ public class DeregisterRequest implements Event{
     String key = new String(this.ip_addr + ":" + this.getPort());
     TCPRegularSocket socket = Registry.getConnections().get(key);
 
-    if(socket == null){
+    if(socket != null){
       success = 1;
       try {
         socket = new TCPRegularSocket(new Socket(this.ip_addr, this.port_number));

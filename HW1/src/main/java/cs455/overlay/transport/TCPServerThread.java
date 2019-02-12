@@ -26,6 +26,8 @@ public class TCPServerThread implements Runnable{
     this.port_number = this.server.getLocalPort();
   }
 
+  //TODO consider adding parameters to terminate the threads
+
   public void run(){
 
     Socket inc_socket;

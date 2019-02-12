@@ -52,7 +52,7 @@ public final class MessagingNode implements Node{
   public static void removeConnection(String key){
     connections_list.remove(key);
     TCPRegularSocket socket = connections.remove(key);
-    socket.kilSocket();
+    socket.killSocket();
   }
 
   public String getIP(){return this.ipAddr;}
