@@ -1,14 +1,15 @@
 package cs455.overlay.wireformats;
 
-import java.io.BufferedInputStream;
+import cs455.overlay.node.Registry;
+import cs455.overlay.transport.TCPRegularSocket;
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.Socket;
+import java.net.UnknownHostException;
 
-public class RegisterRequest extends Message {
+public class RegisterRequest implements Event {
 
     private final int type = Protocol.REGISTER_RQ;
     private String ip_addr;
@@ -48,7 +49,39 @@ public class RegisterRequest extends Message {
 
         baOutputStream.close();
         dout.close();
-
         return marshalledBytes;
     }
+
+    public void resolve(){
+
+        byte success;
+        String additional_info;
+        RegisterResponse rrs = null;
+
+        String key = new String(this.ip_addr + ":" + this.getPort());
+        System.out.println("The key for this node is  " + key);
+        TCPRegularSocket socket = Registry.connections.get(key);
+        if(socket == null){
+            success = 1;
+            try {
+                socket = new TCPRegularSocket(new Socket(this.ip_addr, this.port_number));
+                Registry.connections.put(key, socket);
+                rrs = new RegisterResponse(success);
+            }catch (IOException ie){
+                System.err.println("ERROR IN REGISTRY.reslove() ln 64: " + ie.getMessage());
+            }
+        }else {
+            success = 0;
+            //TODO Check to see if the message actually originated from the requested node
+            additional_info = "Error in Register Request: Node already Exists in the Registry connections table.";
+            rrs = new RegisterResponse(success, additional_info);
+        }
+
+        try {
+            socket.getSender().sendData(rrs.getBytes());
+        }catch (IOException ie){
+            System.err.println("ERRROR IN REGISTER_RQ: " + ie.getMessage());
+        }
+    }
+
 }

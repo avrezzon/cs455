@@ -1,6 +1,7 @@
 package cs455.overlay.transport;
 
-import cs455.overlay.wireformats.EventFactory;
+import cs455.overlay.wireformats.*;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.Socket;
@@ -18,6 +19,7 @@ public class TCPReceiverThread implements Runnable {
   }
 
   public void run(){
+    System.out.println("RECEIVER THREAD IS ALIVE AND WELL");
     int dataLength;
     while(socket != null){
       try{
@@ -25,8 +27,8 @@ public class TCPReceiverThread implements Runnable {
         dataLength = din.readInt();
         byte[] data = new byte[dataLength];
         din.readFully(data, 0, dataLength);
-        eventFactory.createEvent(data); //TODO Check the validity of this
-        System.err.println("YOU GOT SOMETHING");
+        System.out.println("RECEIVING THREAD: JUST RECEIVED A PACKET!");
+        eventFactory.createEvent(data);
 
       }catch (SocketException se){
         System.err.println(se.getMessage());

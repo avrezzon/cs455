@@ -4,25 +4,38 @@ import cs455.overlay.wireformats.*;
 import java.io.IOException;
 import java.net.*;
 import cs455.overlay.transport.*;
+import java.util.HashMap;
+import java.util.Map;
 
-public class MessagingNode implements Node{
+//TODO refcator
+public final class MessagingNode implements Node{
 
   private EventFactory eventFactory_instance;
   private String ipAddr;
   private int portnumber;
-  private TCPServerThread server; //This will spawn at runtime to accept messages from other nodes
-  private TCPSender sender;
-  private TCPReceiverThread receiver;
-  //Data structure for the connections table
-
+  private TCPServerThread server;
+  private EventQueueThread eventQueue;
+  private TCPRegularSocket registry_socket;
+  public static Map<String, TCPRegularSocket> connections;
 
   public MessagingNode(String server_hostname, int server_portnumber) throws IOException {
-    this.ipAddr = InetAddress.getLocalHost().getHostAddress();
+
     this.server = new TCPServerThread();
+    this.ipAddr = InetAddress.getLocalHost().getHostAddress();
     this.portnumber = this.server.getPortnumber();
 
-    this.sender = new TCPSender(new Socket(server_hostname, server_portnumber));
-    this.receiver = new TCPReceiverThread(new Socket(server_hostname, server_portnumber));
+    this.eventQueue = new EventQueueThread();
+
+    String server_ip = InetAddress.getByName(server_hostname).getHostAddress();
+
+    this.registry_socket = new TCPRegularSocket(new Socket(server_ip, server_portnumber));
+    this.connections = new HashMap<String, TCPRegularSocket>();
+    this.connections.put("REGISTRY", this.registry_socket);
+
+    //The entries for the connections map will look like:
+    //'REGISTRY' : registry_socket
+    //'192.203.292.00:8088' : TCPRegularSocket
+
     this.eventFactory_instance = EventFactory.getInstance();
     eventFactory_instance.addListener(this); //This should correctly add the Messaging node to listen to the eventfactorys events
   }
@@ -31,31 +44,20 @@ public class MessagingNode implements Node{
     return this.ipAddr;
   }
 
-  public TCPSender getSenderSocket(){
-    return this.sender;
+  private void startup() throws IOException{
+    new Thread(this.server).start();
+    new Thread(this.registry_socket.getReceiverThread()).start();
+    new Thread(this.eventQueue).start();
+    Event bootupEvent = new RegisterRequest(this.ipAddr, this.portnumber);
+    this.registry_socket.getSender().sendData(bootupEvent.getBytes());
   }
 
   public void onEvent(Event e){
-    switch (e.getType()){
-      case Protocol.REGISTER_RQ:
-        break;
-      case Protocol.REGISTER_RS:
-        break;
-      case Protocol.DEREGISTER_RQ:
-        break;
-      case Protocol.DEREGISTER_RS:
-        break;
-      default:
-        System.err.println("RECEIVED AN EVENT OF TYPE " + e.getType());
-        break;
+    try {
+      this.eventQueue.addEvent(e);
+    }catch(InterruptedException ie){
+      System.err.println(ie.getMessage());
     }
-  }
-
-  private void startup() throws IOException{
-    new Thread(this.receiver).start();
-    new Thread(this.server).start();
-    Event bootupEvent = new RegisterRequest(this.ipAddr, this.portnumber);
-    this.sender.sendData(bootupEvent.getBytes());
   }
 
   public static void main(String[] args){
