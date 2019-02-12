@@ -4,6 +4,7 @@ import cs455.overlay.wireformats.*;
 import java.io.IOException;
 import java.net.*;
 import cs455.overlay.transport.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -17,7 +18,9 @@ public final class MessagingNode implements Node{
   private TCPServerThread server;
   private EventQueueThread eventQueue;
   private TCPRegularSocket registry_socket;
-  public static Map<String, TCPRegularSocket> connections;
+  private static ArrayList<String> connections_list;
+  private static Map<String, TCPRegularSocket> connections; //Defined as static so that the
+  //Other classes especially the EventQueue can access the critical info
 
   public MessagingNode(String server_hostname, int server_portnumber) throws IOException {
 
@@ -40,6 +43,25 @@ public final class MessagingNode implements Node{
     this.eventFactory_instance = EventFactory.getInstance();
     eventFactory_instance.addListener(this); //This should correctly add the Messaging node to listen to the eventfactorys events
   }
+
+  public static void addConnection(String key, TCPRegularSocket socket){
+    connections_list.add(key);
+    connections.put(key, socket);
+  }
+
+  public static void removeConnection(String key){
+    connections_list.remove(key);
+    TCPRegularSocket socket = connections.remove(key);
+    socket.kilSocket();
+  }
+
+  public String getIP(){return this.ipAddr;}
+
+  public int getPortnumber(){return this.portnumber;}
+
+  public static ArrayList<String> getConnectionsList(){return connections_list;}
+
+  public static Map<String, TCPRegularSocket> getConnections(){return connections;}
 
   public String getIpAddr(){
     return this.ipAddr;
@@ -110,6 +132,14 @@ public final class MessagingNode implements Node{
 
   public void printShortestPath(){System.out.println("Implement print shortest path");}
 
-  public void exitOverlay(){System.out.println("Implement exit overlay");}
+  public void exitOverlay(){
+    System.out.println("Implement exit overlay");
+    TCPRegularSocket registry = MessagingNode.getConnections().get("REGISTRY");
+    try {
+      registry.getSender().sendData(new DeregisterRequest(this.ipAddr, this.portnumber).getBytes());
+    }catch(IOException ie){
+      System.err.println(ie.getMessage());
+    }
+  }
 
 }
