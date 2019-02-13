@@ -25,6 +25,7 @@ public class EventFactory {
         this.listening_node = node;
     }
 
+    //This needs to be used for deregistraion TODO please implement this so no side affects can happen
     public synchronized void removeListener() {
         this.listening_node = null;
     }
@@ -35,7 +36,7 @@ public class EventFactory {
         ByteArrayInputStream baInputStream = new ByteArrayInputStream(byteString);
         DataInputStream din = new DataInputStream(new BufferedInputStream(baInputStream));
 
-        int type = din.readInt(); //This will read the type
+        int type = din.readInt();
 
         Event event = null;
 
@@ -59,7 +60,6 @@ public class EventFactory {
         this.listening_node.onEvent(event);
     }
 
-
     //This section is responsible for creating the register request
     private RegisterRequest createRegisterRQ(DataInputStream din) throws IOException {
         int ip_len = din.readInt();
@@ -76,7 +76,7 @@ public class EventFactory {
         String add_info;
         RegisterResponse rrs;
 
-        if (add_len != 0) {
+        if (add_len == 0) {
             byte[] add_info_b = new byte[add_len];
             add_info = new String(add_info_b);
             rrs = new RegisterResponse(success, add_info);

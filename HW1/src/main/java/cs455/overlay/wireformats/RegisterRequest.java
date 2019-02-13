@@ -6,7 +6,7 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.Socket;
+
 
 public class RegisterRequest implements Event {
 
@@ -57,9 +57,12 @@ public class RegisterRequest implements Event {
         String additional_info = null;
         RegisterResponse rrs = null;
 
-        String key = new String(this.ip_addr + ":" + this.getPort());
+        String key = this.ip_addr + ":" + this.getPort();
+        System.out.println("Connection key " + key);
         TCPRegularSocket socket = Registry.getConnections().get(key);
 
+        Registry.printConnections();
+        //TODO Check here again after restart
         if(socket.getVerficationStatus() == false){
             if(socket.getIPPort() == key){
                 success = 1;

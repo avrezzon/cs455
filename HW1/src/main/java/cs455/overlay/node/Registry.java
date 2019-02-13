@@ -20,22 +20,30 @@ public final class Registry implements Node {
     private EventQueueThread event_queue;
     private EventFactory eventFactory_instance;
     private static ArrayList<String> connections_list;
-    private static Map<String, TCPRegularSocket> connections; //Defined as static so that the
-    //Other classes especially the EventQueue can access the critical info
+    private static Map<String, TCPRegularSocket> connections;
 
-    public static void addConnection(String key, TCPRegularSocket socket) throws ObjectAlreadyExistsException {
+    //This is being used as a tool to test
+    public static void printConnections() {
+        System.out.println("Current Connections: ");
+        for (int i = 0; i < connections_list.size(); i++) {
+            System.out.println(i + ") " + connections_list.get(i));
+        }
+        System.out.println("END OF CONNECTIONS LIST");
+    }
 
-        System.out.println("is this me?");
-        try{
-          System.out.println("......");
-          throw new ObjectAlreadyExistsException("The key " + key + " already existed within the Registry." );
-        }catch (NullPointerException ne){
-          connections_list.add(key);
-          connections.put(key, socket);
+    public synchronized static void addConnection(String key, TCPRegularSocket socket) throws ObjectAlreadyExistsException {
+
+        TCPRegularSocket temp = Registry.getConnections().get(key);
+
+        if(temp == null){
+            connections_list.add(key);
+            connections.put(key, socket);
+        }else{
+            throw new ObjectAlreadyExistsException("The key " + key + " already existed within the Registry." );
         }
     }
 
-    public static void removeConnection(String key){
+    public synchronized static void removeConnection(String key){
         connections_list.remove(key);
         TCPRegularSocket socket = connections.remove(key);
         socket.killSocket();
