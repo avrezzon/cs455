@@ -1,7 +1,9 @@
 package cs455.overlay.transport;
 
+import cs455.overlay.exceptions.ObjectAlreadyExistsException;
 import cs455.overlay.node.Registry;
 import cs455.overlay.wireformats.EventFactory;
+import cs455.overlay.wireformats.RegisterResponse;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.*;
@@ -40,12 +42,24 @@ public class TCPServerThread implements Runnable{
       try{
         inc_socket = server.accept();
         TCPRegularSocket socket = new TCPRegularSocket(inc_socket);
-        new Thread(socket.getReceiverThread()).start();
-        //TODO there is an issue where two of the same threads are created and this one isnt destroyed
-        //TODO add this regular socket into the dictionary ex: {"192.23.032.123:3551" : new TCPRegularSocket(inc_socket)}
 
-      }catch(IOException e){
-        System.err.println(e.getMessage());
+        String ip = inc_socket.getInetAddress().getHostAddress();
+        int port = inc_socket.getPort();
+
+        String key = ip + port;
+        System.out.println("SERVER SOCKET SPAWNED A NEW CONNECTION WITH KEY: " + key);
+
+        try {
+          Registry.addConnection(key, socket); //
+        }catch (ObjectAlreadyExistsException oe){
+          System.err.println(oe.getMessage()); //Might need to remove
+          new Thread (socket.getReceiverThread()).start();//Just send the response and it doesnt matter if his fills
+          socket.getSender().sendData(new RegisterResponse((byte)0, " Messaging node already registered under that IP and port address").getBytes());
+          //Within here I should open the message send the response that it was a fail so idont have to deal with this on the resolve level
+          socket.killSocket();
+        }
+      }catch(IOException ie){
+        System.out.println(ie.getMessage());
         break;
       }
     }
