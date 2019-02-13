@@ -13,12 +13,15 @@ public class TCPRegularSocket {
 
   public TCPRegularSocket(Socket socket) throws IOException {
     this.socket = socket;
+    this.IP_Addr_Port = socket.getInetAddress().getHostAddress() + ":" + socket.getPort();
     this.receiverThread = new TCPReceiverThread(socket);
     this.sender = new TCPSender(socket);
     this.verified = false;
   }
 
   public void verifyConnection() {this.verified = true;}
+
+  public String getIPPort(){ return this.IP_Addr_Port; }
 
   public boolean getVerficationStatus(){return this.verified;}
 
