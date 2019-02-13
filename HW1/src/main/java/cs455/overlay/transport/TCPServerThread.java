@@ -46,12 +46,16 @@ public class TCPServerThread implements Runnable{
         String ip = inc_socket.getInetAddress().getHostAddress();
         int port = inc_socket.getPort();
 
-        String key = ip + port;
+        String key = ip + ":" + port;
         System.out.println("SERVER SOCKET SPAWNED A NEW CONNECTION WITH KEY: " + key);
 
         try {
-          Registry.addConnection(key, socket); //
+          Registry.addConnection(key, socket);
+          new Thread(socket.getReceiverThread()).start();
         }catch (ObjectAlreadyExistsException oe){
+
+          //TODO im having issues again
+
           System.err.println(oe.getMessage()); //Might need to remove
           new Thread (socket.getReceiverThread()).start();//Just send the response and it doesnt matter if his fills
           socket.getSender().sendData(new RegisterResponse((byte)0, " Messaging node already registered under that IP and port address").getBytes());

@@ -1,5 +1,6 @@
 package cs455.overlay.node;
 
+import cs455.overlay.exceptions.ObjectAlreadyExistsException;
 import cs455.overlay.transport.EventQueueThread;
 import cs455.overlay.transport.TCPRegularSocket;
 import cs455.overlay.transport.TCPServerThread;
@@ -22,9 +23,16 @@ public final class Registry implements Node {
     private static Map<String, TCPRegularSocket> connections; //Defined as static so that the
     //Other classes especially the EventQueue can access the critical info
 
-    public static void addConnection(String key, TCPRegularSocket socket){
-        connections_list.add(key);
-        connections.put(key, socket);
+    public static void addConnection(String key, TCPRegularSocket socket) throws ObjectAlreadyExistsException {
+
+        System.out.println("is this me?");
+        try{
+          System.out.println("......");
+          throw new ObjectAlreadyExistsException("The key " + key + " already existed within the Registry." );
+        }catch (NullPointerException ne){
+          connections_list.add(key);
+          connections.put(key, socket);
+        }
     }
 
     public static void removeConnection(String key){

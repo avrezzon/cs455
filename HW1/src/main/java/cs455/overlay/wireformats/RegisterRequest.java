@@ -54,29 +54,23 @@ public class RegisterRequest implements Event {
     public void resolve(){
 
         byte success;
-        String additional_info;
+        String additional_info = null;
         RegisterResponse rrs = null;
 
         String key = new String(this.ip_addr + ":" + this.getPort());
         TCPRegularSocket socket = Registry.getConnections().get(key);
 
-        if(socket == null){
-            success = 1;
-            try {
-                socket = new TCPRegularSocket(new Socket(this.ip_addr, this.port_number));
-                Registry.addConnection(key, socket);
+        if(socket.getVerficationStatus() == false){
+            if(socket.getIPPort() == key){
+                success = 1;
+                socket.verifyConnection();
                 rrs = new RegisterResponse(success);
-                System.out.println(
-                    "Registration request successful. The number of messaging nodes currently constituting the overlay is ("
-                        + Registry.getConnections().size() + ")");
-            }catch (IOException ie){
-                System.err.println("ERROR IN REGISTRY.reslove() ln 64: " + ie.getMessage());
             }
-        }else {
-            success = 0;
-            //TODO Check to see if the message actually originated from the requested node
-            additional_info = "Error in Register Request: Node already Exists in the Registry connections table.";
-            rrs = new RegisterResponse(success, additional_info);
+            else{
+                success = 0;
+                additional_info = "Socket IP address and port does not match the request";
+                rrs = new RegisterResponse(success, additional_info);
+            }
         }
 
         try {

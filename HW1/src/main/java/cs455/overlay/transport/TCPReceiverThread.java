@@ -20,6 +20,7 @@ public class TCPReceiverThread implements Runnable {
 
   public void run(){
     int dataLength;
+    System.out.println("RECIEVING THREAD IS ALIVE");
     while(socket != null){
       try{
 
