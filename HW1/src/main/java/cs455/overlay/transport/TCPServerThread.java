@@ -12,13 +12,18 @@ public class TCPServerThread implements Runnable{
 
   private ServerSocket server;
   private int port_number;
+  private String IP_addr;
   private volatile boolean alive;
+
   public int getPortnumber(){return this.port_number;}
+
+  public String getIP(){return this.IP_addr;}
 
   //This creates the server socket on a specified port
   public TCPServerThread(int port_number) throws IOException {
     this.port_number = port_number;
     server = new ServerSocket(this.port_number);
+    this.IP_addr = server.getInetAddress().getHostAddress();
     this.alive = true;
   }
 
@@ -26,6 +31,7 @@ public class TCPServerThread implements Runnable{
   public TCPServerThread() throws IOException{
     this.server = new ServerSocket(0);
     this.port_number = this.server.getLocalPort();
+    this.IP_addr = InetAddress.getLocalHost().getHostAddress();
     this.alive = true;
   }
 
@@ -42,17 +48,15 @@ public class TCPServerThread implements Runnable{
         inc_socket = server.accept();
         TCPRegularSocket socket = new TCPRegularSocket(inc_socket);
 
-        //Retrieves the IP address and the port number of the socket
-        String ip = inc_socket.getInetAddress().getHostAddress();
-        int port = inc_socket.getPort();
-
-        String key = ip + ":" + port;
-        //System.out.println("SERVER SOCKET SPAWNED A NEW CONNECTION WITH KEY: " + key);
+        //FIXME this is genuinely the issue then LAST WROTE ON WEDNESDAY AT DENTIST
+        String key = socket.getIPPort();
+        System.out.println("SERVER THREAD JUST RECIEVED A CONNECTION OF " + key);
 
         try {
 
           //This will attempt to add a connection to the Registry
           //will throw an exception if the key already exists
+
           Registry.addConnection(key, socket);
 
           //Upon success of adding the connection, we spin the thread up

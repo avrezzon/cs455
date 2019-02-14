@@ -48,6 +48,9 @@ public class RegisterRequest implements Event {
 
         baOutputStream.close();
         dout.close();
+
+        System.out.println("REGISTER RQ IP: " + this.getIP());
+        System.out.println("REGISTER RQ Port: " + this.getPort());
         return marshalledBytes;
     }
 

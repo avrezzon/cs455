@@ -11,12 +11,14 @@ public class TCPRegularSocket {
   private String IP_Addr_Port;
   private volatile boolean verified;
 
-  public TCPRegularSocket(Socket socket) throws IOException {
+  public TCPRegularSocket(Socket socket) throws IOException{
     this.socket = socket;
-    this.IP_Addr_Port = socket.getInetAddress().getHostAddress() + ":" + socket.getPort();
-    this.receiverThread = new TCPReceiverThread(socket);
     this.sender = new TCPSender(socket);
+    this.receiverThread = new TCPReceiverThread(socket);
     this.verified = false;
+    socket.getInetAddress().getHostAddress();
+    //FIXME the issue is that socket created has no clue about the origin
+    //this.IP_Addr_Port ;
   }
 
   //Returns the key that should be used for this regular socket

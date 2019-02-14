@@ -24,17 +24,20 @@ public final class MessagingNode implements Node{
 
   public MessagingNode(String server_hostname, int server_portnumber) throws IOException {
 
-    this.server = new TCPServerThread();
-    this.ipAddr = InetAddress.getLocalHost().getHostAddress();
-    this.portnumber = this.server.getPortnumber();
+    //The information derives from the server sockets IP and port
+    server = new TCPServerThread();
 
-    this.eventQueue = new EventQueueThread();
+    //NOTE this is the old solution
+    this.ipAddr = InetAddress.getLocalHost().getHostAddress();
+    this.portnumber = server.getPortnumber();
+
+    eventQueue = new EventQueueThread();
 
     String server_ip = InetAddress.getByName(server_hostname).getHostAddress();
 
     this.registry_socket = new TCPRegularSocket(new Socket(server_ip, server_portnumber));
-    this.connections = new HashMap<String, TCPRegularSocket>();
-    this.connections.put("REGISTRY", this.registry_socket);
+    connections = new HashMap<String, TCPRegularSocket>();
+    connections.put("REGISTRY", this.registry_socket);
 
     //The entries for the connections map will look like:
     //'REGISTRY' : registry_socket
@@ -71,10 +74,11 @@ public final class MessagingNode implements Node{
     return this.ipAddr;
   }
 
+  //This is responsible for starting up the associated threads with the node
   private void startup() throws IOException{
-    new Thread(this.server).start();
+    new Thread(server).start();
     new Thread(this.registry_socket.getReceiverThread()).start();
-    new Thread(this.eventQueue).start();
+    new Thread(eventQueue).start();
     Event bootupEvent = new RegisterRequest(this.ipAddr, this.portnumber);
     this.registry_socket.getSender().sendData(bootupEvent.getBytes());
   }

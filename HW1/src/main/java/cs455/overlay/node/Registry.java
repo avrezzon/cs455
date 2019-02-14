@@ -33,6 +33,8 @@ public final class Registry implements Node {
 
     public synchronized static void addConnection(String key, TCPRegularSocket socket) throws ObjectAlreadyExistsException {
 
+        System.out.println("ADDING " + key);
+
         TCPRegularSocket temp = Registry.getConnections().get(key);
 
         if(temp == null){
@@ -75,7 +77,6 @@ public final class Registry implements Node {
     private void startup() {
         new Thread(this.server).start();
         new Thread(this.event_queue).start();
-
     }
 
     public static void main(String[] args) {
