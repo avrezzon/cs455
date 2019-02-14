@@ -49,7 +49,8 @@ public class TCPServerThread implements Runnable{
         TCPRegularSocket socket = new TCPRegularSocket(inc_socket);
 
         //FIXME this is genuinely the issue then LAST WROTE ON WEDNESDAY AT DENTIST
-        String key = socket.getIPPort();
+        String key = inc_socket.getRemoteSocketAddress().toString();
+        key = key.substring(1);
         System.out.println("SERVER THREAD JUST RECIEVED A CONNECTION OF " + key);
 
         try {
