@@ -115,6 +115,7 @@ public final class Registry implements Node {
     public static void addServerMapping(String serverIP, String regularIP){
         ServerToRegular.put(serverIP, regularIP);
         connections_list.add(serverIP);
+        System.out.println("Registry successfully connected new node, number of connections is :" + connections_list.size());
     }
 
     public static TCPRegularSocket getTCPSocket(String socket_id){

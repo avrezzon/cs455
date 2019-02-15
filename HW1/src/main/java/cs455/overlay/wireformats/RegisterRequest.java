@@ -78,6 +78,7 @@ public class RegisterRequest implements Event {
             }catch(IOException ie){
                 System.err.println("Unable to get the bytes from the register response at RegisterRQ ln 80");
             }
+            //TODO notify the registry to print the number of connections made now
         }
         Registry.printConnections();
 
