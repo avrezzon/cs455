@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-//TODO refcator
 public final class MessagingNode implements Node{
 
   private EventFactory eventFactory_instance;
@@ -31,10 +30,12 @@ public final class MessagingNode implements Node{
     this.ipAddr = InetAddress.getLocalHost().getHostAddress();
     this.portnumber = server.getPortnumber();
 
+
     eventQueue = new EventQueueThread();
 
     String server_ip = InetAddress.getByName(server_hostname).getHostAddress();
 
+    System.out.println("Messaging node is making a TCP socket for the registry:");
     this.registry_socket = new TCPRegularSocket(new Socket(server_ip, server_portnumber));
     connections = new HashMap<String, TCPRegularSocket>();
     connections.put("REGISTRY", this.registry_socket);
@@ -45,17 +46,9 @@ public final class MessagingNode implements Node{
 
     this.eventFactory_instance = EventFactory.getInstance();
     eventFactory_instance.addListener(this); //This should correctly add the Messaging node to listen to the eventfactorys events
-  }
 
-  public static void addConnection(String key, TCPRegularSocket socket){
-    connections_list.add(key);
-    connections.put(key, socket);
-  }
-
-  public static void removeConnection(String key){
-    connections_list.remove(key);
-    TCPRegularSocket socket = connections.remove(key);
-    socket.killSocket();
+      System.out.println("Messaging node is alive and is on " + this.ipAddr + ":" + this.portnumber);
+      System.out.println("Registry associated with this node is " + registry_socket.getIPPort());
   }
 
   public String getIP(){return this.ipAddr;}
@@ -65,10 +58,6 @@ public final class MessagingNode implements Node{
   public static EventQueueThread getEventQueue(){return eventQueue;}
 
   public static TCPServerThread getServer(){return server;}
-
-  public static ArrayList<String> getConnectionsList(){return connections_list;}
-
-  public static Map<String, TCPRegularSocket> getConnections(){return connections;}
 
   public String getIpAddr(){
     return this.ipAddr;
@@ -83,9 +72,9 @@ public final class MessagingNode implements Node{
     this.registry_socket.getSender().sendData(bootupEvent.getBytes());
   }
 
-  public void onEvent(Event e){
+  public void onEvent(EventInstance e){
     try {
-      this.eventQueue.addEvent(e);
+      eventQueue.addEvent(e);
     }catch(InterruptedException ie){
       System.err.println(ie.getMessage());
     }
@@ -142,12 +131,12 @@ public final class MessagingNode implements Node{
 
   public void exitOverlay(){
     System.out.println("Implement exit overlay");
-    TCPRegularSocket registry = MessagingNode.getConnections().get("REGISTRY");
-    try {
-      registry.getSender().sendData(new DeregisterRequest(this.ipAddr, this.portnumber).getBytes());
-    }catch(IOException ie){
-      System.err.println(ie.getMessage());
-    }
+//    TCPRegularSocket registry = MessagingNode.getConnections().get("REGISTRY");
+//    try {
+//      registry.getSender().sendData(new DeregisterRequest(this.ipAddr, this.portnumber).getBytes());
+//    }catch(IOException ie){
+//      System.err.println(ie.getMessage());
+//    }
   }
 
 }

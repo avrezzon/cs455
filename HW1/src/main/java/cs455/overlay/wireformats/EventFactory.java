@@ -31,7 +31,7 @@ public class EventFactory {
     }
 
     //This class is responsible for holding the type of the message
-    public synchronized void createEvent(byte[] byteString) throws IOException {
+    public synchronized void createEvent(byte[] byteString, String origin) throws IOException {
 
         ByteArrayInputStream baInputStream = new ByteArrayInputStream(byteString);
         DataInputStream din = new DataInputStream(new BufferedInputStream(baInputStream));
@@ -57,7 +57,7 @@ public class EventFactory {
         baInputStream.close();
         din.close();
 
-        this.listening_node.onEvent(event);
+        this.listening_node.onEvent(new EventInstance(event, origin));
     }
 
     //This section is responsible for creating the register request

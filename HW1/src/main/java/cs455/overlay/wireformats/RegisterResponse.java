@@ -57,7 +57,7 @@ public class RegisterResponse implements Event{
     return marshalledBytes;
   }
 
-  public void resolve(){
+  public void resolve(String origin){
     //This is void and does nothing since nothing needs to happen
     //Acknowledgement
   }

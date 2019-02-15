@@ -63,7 +63,7 @@ public class DeregisterResponse implements Event{
     return marshalledBytes;
   }
 
-  public void resolve() {
+  public void resolve(String origin) {
     //TODO exit based upon the response
     System.out.println("Recieved response from exiting the overlay");
     if(status_code == Protocol.success){

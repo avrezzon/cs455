@@ -1,6 +1,5 @@
 package cs455.overlay.node;
 
-import cs455.overlay.exceptions.ObjectAlreadyExistsException;
 import cs455.overlay.transport.EventQueueThread;
 import cs455.overlay.transport.TCPRegularSocket;
 import cs455.overlay.transport.TCPServerThread;
@@ -8,7 +7,6 @@ import cs455.overlay.wireformats.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -17,60 +15,28 @@ public final class Registry implements Node {
 
 
     private TCPServerThread server;
-    private EventQueueThread event_queue;
+    private static EventQueueThread event_queue;
+
     private EventFactory eventFactory_instance;
-    private static ArrayList<String> connections_list;
+
     private static Map<String, TCPRegularSocket> connections;
-
-    //This is being used as a tool to test
-    public static void printConnections() {
-        System.out.println("Current Connections: ");
-        for (int i = 0; i < connections_list.size(); i++) {
-            System.out.println(i + ") " + connections_list.get(i));
-        }
-        System.out.println("END OF CONNECTIONS LIST");
-    }
-
-    public synchronized static void addConnection(String key, TCPRegularSocket socket) throws ObjectAlreadyExistsException {
-
-        System.out.println("ADDING " + key);
-
-        TCPRegularSocket temp = Registry.getConnections().get(key);
-
-        if(temp == null){
-            connections_list.add(key);
-            connections.put(key, socket);
-        }else{
-            throw new ObjectAlreadyExistsException("The key " + key + " already existed within the Registry." );
-        }
-    }
-
-    public synchronized static void removeConnection(String key){
-        connections_list.remove(key);
-        TCPRegularSocket socket = connections.remove(key);
-        socket.killSocket();
-    }
-
-    public static ArrayList<String> getConnectionsList(){return connections_list;}
-
-    public static Map<String, TCPRegularSocket> getConnections(){return connections;}
+    private static Map<String, String> ServerToRegular;
+    private static Map<String, String> RegularToServer;
+    private static ArrayList<String> connections_list; //TODO this should be used when creating the overlay using the Server Port
 
     public Registry(int port_number) throws IOException {
         server = new TCPServerThread(port_number);
         event_queue = new EventQueueThread();
+
         eventFactory_instance = EventFactory.getInstance();
         eventFactory_instance.addListener(this);
-        connections_list = new ArrayList<String>();
-        connections = new HashMap<String, TCPRegularSocket>();
-    }
 
-    //onEvent should add stuff to the event queue so that the queue can process the events in a seperate thread
-    public void onEvent(Event event) {
-        try {
-            event_queue.addEvent(event);
-        }catch(InterruptedException ie){
-            System.err.println(ie.getMessage());
-        }
+        connections = new HashMap<>();
+        ServerToRegular = new HashMap<>();
+        RegularToServer = new HashMap<>();
+        connections_list = new ArrayList<>();
+
+        System.out.println("The IP address for the registry server socket is: " + server.getIP() + ":" + server.getPortnumber());
     }
 
     //This is responsible for spinning up the threads that are used within the registry
@@ -107,7 +73,7 @@ public final class Registry implements Node {
                 }else if(input_split[0].equals("list-weights")){
                     registry.listWeights();
                 }else if(input_split[0].equals("setup-overlay") ){
-                    registry.setupOverlay(0); //TODO change the number
+                    registry.setupOverlay(0);
                 }else if(input_split[0].equals("send-overlay-link-weights")){
                     registry.sendOverlayLinkWeights();
                 }else if(input_split[0].equals("start")){
@@ -119,6 +85,37 @@ public final class Registry implements Node {
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
+    }
+
+    //onEvent should add stuff to the event queue so that the queue can process the events in a seperate thread
+    public void onEvent(EventInstance event) {
+        try {
+            event_queue.addEvent(event);
+        }catch(InterruptedException ie){
+            System.err.println(ie.getMessage());
+        }
+    }
+
+    public static synchronized void receivedConnection(TCPRegularSocket inc_connection){
+        String regSocketKey = inc_connection.getIPPort();
+        connections.put(regSocketKey, inc_connection);
+        System.out.println("Added Connection " + regSocketKey + " to the table.");
+    }
+
+    public static boolean isServerToRegularSocketPresent(String key){
+        if(ServerToRegular.containsKey(key)){
+            return true;
+        }
+        return false;
+    }
+
+    //This is being used as a tool to test
+    public static void printConnections() {
+        System.out.println("Current Connections: ");
+        for (int i = 0; i < connections_list.size(); i++) {
+            System.out.println(i + ") " + connections_list.get(i));
+        }
+        System.out.println("END OF CONNECTIONS LIST");
     }
 
     public void listMessagingNodes(){

@@ -54,7 +54,8 @@ public class RegisterRequest implements Event {
         return marshalledBytes;
     }
 
-    public void resolve(){
+    //TODO this will require the port that it was actually sent from
+    public void resolve(String origin){
 
         byte success;
         String additional_info = null;
@@ -62,28 +63,10 @@ public class RegisterRequest implements Event {
 
         String key = this.ip_addr + ":" + this.getPort();
         System.out.println("Connection key " + key);
-        TCPRegularSocket socket = Registry.getConnections().get(key);
-
+        System.out.println("This request was recieved on this port: " + origin);
         Registry.printConnections();
-        //TODO Check here again after restart
-        if(socket.getVerficationStatus() == false){
-            if(socket.getIPPort() == key){
-                success = 1;
-                socket.verifyConnection();
-                rrs = new RegisterResponse(success);
-            }
-            else{
-                success = 0;
-                additional_info = "Socket IP address and port does not match the request";
-                rrs = new RegisterResponse(success, additional_info);
-            }
-        }
 
-        try {
-            socket.getSender().sendData(rrs.getBytes());
-        }catch (IOException ie){
-            System.err.println("ERRROR IN REGISTER_RQ: " + ie.getMessage());
-        }
+
     }
 
 }
