@@ -11,29 +11,37 @@ public class EventQueueThread implements Runnable {
     //rather then elements can be placed into the queue
     //http://tutorials.jenkov.com/java-util-concurrent/blockingqueue.html
     //The link will contain enough info above to explain more of the blocking queue
-    private static BlockingQueue<Event> eventBuffer;
+    private static BlockingQueue<EventInstance> eventBuffer;
+    private static volatile boolean alive;
 
     public EventQueueThread(){
-        //TODO I will need to determine if there is anything else that should be contained within
-        eventBuffer = new LinkedBlockingQueue<Event>();
+
+        eventBuffer = new LinkedBlockingQueue<>();
+        alive = true;
     }
 
-    public synchronized void addEvent(Event event) throws InterruptedException{
+    public synchronized void addEvent(EventInstance event) throws InterruptedException{
         eventBuffer.put(event);
     }
 
+    public static void killThread(){ alive = false;}
+
+    private static boolean getAlive(){return alive;}
+
     public void run(){
-        while(true){
-            //TODO this will need to pull items out of the event queue
+        while(getAlive()){
             //each event should have a .resolve() to make this easier when dealing with the context
             //eventBuffer.
-            Event event;
+            EventInstance eventInstance;
             try {
-                event = eventBuffer.take();
-                event.resolve();
+                eventInstance = eventBuffer.take();
+                Event event = eventInstance.event;
+                String origin = eventInstance.origin;
+                event.resolve(origin);
             }catch (InterruptedException ie){
                 System.err.println("ERROR OCCURED IN EVENT_QUEUE_THREAD: " + ie.getMessage());
             }
         }
+        System.out.println("EVENT QUEUE THREAD WINDING DOWN");
     }
 }

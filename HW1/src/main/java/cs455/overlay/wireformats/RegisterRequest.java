@@ -6,7 +6,7 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.Socket;
+
 
 public class RegisterRequest implements Event {
 
@@ -49,29 +49,39 @@ public class RegisterRequest implements Event {
         baOutputStream.close();
         dout.close();
 
+        System.out.println("REGISTER RQ IP: " + this.getIP());
+        System.out.println("REGISTER RQ Port: " + this.getPort());
         return marshalledBytes;
     }
 
-    public void resolve(){
+    //TODO this will require the port that it was actually sent from
+    public void resolve(String origin){
 
-        String key = new String(this.ip_addr + ":" + this.getPort());
-        System.out.println("The key for this node is  " + key);
-        TCPRegularSocket socket;
+        byte success;
+        String additional_info = null;
+        RegisterResponse rrs = null;
 
-        try{
-            socket = Registry.connections.get(key);
-        }catch(NullPointerException ne){
-            //If we reach this portion of the block that means the node has not already registered with the Registry
+        String key = this.ip_addr + ":" + this.getPort();
+        System.out.println("Connection key " + key);
+        System.out.println("This request was recieved on this port: " + origin);
+        Registry.printConnections();
+
+        if(Registry.isMessagingNodePresent(key)){
+            //TODO this is an error case and registration should not happen
+        }else{
+            //This means that this is the first time registering the Messaging node
+            Registry.addServerMapping(key, origin);
+            TCPRegularSocket socket = Registry.getTCPSocket(key);
+            rrs = new RegisterResponse((byte)0);
             try {
-                socket = new TCPRegularSocket(new Socket(this.ip_addr, this.port_number));
-                new Thread(socket.getReceiverThread()).start();
-                Registry.connections.put(key, socket);
-                Event rrs = new RegisterResponse( (byte)1 );
                 socket.getSender().sendData(rrs.getBytes());
-            }catch (IOException ie){
-                System.err.println("IOException occured within REGISTER RQ .resolve(): " + ie.getMessage());
+            }catch(IOException ie){
+                System.err.println("Unable to get the bytes from the register response at RegisterRQ ln 80");
             }
+            //TODO notify the registry to print the number of connections made now
         }
+        Registry.printConnections();
+
     }
 
 }
