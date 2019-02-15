@@ -19,10 +19,10 @@ public final class Registry implements Node {
 
     private EventFactory eventFactory_instance;
 
-    private static Map<String, TCPRegularSocket> connections;
-    private static Map<String, String> ServerToRegular;
-    private static Map<String, String> RegularToServer;
-    private static ArrayList<String> connections_list; //TODO this should be used when creating the overlay using the Server Port
+    private static Map<String, TCPRegularSocket> connections; //This is the regular socket pairing
+    private static Map<String, String> ServerToRegular; //The broadcasted IP:port paring to the regular socket for above
+    private static Map<String, String> RegularToServer; //TODO not sure if i need this
+    private static ArrayList<String> connections_list; //This contaings the servers IPs that are present
 
     public Registry(int port_number) throws IOException {
         server = new TCPServerThread(port_number);
@@ -99,23 +99,36 @@ public final class Registry implements Node {
     public static synchronized void receivedConnection(TCPRegularSocket inc_connection){
         String regSocketKey = inc_connection.getIPPort();
         connections.put(regSocketKey, inc_connection);
-        System.out.println("Added Connection " + regSocketKey + " to the table.");
+        System.out.println("Added Connection " + regSocketKey + " to the connections map.");
+        System.out.println("Entry = {" + regSocketKey + ": " + inc_connection + "}");
     }
 
-    public static boolean isServerToRegularSocketPresent(String key){
+    //The incoming key will be the message body of the Register Request
+    public static boolean isMessagingNodePresent(String key){
         if(ServerToRegular.containsKey(key)){
             return true;
         }
         return false;
     }
 
+    //TODO Verify
+    public static void addServerMapping(String serverIP, String regularIP){
+        ServerToRegular.put(serverIP, regularIP);
+        connections_list.add(serverIP);
+    }
+
+    public static TCPRegularSocket getTCPSocket(String socket_id){
+        String regular_id = ServerToRegular.get(socket_id);
+        return connections.get(regular_id);
+    }
+
     //This is being used as a tool to test
     public static void printConnections() {
-        System.out.println("Current Connections: ");
+        System.out.println("\n\nCurrent Connections: ");
         for (int i = 0; i < connections_list.size(); i++) {
             System.out.println(i + ") " + connections_list.get(i));
         }
-        System.out.println("END OF CONNECTIONS LIST");
+        System.out.println("END OF CONNECTIONS LIST\n\n");
     }
 
     public void listMessagingNodes(){

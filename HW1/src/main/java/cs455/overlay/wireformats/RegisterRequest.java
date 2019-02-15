@@ -66,6 +66,20 @@ public class RegisterRequest implements Event {
         System.out.println("This request was recieved on this port: " + origin);
         Registry.printConnections();
 
+        if(Registry.isMessagingNodePresent(key)){
+            //TODO this is an error case and registration should not happen
+        }else{
+            //This means that this is the first time registering the Messaging node
+            Registry.addServerMapping(key, origin);
+            TCPRegularSocket socket = Registry.getTCPSocket(key);
+            rrs = new RegisterResponse((byte)0);
+            try {
+                socket.getSender().sendData(rrs.getBytes());
+            }catch(IOException ie){
+                System.err.println("Unable to get the bytes from the register response at RegisterRQ ln 80");
+            }
+        }
+        Registry.printConnections();
 
     }
 

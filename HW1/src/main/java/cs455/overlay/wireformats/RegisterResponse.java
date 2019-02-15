@@ -60,5 +60,6 @@ public class RegisterResponse implements Event{
   public void resolve(String origin){
     //This is void and does nothing since nothing needs to happen
     //Acknowledgement
+    System.out.println("Response");
   }
 }
