@@ -21,7 +21,6 @@ public final class Registry implements Node {
 
     private static Map<String, TCPRegularSocket> connections; //This is the regular socket pairing
     private static Map<String, String> ServerToRegular; //The broadcasted IP:port paring to the regular socket for above
-    private static Map<String, String> RegularToServer; //TODO not sure if i need this
     private static ArrayList<String> connections_list; //This contaings the servers IPs that are present
 
     public Registry(int port_number) throws IOException {
@@ -33,7 +32,6 @@ public final class Registry implements Node {
 
         connections = new HashMap<>();
         ServerToRegular = new HashMap<>();
-        RegularToServer = new HashMap<>();
         connections_list = new ArrayList<>();
 
         System.out.println("The IP address for the registry server socket is: " + server.getIP() + ":" + server.getPortnumber());
@@ -111,7 +109,6 @@ public final class Registry implements Node {
         return false;
     }
 
-    //TODO Verify
     public static void addServerMapping(String serverIP, String regularIP){
         ServerToRegular.put(serverIP, regularIP);
         connections_list.add(serverIP);
@@ -138,7 +135,11 @@ public final class Registry implements Node {
 
     public void listWeights() {System.out.println("Create the list weights fn");}
 
-    public void setupOverlay(int num_connections){System.out.println("Create the setupOverlay fn");}
+    public void setupOverlay(int num_connections){
+
+        System.out.println("Create the setupOverlay fn");
+
+    }
 
     public void sendOverlayLinkWeights(){System.out.println("Create sendoverlayLinkWeights fn");}
 
