@@ -18,11 +18,20 @@ public class OverlayCreator {
   //[B : [e,h]]
   //[C : [f,b]]
 
+  //TODO I know that Im not going to have enough time to implement this
+  //Idea: within the generation of the overlay, if i keep track of what node i visit
+  //I can eleminate duplicate messages.
+  //if A connects to C, should i have to specify in C's nodes if A is a connection rq since
+  //these sockets are bi directional
+
+
   //This will take in the the number of connectiions and the possible connections that the
   public static HashMap<String, ArrayList<String>> createOverlay(int numConnections, ArrayList<String> Connections) throws IllegalArgumentException{
 
     Map<String, ArrayList<String>> overlay = new HashMap<>();
+    //This was translated into an array to help with easier accesses
     String[] connections = Connections.toArray(new String[0]);
+
     int N = Connections.size();
     int k = numConnections;
 
@@ -41,17 +50,34 @@ public class OverlayCreator {
     }
   }
 
-
+  //FIXME This is getting the accros node correctly but it does not grab the node adjacent in the radius
   //Precondition is that input will be of valid conditions k >= 2 k is 4 by default and Nk is even
   private static HashMap<String, ArrayList<String>> performKOddConnect(String[] connections, int k){
     Map<String, ArrayList<String>> overlay = new HashMap<>();
-    return null;
+    int len = connections.length;
+    int half = len /  2;
+    int radius = k / 2;
+    String connectingTo;
+    String mainNode;
+
+    ArrayList<String> connectToIPs = new ArrayList<String>();
+
+    for(int mainNodeIdx = 0; mainNodeIdx < len; mainNodeIdx++){
+      int translatedNode = mainNodeIdx + half;
+      for(int i = translatedNode - radius; i < translatedNode + radius; i++){
+        connectingTo = connections[translateNode(mainNodeIdx,i,len)];
+        connectToIPs.add(connectingTo);
+      }
+      mainNode = connections[mainNodeIdx];
+      overlay.put(mainNode, (ArrayList<String>) connectToIPs.clone());
+      connectToIPs.clear();
+    }
+
+    return (HashMap<String, ArrayList<String>>) overlay;
   }
 
   private static HashMap<String, ArrayList<String>> performKEvenConnect(String[] connections, int k){
     Map<String, ArrayList<String>> overlay = new HashMap<>();
-
-    //array[array.length-1] = lastElement; This will be used for negative indexing
 
     int radius = k/2;
     int len = connections.length;
@@ -61,36 +87,40 @@ public class OverlayCreator {
     ArrayList<String> connectToIPs = new ArrayList<String>();
 
     for(int i = 0; i < connections.length; i++){
-
       for(int c = i - radius; c <= (i+radius); c++){
-        System.out.println("i: " + i + " c: " + c );
-
         if(c == i){
           //This is the case for if the idx is the origin node
           //In this case we don't want to be sending connections to itself
           continue;
-        }else if(c < 0){
-          //Connection with end of array
-          connectingTo = connections[len + c];
-        }else if(c >= connections.length){
-          //Connection with the beginning of the array
-          connectingTo = connections[c - len];
         }else{
-          //Connection with the main node
-          connectingTo = connections[c];
+          connectingTo = connections[translateNode(c,i,len)];
+          connectToIPs.add(connectingTo);
         }
-        connectToIPs.add(connectingTo);
       }
-      //Clone and clear the main array list
+
       mainNode = connections[i];
       overlay.put(mainNode, (ArrayList<String>) connectToIPs.clone());
       connectToIPs.clear();
     }
 
-    //This feels weird TODO check this out
     return (HashMap<String, ArrayList<String>>) overlay;
   }
 
+  //This is used to help map the negative indexes
+  private static int translateNode(int c, int i, int len){
+    int idx;
+    if(c < 0){
+      //Connection with end of array
+      return len + c;
+    }else if(c >= len){
+      //Connection with the beginning of the array
+      idx = c - len;
+    }else{
+      //Connection with the main node
+      idx = c;
+    }
+    return idx;
+  }
 
   public static void printMap(Map mp) {
     Iterator it = mp.entrySet().iterator();
@@ -116,6 +146,13 @@ public class OverlayCreator {
     overlay = createOverlay(k, temp);
     System.out.println("the Overlay");
     printMap(overlay);
+
+    System.out.println("\n\n\nThe Even odd case");
+    temp = new ArrayList<String>(Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j"));
+    overlay = createOverlay(5, temp);
+    System.out.println("the Overlay");
+    printMap(overlay);
+
   }
 
 }
