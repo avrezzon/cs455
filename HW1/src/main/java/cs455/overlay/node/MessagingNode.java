@@ -22,6 +22,9 @@ public final class MessagingNode implements Node{
   //Defined as static so that the
   //Other classes especially the EventQueue can access the critical info
 
+  //TODO
+
+
   public MessagingNode(String server_hostname, int server_portnumber) throws IOException {
 
     //The information derives from the server sockets IP and port
