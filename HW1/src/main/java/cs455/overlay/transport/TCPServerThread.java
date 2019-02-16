@@ -61,7 +61,6 @@ public class TCPServerThread implements Runnable {
                 break;
             }
         }
-        System.out.println("SERVER THREAD WINDING DOWN");
     }
 
 }

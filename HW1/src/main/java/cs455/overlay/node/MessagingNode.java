@@ -18,8 +18,12 @@ public final class MessagingNode implements Node{
   private static EventQueueThread eventQueue;
   private static TCPServerThread server;
   private static ArrayList<String> connections_list;
-  private static Map<String, TCPRegularSocket> connections; //Defined as static so that the
+  private static Map<String, TCPRegularSocket> connections;
+  //Defined as static so that the
   //Other classes especially the EventQueue can access the critical info
+
+  //TODO
+
 
   public MessagingNode(String server_hostname, int server_portnumber) throws IOException {
 
