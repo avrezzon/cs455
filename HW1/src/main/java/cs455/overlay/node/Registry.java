@@ -80,7 +80,7 @@ public final class Registry implements Node {
                 }else if(input_split[0].equals("list-weights")){
                     registry.listWeights();
                 }else if(input_split[0].equals("setup-overlay") ){
-                    registry.setupOverlay(0);
+                    registry.setupOverlay(Integer.parseInt(input_split[1]));
                 }else if(input_split[0].equals("send-overlay-link-weights")){
                     registry.sendOverlayLinkWeights();
                 }else if(input_split[0].equals("start")){
