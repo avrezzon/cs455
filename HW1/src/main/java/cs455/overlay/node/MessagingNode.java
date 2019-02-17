@@ -104,8 +104,6 @@ public final class MessagingNode implements Node{
     System.out.println("END OF CONNECTIONS LIST\n\n");
   }
 
-  //END of verify
-
   public String getIP(){return this.ipAddr;}
 
   public int getPortnumber(){return this.portnumber;}
