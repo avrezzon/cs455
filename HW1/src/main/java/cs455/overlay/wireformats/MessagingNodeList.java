@@ -1,5 +1,7 @@
 package cs455.overlay.wireformats;
 
+import cs455.overlay.node.MessagingNode;
+import cs455.overlay.transport.TCPRegularSocket;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -30,7 +32,7 @@ public class MessagingNodeList implements Event {
     dout.writeInt(this.numberOfPeers);
     System.out.println("MSL number of peers: " + this.numberOfPeers);
 
-    for(String IP_Port : this.connections){
+    for (String IP_Port : this.connections) {
       dout.writeInt(IP_Port.length());
       System.out.printf("MSL peer ip length :%d, ip: %s\n", IP_Port.length(), IP_Port);
       peer = IP_Port.getBytes();
@@ -51,22 +53,29 @@ public class MessagingNodeList implements Event {
   }
 
   public void resolve(String origin) {
-    System.out.println("You have recieved a reguest to initiate connections with some other nodes");
-    //iterate through the list of the IP:Port connections that we need to get
-    //This might mimic the way that register rq behaves
 
-    //TODO tommorow we need to implement who we are sending the messages out to
-    for(String IP_port : connections){
+    TCPRegularSocket socket;
+    RegisterRequest rrq;
 
+    for (String IP_port : connections) {
+
+      if (MessagingNode.isMessagingNodePresent(IP_port)) {
+        //Nothing should happen in this instance
+      } else {
+        //This means that this is the first time registering the Messaging node
+        MessagingNode.addServerMapping(IP_port, origin);
+        socket = MessagingNode.getTCPSocket(IP_port);
+
+        String[] elements = socket.getIPPort().split(":");
+        rrq = new RegisterRequest(elements[0], Integer.parseInt(elements[1]),
+            Protocol.messagingNode);
+        try {
+          socket.getSender().sendData(rrq.getBytes());
+        } catch (IOException ie) {
+          System.err.println("IOException occured in MessagingNodeList ln 78: " + ie.getMessage());
+        }
+      }
     }
 
   }
-  /**
-   * if(MessagingNode.isMessagingNodePresent(key)){
-   *         //Nothing should happen in this instance
-   *       }else{
-   *         //This means that this is the first time registering the Messaging node
-   *         MessagingNode.addServerMapping(key, origin);
-   *       }*/
-
 }

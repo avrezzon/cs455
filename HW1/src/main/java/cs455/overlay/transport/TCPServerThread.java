@@ -1,5 +1,6 @@
 package cs455.overlay.transport;
 
+import cs455.overlay.node.MessagingNode;
 import cs455.overlay.node.Registry;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -12,13 +13,10 @@ public class TCPServerThread implements Runnable {
     private int port_number;
     private String IP_addr;
     private volatile boolean alive;
+    private boolean originType;
 
     public int getPortnumber() {
         return this.port_number;
-    }
-
-    public String getIP() {
-        return this.IP_addr;
     }
 
     //This creates the server socket on a specified port
@@ -28,6 +26,7 @@ public class TCPServerThread implements Runnable {
         this.IP_addr = InetAddress.getLocalHost().getHostAddress();
         this.port_number = server.getLocalPort();
         this.alive = true;
+        this.originType = true; // This means that this is a registry
     }
 
     //This creates the server socket on the first free port -> used with the MessagingNodes
@@ -36,6 +35,7 @@ public class TCPServerThread implements Runnable {
         this.port_number = this.server.getLocalPort();
         this.IP_addr = InetAddress.getLocalHost().getHostAddress();
         this.alive = true;
+        this.originType = false; //This means that this is a messaging node
     }
 
     //This is used to kill the server socket run() method
@@ -53,15 +53,14 @@ public class TCPServerThread implements Runnable {
                 inc_socket = server.accept();
                 //Adds the new connection into the connections map
                 TCPRegularSocket connection = new TCPRegularSocket(inc_socket);
-                Registry.receivedConnection(connection);
-//                if(this.type == Protocol.registry) {
-//                    Registry.receivedConnection(connection);
-//                    connection = new TCPRegularSocket(inc_socket, Protocol.registry);
-//                }
-//                if(this.type == Protocol.messagingNode){
-//                    MessagingNode.receivedConnection(connection);
-//                    connection = new TCPRegularSocket(inc_socket, Protocol.messagingNode);
-//                }
+                //TODO I feel like issues will happen right here
+                //Registry.receivedConnection(connection);
+                if (originType) {
+                    Registry.receivedConnection(connection);
+                } else {
+                    MessagingNode.receivedConnection(connection);
+                }
+
                 new Thread(connection.getReceiverThread()).start();
 
             } catch (IOException ie) {
