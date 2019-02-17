@@ -28,6 +28,17 @@ public final class MessagingNode implements Node{
   private static EventQueueThread eventQueue;
   private static TCPServerThread server;
 
+  //TODO I could add a thing here for actual connections
+  //TODO and here would be the ones that where already conneceted due to the order of messages sent
+  /**
+   * Message type: Protocol.LinkWeights Number of links: connections.length() -1 because of the
+   * registry entry LinkInfo1:  this.IP:this.Port -> connections[i] linkWeight
+   *
+   * Main node will have a map of the adjacent node and its weight This way the knowledge is only of
+   * the neighbor nodes When it comes to sending rounds it will only be that of a neighboring node
+   * due to the algorithm
+   */
+
   private static HashMap<String, TCPRegularSocket> connections; //This is the regular socket pairing
   private static HashMap<String, String> ServerToRegular; //The broadcasted IP:port paring to the regular socket for above
   private static ArrayList<String> connections_list; //This contaings the servers IPs that are present
