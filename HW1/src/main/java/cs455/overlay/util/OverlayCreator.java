@@ -43,7 +43,8 @@ public class OverlayCreator {
 
     this.fullOverlay = createOverlay();
 
-    this.rmvDuplicatesOverlay = RmvDuplicatesOverlay();
+    //TODO see comment made below in regards to the function
+    //this.rmvDuplicatesOverlay = RmvDuplicatesOverlay();
   }
 
   //This will take in the the number of connectiions and the possible connections that the
@@ -138,23 +139,26 @@ public class OverlayCreator {
     return idx;
   }
 
+  //TODO later if i feel like that this is important to implement then we can approach
   private HashMap<String, ArrayList<String>> RmvDuplicatesOverlay(){
 
-    HashMap<String, ArrayList<String>> rmvDup = (HashMap<String, ArrayList<String>>) this.fullOverlay.clone();
+    HashMap<String, ArrayList<String>> rmvDup = new HashMap<>();
+    ArrayList<String> tempConnetions;
 
-    for(String key : rmvDup.keySet()){
 
-      ArrayList<String> tempConnections = this.rmvDuplicatesOverlay.get(key);
+    for(String key : this.fullOverlay.keySet()){
+
+      ArrayList<String> tempConnections = this.fullOverlay.get(key);
 
       //FIXME this is where i am getting a null error I think that this is when i remove all of one nodes connection
       //This will be where we iterate over all of the values from the subsequent arrays
       for(String node : tempConnections){
           //go to that node as the key of the dict and remove the orig key
-          rmvDup.get(node).remove(key);
+        //System.out.println("Removing element " + key + " from " + fullOverlay.get(node));
+        this.fullOverlay.get(node).remove(key);
       }
-    }
 
-    printMap(rmvDup);
+    }
 
     return rmvDup;
   }
@@ -168,4 +172,21 @@ public class OverlayCreator {
     }
   }
 
+  public static void main(String[] args){
+
+    ArrayList<String> nodes = new ArrayList<>();
+
+    int N = Integer.parseInt(args[0]);
+    int k = Integer.parseInt(args[1]);
+
+    for(int i = 0; i < N; i++){
+      nodes.add("node"+i);
+    }
+
+    OverlayCreator temp = new OverlayCreator(nodes, k);
+
+  }
+
 }
+
+
