@@ -3,6 +3,7 @@ package cs455.overlay.node;
 import cs455.overlay.transport.EventQueueThread;
 import cs455.overlay.transport.TCPRegularSocket;
 import cs455.overlay.transport.TCPServerThread;
+import cs455.overlay.util.StatisticsCollectorAndDisplay;
 import cs455.overlay.wireformats.Event;
 import cs455.overlay.wireformats.EventFactory;
 import cs455.overlay.wireformats.EventInstance;
@@ -30,6 +31,8 @@ public final class MessagingNode implements Node{
   private static HashMap<String, TCPRegularSocket> connections; //This is the regular socket pairing
   private static HashMap<String, String> ServerToRegular; //The broadcasted IP:port paring to the regular socket for above
   private static ArrayList<String> connections_list; //This contaings the servers IPs that are present
+
+  private static StatisticsCollectorAndDisplay statsCollector;
 
   public MessagingNode(String server_hostname, int server_portnumber) throws IOException {
 
@@ -61,12 +64,10 @@ public final class MessagingNode implements Node{
     eventFactory_instance.addListener(
         this); //This should correctly add the Messaging node to listen to the eventfactorys events
 
+    statsCollector = new StatisticsCollectorAndDisplay();
+
   }
 
-
-  //Defined as static so that the
-  //Other classes especially the EventQueue can access the critical info
-  //BEGIN: in between this section is the same code as the Registry
   //This adds the TCPSocket to the connections arrayList and the HashMap
 
   public static synchronized void receivedConnection(TCPRegularSocket inc_connection) {
@@ -193,12 +194,6 @@ public final class MessagingNode implements Node{
 
   public void exitOverlay(){
     System.out.println("Implement exit overlay");
-//    TCPRegularSocket registry = MessagingNode.getConnections().get("REGISTRY");
-//    try {
-//      registry.getSender().sendData(new DeregisterRequest(this.ipAddr, this.portnumber).getBytes());
-//    }catch(IOException ie){
-//      System.err.println(ie.getMessage());
-//    }
   }
 
 }

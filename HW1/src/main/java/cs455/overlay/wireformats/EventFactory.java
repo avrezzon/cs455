@@ -61,7 +61,6 @@ public class EventFactory {
     this.listening_node.onEvent(new EventInstance(event, origin));
   }
 
-  //TODO this needs to be updated with the originType code
   private RegisterRequest createRegisterRQ(DataInputStream din)
       throws IOException {
     int ip_len = din.readInt();
