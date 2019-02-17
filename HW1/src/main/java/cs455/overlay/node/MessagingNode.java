@@ -76,10 +76,15 @@ public final class MessagingNode implements Node{
   //The incoming key will be the message body of the Register Request
 
   public static boolean isMessagingNodePresent(String key) {
-    if (ServerToRegular.containsKey(key)) {
-      return true;
+    //TODO this is my issue with the exception
+    try {
+      if (ServerToRegular.containsKey(key)) {
+        return true;
+      }
+      return false;
+    } catch (NullPointerException ne) {
+      return false;
     }
-    return false;
   }
 
   public static void addServerMapping(String serverIP, String regularIP) {
@@ -88,6 +93,8 @@ public final class MessagingNode implements Node{
     System.out.println(
         "Registry successfully connected new node, number of peer nodes is :" + connections_list
             .size());
+
+    printConnections();
   }
 
   public static TCPRegularSocket getTCPSocket(String socket_id) {

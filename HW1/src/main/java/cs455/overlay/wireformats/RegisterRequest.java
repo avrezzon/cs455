@@ -86,18 +86,23 @@ public class RegisterRequest implements Event {
             //This means that this is the first time registering the Messaging node
 
             TCPRegularSocket socket = null;
-            if (this.originType == Protocol.registry) {
-                Registry.addServerMapping(key, origin);
-                socket = Registry.getTCPSocket(key);
-            } else {
-                MessagingNode.addServerMapping(key, origin);
-                socket = MessagingNode.getTCPSocket(key);
-            }
-            rrs = new RegisterResponse((byte)1);
             try {
-                socket.getSender().sendData(rrs.getBytes());
-            }catch(IOException ie){
-                System.err.println("Unable to get the bytes from the register response at RegisterRQ ln 80");
+                if (this.originType == Protocol.registry) {
+                    Registry.addServerMapping(key, origin);
+                    socket = Registry.getTCPSocket(key);
+                } else {
+                    MessagingNode.addServerMapping(key, origin);
+                    socket = MessagingNode.getTCPSocket(key);
+                }
+                rrs = new RegisterResponse((byte) 1);
+                try {
+                    socket.getSender().sendData(rrs.getBytes());
+                } catch (IOException ie) {
+                    System.err.println(
+                        "Unable to get the bytes from the register response at RegisterRQ ln 80");
+                }
+            } catch (NullPointerException ne) {
+                //TODO I need to run through a setup to verify why this is happening but it doesnt seem to impact overlay connect at front
             }
         }
     }

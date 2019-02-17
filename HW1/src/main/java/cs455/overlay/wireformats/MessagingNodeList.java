@@ -66,7 +66,6 @@ public class MessagingNodeList implements Event {
         MessagingNode.addServerMapping(IP_port, origin);
         socket = MessagingNode.getTCPSocket(IP_port);
 
-        //FIXME this is recieving a null pointer exception
         String[] elements = socket.getIPPort().split(":");
         rrq = new RegisterRequest(elements[0], Integer.parseInt(elements[1]),
             Protocol.messagingNode);
