@@ -46,7 +46,6 @@ public final class MessagingNode implements Node{
 
     String server_ip = InetAddress.getByName(server_hostname).getHostAddress();
 
-    System.out.println("Messaging node is making a TCP socket for the registry:");
     this.registry_socket = new TCPRegularSocket(new Socket(server_ip, server_portnumber));
     connections = new HashMap<String, TCPRegularSocket>();
     connections.put(server_ip + ":" + server_portnumber, this.registry_socket);
@@ -55,10 +54,6 @@ public final class MessagingNode implements Node{
     connections_list = new ArrayList<>();
 
     connections_list.add(server_ip + ":" + server_portnumber);
-
-    //The entries for the connections map will look like:
-    //'REGISTRY' : registry_socket
-    //'192.203.292.00:8088' : TCPRegularSocket
 
     this.eventFactory_instance = EventFactory.getInstance();
     eventFactory_instance.addListener(
@@ -192,6 +187,7 @@ public final class MessagingNode implements Node{
 
   public void printShortestPath(){System.out.println("Implement print shortest path");}
 
+  //TODO this is something that should be focused on I might be neglecting a lot of issues if i dont finish this
   public void exitOverlay(){
     System.out.println("Implement exit overlay");
   }
