@@ -36,12 +36,12 @@ public class OverlayCreator {
   public OverlayCreator(ArrayList<String> connections, int k) throws IllegalArgumentException{
 
     this.ipConnections = connections.toArray(new String[0]);
+
     this.k = k;
+
     this.len = connections.size();
 
     this.fullOverlay = createOverlay();
-
-    printMap(this.fullOverlay);
 
     this.rmvDuplicatesOverlay = RmvDuplicatesOverlay();
   }
@@ -140,8 +140,22 @@ public class OverlayCreator {
 
   private HashMap<String, ArrayList<String>> RmvDuplicatesOverlay(){
 
+    HashMap<String, ArrayList<String>> rmvDup = (HashMap<String, ArrayList<String>>) this.fullOverlay.clone();
 
-    return null;
+    for(String key : rmvDup.keySet()){
+
+      ArrayList<String> tempConnections = this.rmvDuplicatesOverlay.get(key);
+
+      //This will be where we iterate over all of the values from the subsequent arrays
+      for(String node : tempConnections){
+          //go to that node as the key of the dict and remove the orig key
+          rmvDup.get(node).remove(key);
+      }
+    }
+
+    printMap(rmvDup);
+
+    return rmvDup;
   }
 
   public void printMap(Map mp) {
