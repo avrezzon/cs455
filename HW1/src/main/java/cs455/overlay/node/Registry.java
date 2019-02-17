@@ -7,7 +7,6 @@ import cs455.overlay.util.OverlayCreator;
 import cs455.overlay.wireformats.EventFactory;
 import cs455.overlay.wireformats.EventInstance;
 import cs455.overlay.wireformats.MessagingNodeList;
-import cs455.overlay.wireformats.Protocol;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +32,7 @@ public final class Registry implements Node {
     private OverlayCreator overlay; //This contains
 
     public Registry(int port_number) throws IOException {
-        server = new TCPServerThread(port_number, Protocol.registry);
+      server = new TCPServerThread(port_number);
         event_queue = new EventQueueThread();
 
         eventFactory_instance = EventFactory.getInstance();
@@ -116,6 +115,7 @@ public final class Registry implements Node {
   //origin type protocol that I tried to implement
   //This adds the TCPSocket to the connections arrayList and the HashMap
   public static synchronized void receivedConnection(TCPRegularSocket inc_connection){
+    //FIXME This is the null ptr excpetion
     String regSocketKey = inc_connection.getIPPort();
     connections.put(regSocketKey, inc_connection);
   }

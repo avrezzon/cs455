@@ -1,6 +1,5 @@
 package cs455.overlay.wireformats;
 
-import cs455.overlay.node.MessagingNode;
 import cs455.overlay.node.Registry;
 import cs455.overlay.transport.TCPRegularSocket;
 import java.io.BufferedOutputStream;
@@ -14,12 +13,10 @@ public class RegisterRequest implements Event {
     private final int type = Protocol.REGISTER_RQ;
     private String ip_addr;
     private int port_number;
-    private int originType;
 
-    public RegisterRequest(String ip_addr, int port_number, int originType) {
+    public RegisterRequest(String ip_addr, int port_number) {
         this.ip_addr = ip_addr;
         this.port_number = port_number;
-        this.originType = originType; //Specifies who did this Registry or Messaging Node
     }
 
     public String getIP() {
@@ -65,9 +62,9 @@ public class RegisterRequest implements Event {
         String key = this.ip_addr + ":" + this.getPort();
 
         if(Registry.isMessagingNodePresent(key)){
-            TCPRegularSocket socket =
-                (this.originType == Protocol.registry) ? Registry.getTCPSocket(key)
-                    : MessagingNode.getTCPSocket(key);
+            TCPRegularSocket socket = Registry.getTCPSocket(key);
+//                (this.originType == Protocol.registry) ? Registry.getTCPSocket(key)
+//                    : MessagingNode.getTCPSocket(key);
             try {
                 socket.getSender().sendData(new RegisterResponse((byte) 0,
                     "A connection already exists in the table for this entry").getBytes());
@@ -78,15 +75,19 @@ public class RegisterRequest implements Event {
             //This means that this is the first time registering the Messaging node
 
             TCPRegularSocket socket = null;
+            Registry.addServerMapping(key, origin);
+            socket = Registry.getTCPSocket(key);
 
-            if (this.originType == Protocol.registry) {
-                Registry.addServerMapping(key, origin);
-                socket = Registry.getTCPSocket(key);
-            }
-            if (this.originType == Protocol.messagingNode) {
-                MessagingNode.addServerMapping(key, origin);
-                socket = MessagingNode.getTCPSocket(key);
-            }
+            //This section was previously using the originType
+//
+//            if (this.originType == Protocol.registry) {
+//                Registry.addServerMapping(key, origin);
+//                socket = Registry.getTCPSocket(key);
+//            }
+//            if (this.originType == Protocol.messagingNode) {
+//                MessagingNode.addServerMapping(key, origin);
+//                socket = MessagingNode.getTCPSocket(key);
+//            } //
             rrs = new RegisterResponse((byte)1);
             try {
                 socket.getSender().sendData(rrs.getBytes());

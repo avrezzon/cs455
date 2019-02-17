@@ -29,7 +29,7 @@ public class EventFactory {
     }
 
     //This class is responsible for holding the type of the message
-    public synchronized void createEvent(byte[] byteString, String origin, int originType)
+    public synchronized void createEvent(byte[] byteString, String origin)
         throws IOException {
 
         ByteArrayInputStream baInputStream = new ByteArrayInputStream(byteString);
@@ -41,10 +41,10 @@ public class EventFactory {
 
         switch (type) {
             case Protocol.REGISTER_RQ:
-                event = createRegisterRQ(din, originType);
+                event = createRegisterRQ(din);
                 break;
             case Protocol.REGISTER_RS:
-                event = createRegisterRS(din, originType);
+                event = createRegisterRS(din);
                 break;
             case Protocol.DEREGISTER_RQ:
                 event = createDeregisterRQ(din);
@@ -62,17 +62,17 @@ public class EventFactory {
     }
 
     //This section is responsible for creating the register request
-    private RegisterRequest createRegisterRQ(DataInputStream din, int originType)
+    private RegisterRequest createRegisterRQ(DataInputStream din)
         throws IOException {
         int ip_len = din.readInt();
         byte[] ip_addr_bytes = new byte[ip_len];
         din.readFully(ip_addr_bytes, 0, ip_len);
         String ip_addr = new String(ip_addr_bytes);
         int port_number = din.readInt();
-        return new RegisterRequest(ip_addr, port_number, originType);
+        return new RegisterRequest(ip_addr, port_number);
     }
 
-    private RegisterResponse createRegisterRS(DataInputStream din, int originType)
+    private RegisterResponse createRegisterRS(DataInputStream din)
         throws IOException {
         byte success = din.readByte();
         int add_len = din.readInt();

@@ -9,15 +9,13 @@ public class TCPRegularSocket {
     private TCPReceiverThread receiverThread;
     private TCPSender sender;
     private String IP_Addr_Port;
-    private int originType;
 
-    public TCPRegularSocket(Socket socket, int originType) throws IOException {
+    public TCPRegularSocket(Socket socket) throws IOException {
         this.socket = socket;
         this.sender = new TCPSender(socket);
-        this.receiverThread = new TCPReceiverThread(socket, originType);
+        this.receiverThread = new TCPReceiverThread(socket);
         this.IP_Addr_Port = socket.getRemoteSocketAddress().toString();
         this.IP_Addr_Port = this.IP_Addr_Port.substring(1);
-        this.originType = originType;
     }
 
     //Returns the key that should be used for this regular socket
