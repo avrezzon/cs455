@@ -58,6 +58,7 @@ public class MessagingNodeList implements Event {
     //TODO tommorow we need to implement who we are sending the messages out to
     for(String IP_port : connections){
       //Send connection to this IP
+
     }
 
   }

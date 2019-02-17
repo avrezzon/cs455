@@ -14,13 +14,11 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 
 public final class MessagingNode implements Node{
 
   private EventFactory eventFactory_instance;
-  private int type = Protocol.messagingNode;
   private String ipAddr;
   private int portnumber;
 
@@ -29,48 +27,9 @@ public final class MessagingNode implements Node{
   private static EventQueueThread eventQueue;
   private static TCPServerThread server;
 
-  private static Map<String, TCPRegularSocket> connections; //This is the regular socket pairing
-  private static Map<String, String> ServerToRegular; //The broadcasted IP:port paring to the regular socket for above
+  private static HashMap<String, TCPRegularSocket> connections; //This is the regular socket pairing
+  private static HashMap<String, String> ServerToRegular; //The broadcasted IP:port paring to the regular socket for above
   private static ArrayList<String> connections_list; //This contaings the servers IPs that are present
-
-  //Defined as static so that the
-  //Other classes especially the EventQueue can access the critical info
-  //BEGIN: in between this section is the same code as the Registry
-  //This adds the TCPSocket to the connections arrayList and the HashMap
-//  public static synchronized void receivedConnection(TCPRegularSocket inc_connection){
-//    String regSocketKey = inc_connection.getIPPort();
-//    connections.put(regSocketKey, inc_connection);
-//  }
-//
-//  //The incoming key will be the message body of the Register Request
-//  public static boolean isMessagingNodePresent(String key){
-//    if(ServerToRegular.containsKey(key)){
-//      return true;
-//    }
-//    return false;
-//  }
-//
-//  public static void addServerMapping(String serverIP, String regularIP){
-//    ServerToRegular.put(serverIP, regularIP);
-//    connections_list.add(serverIP);
-//    System.out.println("Registry successfully connected new node, number of connections is :" + connections_list.size());
-//  }
-//
-//  public static TCPRegularSocket getTCPSocket(String socket_id){
-//    String regular_id = ServerToRegular.get(socket_id);
-//    return connections.get(regular_id);
-//  }
-//
-//  //This is being used as a tool to test
-//  public static void printConnections() {
-//    System.out.println("\n\nCurrent Connections: ");
-//    for (int i = 0; i < connections_list.size(); i++) {
-//      System.out.println(i + ") " + connections_list.get(i));
-//    }
-//    System.out.println("END OF CONNECTIONS LIST\n\n");
-//  }
-
-  //END of verify
 
   public MessagingNode(String server_hostname, int server_portnumber) throws IOException {
 
@@ -88,15 +47,61 @@ public final class MessagingNode implements Node{
     this.registry_socket = new TCPRegularSocket(new Socket(server_ip, server_portnumber));
     connections = new HashMap<String, TCPRegularSocket>();
     connections.put("REGISTRY", this.registry_socket);
+    ServerToRegular = new HashMap<>();
+    connections_list = new ArrayList<>();
 
     //The entries for the connections map will look like:
     //'REGISTRY' : registry_socket
     //'192.203.292.00:8088' : TCPRegularSocket
 
     this.eventFactory_instance = EventFactory.getInstance();
-    eventFactory_instance.addListener(this); //This should correctly add the Messaging node to listen to the eventfactorys events
+    eventFactory_instance.addListener(
+        this); //This should correctly add the Messaging node to listen to the eventfactorys events
 
   }
+
+
+  //Defined as static so that the
+  //Other classes especially the EventQueue can access the critical info
+  //BEGIN: in between this section is the same code as the Registry
+  //This adds the TCPSocket to the connections arrayList and the HashMap
+
+  public static synchronized void receivedConnection(TCPRegularSocket inc_connection) {
+    String regSocketKey = inc_connection.getIPPort();
+    connections.put(regSocketKey, inc_connection);
+  }
+  //The incoming key will be the message body of the Register Request
+
+  public static boolean isMessagingNodePresent(String key) {
+    if (ServerToRegular.containsKey(key)) {
+      return true;
+    }
+    return false;
+  }
+
+  public static void addServerMapping(String serverIP, String regularIP) {
+    ServerToRegular.put(serverIP, regularIP);
+    connections_list.add(serverIP);
+    System.out.println(
+        "Registry successfully connected new node, number of connections is :" + connections_list
+            .size());
+  }
+
+  public static TCPRegularSocket getTCPSocket(String socket_id) {
+    String regular_id = ServerToRegular.get(socket_id);
+    return connections.get(regular_id);
+  }
+  //This is being used as a tool to test
+
+  public static void printConnections() {
+    System.out.println("\n\nCurrent Connections: ");
+    for (int i = 0; i < connections_list.size(); i++) {
+      System.out.println(i + ") " + connections_list.get(i));
+    }
+    System.out.println("END OF CONNECTIONS LIST\n\n");
+  }
+
+  //END of verify
 
   public String getIP(){return this.ipAddr;}
 

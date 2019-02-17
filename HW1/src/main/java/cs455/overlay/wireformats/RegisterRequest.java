@@ -1,5 +1,6 @@
 package cs455.overlay.wireformats;
 
+import cs455.overlay.node.MessagingNode;
 import cs455.overlay.node.Registry;
 import cs455.overlay.transport.TCPRegularSocket;
 import java.io.BufferedOutputStream;
@@ -63,10 +64,16 @@ public class RegisterRequest implements Event {
 
         String key = this.ip_addr + ":" + this.getPort();
 
-        if(Registry.isMessagingNodePresent(key)){
+        boolean present =
+            (this.originType == Protocol.registry) ? (Registry.isMessagingNodePresent(key))
+                : (MessagingNode.isMessagingNodePresent(key));
+        if (present) {
             TCPRegularSocket socket = null;//Registry.getTCPSocket(key);
             if (this.originType == Protocol.registry) {
                 socket = Registry.getTCPSocket(key);
+            }
+            if (this.originType == Protocol.messagingNode) {
+                socket = MessagingNode.getTCPSocket(key);
             }
 
             try {
