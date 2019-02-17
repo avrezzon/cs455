@@ -46,9 +46,12 @@ public final class MessagingNode implements Node{
     System.out.println("Messaging node is making a TCP socket for the registry:");
     this.registry_socket = new TCPRegularSocket(new Socket(server_ip, server_portnumber));
     connections = new HashMap<String, TCPRegularSocket>();
-    connections.put("REGISTRY", this.registry_socket);
+    connections.put(server_ip + ":" + server_portnumber, this.registry_socket);
+
     ServerToRegular = new HashMap<>();
     connections_list = new ArrayList<>();
+
+    connections_list.add(server_ip + ":" + server_portnumber);
 
     //The entries for the connections map will look like:
     //'REGISTRY' : registry_socket
@@ -83,7 +86,7 @@ public final class MessagingNode implements Node{
     ServerToRegular.put(serverIP, regularIP);
     connections_list.add(serverIP);
     System.out.println(
-        "Registry successfully connected new node, number of connections is :" + connections_list
+        "Registry successfully connected new node, number of peer nodes is :" + connections_list
             .size());
   }
 

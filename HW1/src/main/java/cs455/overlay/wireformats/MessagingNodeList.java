@@ -1,5 +1,7 @@
 package cs455.overlay.wireformats;
 
+import cs455.overlay.node.MessagingNode;
+import cs455.overlay.transport.TCPRegularSocket;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -52,23 +54,38 @@ public class MessagingNodeList implements Event {
 
   public void resolve(String origin) {
     System.out.println("You have recieved a reguest to initiate connections with some other nodes");
+    System.out.println("This node has been assigned the following connections:");
+
     //iterate through the list of the IP:Port connections that we need to get
     //This might mimic the way that register rq behaves
 
-    //TODO tommorow we need to implement who we are sending the messages out to
-    for(String IP_port : connections){
-      //Send connection to this IP
+    TCPRegularSocket socket;
+    RegisterRequest rrq;
 
+    //FIXME this doesnt work becuase it hasnet been added yet so i get a null pointer exception
+
+    MessagingNode.printConnections();
+
+    for(String IP_port : connections){
+
+      if (MessagingNode.isMessagingNodePresent(IP_port)) {
+        //Nothing should happen in this instance
+      } else {
+        System.out.println("Setting up connecetion with node " + IP_port);
+        //This means that this is the first time registering the Messaging node
+        MessagingNode.addServerMapping(IP_port, origin);
+        socket = MessagingNode.getTCPSocket(IP_port);
+
+        String[] elements = socket.getIPPort().split(":");
+        rrq = new RegisterRequest(elements[0], Integer.parseInt(elements[1]),
+            Protocol.messagingNode);
+        try {
+          socket.getSender().sendData(rrq.getBytes());
+        } catch (IOException ie) {
+          System.err.println("IOException occured in MessagingNodeList ln 78: " + ie.getMessage());
+        }
+      }
     }
 
   }
-
-  /**
-   * if(MessagingNode.isMessagingNodePresent(key)){
-   *         //Nothing should happen in this instance
-   *       }else{
-   *         //This means that this is the first time registering the Messaging node
-   *         MessagingNode.addServerMapping(key, origin);
-   *       }*/
-
 }

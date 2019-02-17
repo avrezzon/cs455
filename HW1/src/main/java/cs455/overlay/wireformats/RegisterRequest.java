@@ -86,8 +86,13 @@ public class RegisterRequest implements Event {
             //This means that this is the first time registering the Messaging node
 
             TCPRegularSocket socket = null;
-            Registry.addServerMapping(key, origin);
-            socket = Registry.getTCPSocket(key);
+            if (this.originType == Protocol.registry) {
+                Registry.addServerMapping(key, origin);
+                socket = Registry.getTCPSocket(key);
+            } else {
+                MessagingNode.addServerMapping(key, origin);
+                socket = MessagingNode.getTCPSocket(key);
+            }
             rrs = new RegisterResponse((byte)1);
             try {
                 socket.getSender().sendData(rrs.getBytes());
