@@ -12,23 +12,64 @@ import java.util.Scanner;
 public final class MessagingNode implements Node{
 
   private EventFactory eventFactory_instance;
+  private int type = Protocol.messagingNode;
   private String ipAddr;
   private int portnumber;
+
   private TCPRegularSocket registry_socket;
+
   private static EventQueueThread eventQueue;
   private static TCPServerThread server;
-  private static ArrayList<String> connections_list;
-  private static Map<String, TCPRegularSocket> connections;
-  //Defined as static so that the
+
+  private static Map<String, TCPRegularSocket> connections; //This is the regular socket pairing
+  private static Map<String, String> ServerToRegular; //The broadcasted IP:port paring to the regular socket for above
+  private static ArrayList<String> connections_list; //This contaings the servers IPs that are present
+//Defined as static so that the
   //Other classes especially the EventQueue can access the critical info
 
   //TODO
 
+  //BEGIN: in between this section is the same code as the Registry
+  //This adds the TCPSocket to the connections arrayList and the HashMap
+  public static synchronized void receivedConnection(TCPRegularSocket inc_connection){
+    String regSocketKey = inc_connection.getIPPort();
+    connections.put(regSocketKey, inc_connection);
+  }
+
+  //The incoming key will be the message body of the Register Request
+  public static boolean isMessagingNodePresent(String key){
+    if(ServerToRegular.containsKey(key)){
+      return true;
+    }
+    return false;
+  }
+
+  public static void addServerMapping(String serverIP, String regularIP){
+    ServerToRegular.put(serverIP, regularIP);
+    connections_list.add(serverIP);
+    System.out.println("Registry successfully connected new node, number of connections is :" + connections_list.size());
+  }
+
+  public static TCPRegularSocket getTCPSocket(String socket_id){
+    String regular_id = ServerToRegular.get(socket_id);
+    return connections.get(regular_id);
+  }
+
+  //This is being used as a tool to test
+  public static void printConnections() {
+    System.out.println("\n\nCurrent Connections: ");
+    for (int i = 0; i < connections_list.size(); i++) {
+      System.out.println(i + ") " + connections_list.get(i));
+    }
+    System.out.println("END OF CONNECTIONS LIST\n\n");
+  }
+
+  //END of verify
 
   public MessagingNode(String server_hostname, int server_portnumber) throws IOException {
 
     //The information derives from the server sockets IP and port
-    server = new TCPServerThread();
+    server = new TCPServerThread(Protocol.messagingNode);
 
     //NOTE this is the old solution
     this.ipAddr = InetAddress.getLocalHost().getHostAddress();
@@ -51,8 +92,6 @@ public final class MessagingNode implements Node{
     this.eventFactory_instance = EventFactory.getInstance();
     eventFactory_instance.addListener(this); //This should correctly add the Messaging node to listen to the eventfactorys events
 
-      System.out.println("Messaging node is alive and is on " + this.ipAddr + ":" + this.portnumber);
-      System.out.println("Registry associated with this node is " + registry_socket.getIPPort());
   }
 
   public String getIP(){return this.ipAddr;}

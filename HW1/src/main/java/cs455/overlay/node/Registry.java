@@ -26,15 +26,13 @@ public final class Registry implements Node {
     private static ArrayList<String> connections_list; //This contaings the servers IPs that are present
 
     /**
-     * In this section Im going to need some stuff set up for the registry with the overlay
      * I will also need a table of all of the weights
-     * Something else TODO look into this
-     * */
+     */
 
-    private OverlayCreator overlay;
+    private OverlayCreator overlay; //This contains
 
     public Registry(int port_number) throws IOException {
-        server = new TCPServerThread(port_number);
+        server = new TCPServerThread(port_number, Protocol.registry);
         event_queue = new EventQueueThread();
 
         eventFactory_instance = EventFactory.getInstance();
@@ -43,8 +41,6 @@ public final class Registry implements Node {
         connections = new HashMap<>();
         ServerToRegular = new HashMap<>();
         connections_list = new ArrayList<>();
-
-        System.out.println("The IP address for the registry server socket is: " + server.getIP() + ":" + server.getPortnumber());
     }
 
     //This is responsible for spinning up the threads that are used within the registry
@@ -86,6 +82,17 @@ public final class Registry implements Node {
                     registry.sendOverlayLinkWeights();
                 }else if(input_split[0].equals("start")){
                     registry.startNumRound(0);
+                }else if(input_split[0].equals("exit")){
+                    System.exit(0);
+                }else if(input_split[0].equals("help")){
+                    System.out.println("Here are your possible commands: ");
+                    System.out.println("list-messaging-nodes");
+                    System.out.println("list-weights");
+                    System.out.println("setup-overlay [number of connections]");
+                    System.out.println("send-overlay-link-weights");
+                    System.out.println("start");
+                    System.out.println("exit");
+                    System.out.println("\n\n");
                 }else{
                     System.err.println("Please enter in a valid command");
                 }
@@ -104,8 +111,8 @@ public final class Registry implements Node {
         }
     }
 
-  //This adds the TCPSocket to the connections arrayList and the HashMap
-  public static synchronized void receivedConnection(TCPRegularSocket inc_connection){
+    //This adds the TCPSocket to the connections arrayList and the HashMap
+    public static synchronized void receivedConnection(TCPRegularSocket inc_connection){
     String regSocketKey = inc_connection.getIPPort();
     connections.put(regSocketKey, inc_connection);
   }
@@ -124,27 +131,40 @@ public final class Registry implements Node {
         System.out.println("Registry successfully connected new node, number of connections is :" + connections_list.size());
     }
 
+    //TODO Figure out where I use this
     public static TCPRegularSocket getTCPSocket(String socket_id){
         String regular_id = ServerToRegular.get(socket_id);
         return connections.get(regular_id);
     }
 
     //This is being used as a tool to test
-    public static void printConnections() {
-        System.out.println("\n\nCurrent Connections: ");
-        for (int i = 0; i < connections_list.size(); i++) {
-            System.out.println(i + ") " + connections_list.get(i));
-        }
-        System.out.println("END OF CONNECTIONS LIST\n\n");
-    }
+//    public static void printConnections() {
+//        System.out.println("\n\nCurrent Connections: ");
+//        for (int i = 0; i < connections_list.size(); i++) {
+//            System.out.println(i + ") " + connections_list.get(i));
+//        }
+//        System.out.println("END OF CONNECTIONS LIST\n\n");
+//    }
 
     public void listMessagingNodes(){
-        System.out.println("Create the list messaging nodes fn");
+
+      int idx = 1;
+
+      if(connections_list.size() == 0){
+        System.out.println("Currently there are no Messaging Nodes connected");
+        return;
+      }
+
+      System.out.println("Current Messaging Nodes Registered: ");
+      for(String IP_port : connections_list){
+          System.out.printf("Connection #%d: %s\n", idx, IP_port);
+          idx += 1;
+      }
+      System.out.println(" ");
     }
 
     public void listWeights() {System.out.println("Create the list weights fn");}
 
-    //TODO finish this
     public void setupOverlay(int num_connections){
 
       ArrayList<String> peerConnections;
@@ -159,7 +179,7 @@ public final class Registry implements Node {
 
         peerConnections = this.overlay.getFullOverlay().get(mainNode);
         msl = new MessagingNodeList(peerConnections);
-        socket = this.connections.get(this.ServerToRegular.get(mainNode));
+        socket = connections.get(ServerToRegular.get(mainNode));
         try {
           socket.getSender().sendData(msl.getBytes());
         }catch(IOException ie){

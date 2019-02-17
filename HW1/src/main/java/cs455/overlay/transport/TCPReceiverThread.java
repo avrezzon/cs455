@@ -24,7 +24,6 @@ public class TCPReceiverThread implements Runnable {
 
   public void run(){
     int dataLength;
-    System.out.println("RECIEVING THREAD IS ALIVE");
     while(socket != null){
       try{
 
@@ -42,7 +41,6 @@ public class TCPReceiverThread implements Runnable {
         break;
       }
     }
-    System.out.println("RECEIVING THREAD WINDING DOWN");
   }
 
 }
