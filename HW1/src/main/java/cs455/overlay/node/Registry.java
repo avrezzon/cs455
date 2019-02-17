@@ -7,6 +7,7 @@ import cs455.overlay.util.OverlayCreator;
 import cs455.overlay.wireformats.*;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -103,12 +104,11 @@ public final class Registry implements Node {
         }
     }
 
-    public static synchronized void receivedConnection(TCPRegularSocket inc_connection){
-        String regSocketKey = inc_connection.getIPPort();
-        connections.put(regSocketKey, inc_connection);
-        System.out.println("Added Connection " + regSocketKey + " to the connections map.");
-        System.out.println("Entry = {" + regSocketKey + ": " + inc_connection + "}");
-    }
+  //This adds the TCPSocket to the connections arrayList and the HashMap
+  public static synchronized void receivedConnection(TCPRegularSocket inc_connection){
+    String regSocketKey = inc_connection.getIPPort();
+    connections.put(regSocketKey, inc_connection);
+  }
 
     //The incoming key will be the message body of the Register Request
     public static boolean isMessagingNodePresent(String key){
@@ -144,9 +144,28 @@ public final class Registry implements Node {
 
     public void listWeights() {System.out.println("Create the list weights fn");}
 
+    //TODO finish this
     public void setupOverlay(int num_connections){
-        //TODO finish this
-        this.overlay = new OverlayCreator(connections_list, num_connections);
+
+      ArrayList<String> peerConnections;
+      TCPRegularSocket socket;
+      MessagingNodeList msl;
+
+      //Create the full overlay for the nodes
+      //this comes back as a HashMap<String, ArrayList<String>> with the IP:Port server id and the peer nodes
+      this.overlay = new OverlayCreator(connections_list, num_connections);
+
+      for (String mainNode : this.overlay.getFullOverlay().keySet()) {
+
+        peerConnections = this.overlay.getFullOverlay().get(mainNode);
+        msl = new MessagingNodeList(peerConnections);
+        socket = this.connections.get(this.ServerToRegular.get(mainNode));
+        try {
+          socket.getSender().sendData(msl.getBytes());
+        }catch(IOException ie){
+          System.err.println("An IOException occurred at Registry ln 166 " + ie.getMessage());
+        }
+      }
     }
 
     public void sendOverlayLinkWeights(){System.out.println("Create sendoverlayLinkWeights fn");}

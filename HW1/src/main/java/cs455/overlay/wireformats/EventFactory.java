@@ -7,6 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import javax.xml.crypto.Data;
 
 public class EventFactory {
@@ -52,6 +53,8 @@ public class EventFactory {
                 break;
             case Protocol.DEREGISTER_RS:
                 event = createDeregisterRS(din);
+            case Protocol.MESSAGING_NODE_LIST:
+                event = createMessagingNodeList(din);
         }
 
         baInputStream.close();
@@ -111,5 +114,26 @@ public class EventFactory {
         }
 
         return drs;
+    }
+
+    private MessagingNodeList createMessagingNodeList(DataInputStream din) throws IOException{
+
+        ArrayList<String> connections = new ArrayList<>();
+        int peerLength;
+        byte[] peerIpPort = null;
+        String IP_Port;
+
+        int numOfPeers = din.readInt();
+
+        //FIXME I keep on
+        for(int i = 0; i < numOfPeers; i++){
+            peerLength = din.readInt();
+            peerIpPort = new byte[peerLength];
+            din.readFully(peerIpPort, 0 ,peerLength);
+            IP_Port = new String(peerIpPort);
+            connections.add(IP_Port);
+        }
+
+        return new MessagingNodeList(connections);
     }
 }

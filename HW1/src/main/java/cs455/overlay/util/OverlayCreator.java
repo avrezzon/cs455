@@ -47,6 +47,8 @@ public class OverlayCreator {
     //this.rmvDuplicatesOverlay = RmvDuplicatesOverlay();
   }
 
+  public HashMap<String, ArrayList<String>> getFullOverlay(){return (HashMap<String, ArrayList<String>>) this.fullOverlay.clone();}
+
   //This will take in the the number of connectiions and the possible connections that the
   private HashMap<String, ArrayList<String>> createOverlay() throws IllegalArgumentException{
 
