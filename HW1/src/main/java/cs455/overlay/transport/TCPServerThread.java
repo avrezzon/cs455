@@ -3,10 +3,10 @@ package cs455.overlay.transport;
 import cs455.overlay.node.MessagingNode;
 import cs455.overlay.node.Registry;
 import cs455.overlay.wireformats.Protocol;
-import java.net.*;
-
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.net.Socket;
 
 public class TCPServerThread implements Runnable {
 
@@ -57,12 +57,14 @@ public class TCPServerThread implements Runnable {
                 //Accepts the connections from incoming nodes and spawns the regular socket
                 inc_socket = server.accept();
                 //Adds the new connection into the connections map
-                TCPRegularSocket connection = new TCPRegularSocket(inc_socket);
+                TCPRegularSocket connection = null;
                 if(this.type == Protocol.registry) {
                     Registry.receivedConnection(connection);
+                    connection = new TCPRegularSocket(inc_socket, Protocol.registry);
                 }
                 if(this.type == Protocol.messagingNode){
                     MessagingNode.receivedConnection(connection);
+                    connection = new TCPRegularSocket(inc_socket, Protocol.messagingNode);
                 }
                 new Thread(connection.getReceiverThread()).start();
 

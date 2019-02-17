@@ -1,12 +1,10 @@
 package cs455.overlay.transport;
 
-import cs455.overlay.wireformats.*;
-
+import cs455.overlay.wireformats.EventFactory;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
-import java.rmi.registry.Registry;
 
 public class TCPReceiverThread implements Runnable {
 
@@ -14,12 +12,14 @@ public class TCPReceiverThread implements Runnable {
   private DataInputStream din;
   private EventFactory eventFactory = EventFactory.getInstance();
   private String IPPort;
+  private int originType;
 
-  public TCPReceiverThread(Socket socket) throws IOException {
+  public TCPReceiverThread(Socket socket, int originType) throws IOException {
     this.socket = socket;
     this.IPPort = socket.getRemoteSocketAddress().toString();
     this.IPPort = this.IPPort.substring(1);
     din = new DataInputStream(socket.getInputStream());
+    this.originType = originType;
   }
 
   public void run(){
@@ -30,7 +30,7 @@ public class TCPReceiverThread implements Runnable {
         dataLength = din.readInt();
         byte[] data = new byte[dataLength];
         din.readFully(data, 0, dataLength);
-        eventFactory.createEvent(data, this.IPPort);
+        eventFactory.createEvent(data, this.IPPort, this.originType);
 
       }catch (SocketException se){
         System.err.println(se.getMessage());

@@ -4,10 +4,11 @@ import cs455.overlay.transport.EventQueueThread;
 import cs455.overlay.transport.TCPRegularSocket;
 import cs455.overlay.transport.TCPServerThread;
 import cs455.overlay.util.OverlayCreator;
-import cs455.overlay.wireformats.*;
-
+import cs455.overlay.wireformats.EventFactory;
+import cs455.overlay.wireformats.EventInstance;
+import cs455.overlay.wireformats.MessagingNodeList;
+import cs455.overlay.wireformats.Protocol;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -111,8 +112,10 @@ public final class Registry implements Node {
         }
     }
 
-    //This adds the TCPSocket to the connections arrayList and the HashMap
-    public static synchronized void receivedConnection(TCPRegularSocket inc_connection){
+  //TODO this is where a null pointer exception is happening and I believe that has something to do with all of the
+  //origin type protocol that I tried to implement
+  //This adds the TCPSocket to the connections arrayList and the HashMap
+  public static synchronized void receivedConnection(TCPRegularSocket inc_connection){
     String regSocketKey = inc_connection.getIPPort();
     connections.put(regSocketKey, inc_connection);
   }
@@ -131,7 +134,6 @@ public final class Registry implements Node {
         System.out.println("Registry successfully connected new node, number of connections is :" + connections_list.size());
     }
 
-    //TODO Figure out where I use this
     public static TCPRegularSocket getTCPSocket(String socket_id){
         String regular_id = ServerToRegular.get(socket_id);
         return connections.get(regular_id);

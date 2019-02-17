@@ -1,8 +1,5 @@
 package cs455.overlay.wireformats;
 
-import cs455.overlay.node.MessagingNode;
-import cs455.overlay.node.Registry;
-import cs455.overlay.transport.TCPRegularSocket;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -14,7 +11,7 @@ public class MessagingNodeList implements Event {
   private final int type = Protocol.MESSAGING_NODE_LIST;
   private ArrayList<String> connections;
   private int numberOfPeers;
-  //Other fields
+
 
   public MessagingNodeList(ArrayList<String> connections) {
     this.connections = (ArrayList<String>) connections.clone();
@@ -55,7 +52,6 @@ public class MessagingNodeList implements Event {
 
   public void resolve(String origin) {
     System.out.println("You have recieved a reguest to initiate connections with some other nodes");
-    //TODO this method definitely needs to be implemented
     //iterate through the list of the IP:Port connections that we need to get
     //This might mimic the way that register rq behaves
 

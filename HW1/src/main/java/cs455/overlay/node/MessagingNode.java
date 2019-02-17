@@ -1,9 +1,17 @@
 package cs455.overlay.node;
 
-import cs455.overlay.wireformats.*;
+import cs455.overlay.transport.EventQueueThread;
+import cs455.overlay.transport.TCPRegularSocket;
+import cs455.overlay.transport.TCPServerThread;
+import cs455.overlay.wireformats.Event;
+import cs455.overlay.wireformats.EventFactory;
+import cs455.overlay.wireformats.EventInstance;
+import cs455.overlay.wireformats.Protocol;
+import cs455.overlay.wireformats.RegisterRequest;
 import java.io.IOException;
-import java.net.*;
-import cs455.overlay.transport.*;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,8 +34,6 @@ public final class MessagingNode implements Node{
   private static ArrayList<String> connections_list; //This contaings the servers IPs that are present
 //Defined as static so that the
   //Other classes especially the EventQueue can access the critical info
-
-  //TODO
 
   //BEGIN: in between this section is the same code as the Registry
   //This adds the TCPSocket to the connections arrayList and the HashMap
@@ -81,7 +87,8 @@ public final class MessagingNode implements Node{
     String server_ip = InetAddress.getByName(server_hostname).getHostAddress();
 
     System.out.println("Messaging node is making a TCP socket for the registry:");
-    this.registry_socket = new TCPRegularSocket(new Socket(server_ip, server_portnumber));
+    this.registry_socket = new TCPRegularSocket(new Socket(server_ip, server_portnumber),
+        Protocol.messagingNode);
     connections = new HashMap<String, TCPRegularSocket>();
     connections.put("REGISTRY", this.registry_socket);
 
@@ -111,7 +118,7 @@ public final class MessagingNode implements Node{
     new Thread(server).start();
     new Thread(this.registry_socket.getReceiverThread()).start();
     new Thread(eventQueue).start();
-    Event bootupEvent = new RegisterRequest(this.ipAddr, this.portnumber);
+    Event bootupEvent = new RegisterRequest(this.ipAddr, this.portnumber, Protocol.messagingNode);
     this.registry_socket.getSender().sendData(bootupEvent.getBytes());
   }
 

@@ -1,14 +1,11 @@
 package cs455.overlay.wireformats;
 
-import cs455.overlay.node.*;
-
+import cs455.overlay.node.Node;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import javax.xml.crypto.Data;
 
 public class EventFactory {
 
@@ -32,7 +29,8 @@ public class EventFactory {
     }
 
     //This class is responsible for holding the type of the message
-    public synchronized void createEvent(byte[] byteString, String origin) throws IOException {
+    public synchronized void createEvent(byte[] byteString, String origin, int originType)
+        throws IOException {
 
         ByteArrayInputStream baInputStream = new ByteArrayInputStream(byteString);
         DataInputStream din = new DataInputStream(new BufferedInputStream(baInputStream));
@@ -43,10 +41,10 @@ public class EventFactory {
 
         switch (type) {
             case Protocol.REGISTER_RQ:
-                event = createRegisterRQ(din);
+                event = createRegisterRQ(din, originType);
                 break;
             case Protocol.REGISTER_RS:
-                event = createRegisterRS(din);
+                event = createRegisterRS(din, originType);
                 break;
             case Protocol.DEREGISTER_RQ:
                 event = createDeregisterRQ(din);
@@ -64,16 +62,18 @@ public class EventFactory {
     }
 
     //This section is responsible for creating the register request
-    private RegisterRequest createRegisterRQ(DataInputStream din) throws IOException {
+    private RegisterRequest createRegisterRQ(DataInputStream din, int originType)
+        throws IOException {
         int ip_len = din.readInt();
         byte[] ip_addr_bytes = new byte[ip_len];
         din.readFully(ip_addr_bytes, 0, ip_len);
         String ip_addr = new String(ip_addr_bytes);
         int port_number = din.readInt();
-        return new RegisterRequest(ip_addr, port_number);
+        return new RegisterRequest(ip_addr, port_number, originType);
     }
 
-    private RegisterResponse createRegisterRS(DataInputStream din) throws IOException {
+    private RegisterResponse createRegisterRS(DataInputStream din, int originType)
+        throws IOException {
         byte success = din.readByte();
         int add_len = din.readInt();
         String add_info;
@@ -125,7 +125,6 @@ public class EventFactory {
 
         int numOfPeers = din.readInt();
 
-        //FIXME I keep on
         for(int i = 0; i < numOfPeers; i++){
             peerLength = din.readInt();
             peerIpPort = new byte[peerLength];
