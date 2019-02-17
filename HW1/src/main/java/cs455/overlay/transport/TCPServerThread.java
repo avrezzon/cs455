@@ -17,10 +17,6 @@ public class TCPServerThread implements Runnable {
         return this.port_number;
     }
 
-    public String getIP() {
-        return this.IP_addr;
-    }
-
     //This creates the server socket on a specified port
     //The type variable is being used to determine which static verison of connections to use
     public TCPServerThread(int port_number) throws IOException {

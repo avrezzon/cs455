@@ -115,7 +115,7 @@ public final class MessagingNode implements Node{
     new Thread(server).start();
     new Thread(this.registry_socket.getReceiverThread()).start();
     new Thread(eventQueue).start();
-    Event bootupEvent = new RegisterRequest(this.ipAddr, this.portnumber);
+    Event bootupEvent = new RegisterRequest(this.ipAddr, this.portnumber, Protocol.registry);
     this.registry_socket.getSender().sendData(bootupEvent.getBytes());
   }
 

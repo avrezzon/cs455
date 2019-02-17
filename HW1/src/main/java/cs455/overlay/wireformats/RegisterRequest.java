@@ -13,10 +13,12 @@ public class RegisterRequest implements Event {
     private final int type = Protocol.REGISTER_RQ;
     private String ip_addr;
     private int port_number;
+    private int originType; //TODO this will still allow the resolve method to know who it should register to
 
-    public RegisterRequest(String ip_addr, int port_number) {
+    public RegisterRequest(String ip_addr, int port_number, int originType) {
         this.ip_addr = ip_addr;
         this.port_number = port_number;
+        this.originType = originType;
     }
 
     public String getIP() {
@@ -42,6 +44,7 @@ public class RegisterRequest implements Event {
         ;
         dout.write(msg, 0, ip_addr.length());
         dout.writeInt(this.port_number);
+        dout.writeInt(this.originType);
         dout.flush();
 
         marshalledBytes = baOutputStream.toByteArray();
@@ -52,7 +55,6 @@ public class RegisterRequest implements Event {
         return marshalledBytes;
     }
 
-    //TODO this will require the port that it was actually sent from
     public void resolve(String origin){
 
         byte success;
@@ -62,9 +64,11 @@ public class RegisterRequest implements Event {
         String key = this.ip_addr + ":" + this.getPort();
 
         if(Registry.isMessagingNodePresent(key)){
-            TCPRegularSocket socket = Registry.getTCPSocket(key);
-//                (this.originType == Protocol.registry) ? Registry.getTCPSocket(key)
-//                    : MessagingNode.getTCPSocket(key);
+            TCPRegularSocket socket = null;//Registry.getTCPSocket(key);
+            if (this.originType == Protocol.registry) {
+                socket = Registry.getTCPSocket(key);
+            }
+
             try {
                 socket.getSender().sendData(new RegisterResponse((byte) 0,
                     "A connection already exists in the table for this entry").getBytes());
@@ -77,17 +81,6 @@ public class RegisterRequest implements Event {
             TCPRegularSocket socket = null;
             Registry.addServerMapping(key, origin);
             socket = Registry.getTCPSocket(key);
-
-            //This section was previously using the originType
-//
-//            if (this.originType == Protocol.registry) {
-//                Registry.addServerMapping(key, origin);
-//                socket = Registry.getTCPSocket(key);
-//            }
-//            if (this.originType == Protocol.messagingNode) {
-//                MessagingNode.addServerMapping(key, origin);
-//                socket = MessagingNode.getTCPSocket(key);
-//            } //
             rrs = new RegisterResponse((byte)1);
             try {
                 socket.getSender().sendData(rrs.getBytes());
