@@ -1,10 +1,10 @@
 package cs455.overlay.transport;
 
 import cs455.overlay.node.Registry;
-import java.net.*;
-
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.net.Socket;
 
 public class TCPServerThread implements Runnable {
 
@@ -22,6 +22,7 @@ public class TCPServerThread implements Runnable {
     }
 
     //This creates the server socket on a specified port
+    //The type variable is being used to determine which static verison of connections to use
     public TCPServerThread(int port_number) throws IOException {
         server = new ServerSocket(port_number);
         this.IP_addr = InetAddress.getLocalHost().getHostAddress();
@@ -53,7 +54,14 @@ public class TCPServerThread implements Runnable {
                 //Adds the new connection into the connections map
                 TCPRegularSocket connection = new TCPRegularSocket(inc_socket);
                 Registry.receivedConnection(connection);
-
+//                if(this.type == Protocol.registry) {
+//                    Registry.receivedConnection(connection);
+//                    connection = new TCPRegularSocket(inc_socket, Protocol.registry);
+//                }
+//                if(this.type == Protocol.messagingNode){
+//                    MessagingNode.receivedConnection(connection);
+//                    connection = new TCPRegularSocket(inc_socket, Protocol.messagingNode);
+//                }
                 new Thread(connection.getReceiverThread()).start();
 
             } catch (IOException ie) {

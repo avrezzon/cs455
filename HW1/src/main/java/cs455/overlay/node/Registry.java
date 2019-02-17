@@ -4,8 +4,9 @@ import cs455.overlay.transport.EventQueueThread;
 import cs455.overlay.transport.TCPRegularSocket;
 import cs455.overlay.transport.TCPServerThread;
 import cs455.overlay.util.OverlayCreator;
-import cs455.overlay.wireformats.*;
-
+import cs455.overlay.wireformats.EventFactory;
+import cs455.overlay.wireformats.EventInstance;
+import cs455.overlay.wireformats.MessagingNodeList;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,15 +26,13 @@ public final class Registry implements Node {
     private static ArrayList<String> connections_list; //This contaings the servers IPs that are present
 
     /**
-     * In this section Im going to need some stuff set up for the registry with the overlay
      * I will also need a table of all of the weights
-     * Something else TODO look into this
-     * */
+     */
 
-    private OverlayCreator overlay;
+    private OverlayCreator overlay; //This contains
 
     public Registry(int port_number) throws IOException {
-        server = new TCPServerThread(port_number);
+      server = new TCPServerThread(port_number);
         event_queue = new EventQueueThread();
 
         eventFactory_instance = EventFactory.getInstance();
@@ -42,8 +41,6 @@ public final class Registry implements Node {
         connections = new HashMap<>();
         ServerToRegular = new HashMap<>();
         connections_list = new ArrayList<>();
-
-        System.out.println("The IP address for the registry server socket is: " + server.getIP() + ":" + server.getPortnumber());
     }
 
     //This is responsible for spinning up the threads that are used within the registry
@@ -85,6 +82,17 @@ public final class Registry implements Node {
                     registry.sendOverlayLinkWeights();
                 }else if(input_split[0].equals("start")){
                     registry.startNumRound(0);
+                }else if(input_split[0].equals("exit")){
+                    System.exit(0);
+                }else if(input_split[0].equals("help")){
+                    System.out.println("Here are your possible commands: ");
+                    System.out.println("list-messaging-nodes");
+                    System.out.println("list-weights");
+                    System.out.println("setup-overlay [number of connections]");
+                    System.out.println("send-overlay-link-weights");
+                    System.out.println("start");
+                    System.out.println("exit");
+                    System.out.println("\n\n");
                 }else{
                     System.err.println("Please enter in a valid command");
                 }
@@ -103,12 +111,14 @@ public final class Registry implements Node {
         }
     }
 
-    public static synchronized void receivedConnection(TCPRegularSocket inc_connection){
-        String regSocketKey = inc_connection.getIPPort();
-        connections.put(regSocketKey, inc_connection);
-        System.out.println("Added Connection " + regSocketKey + " to the connections map.");
-        System.out.println("Entry = {" + regSocketKey + ": " + inc_connection + "}");
-    }
+  //TODO this is where a null pointer exception is happening and I believe that has something to do with all of the
+  //origin type protocol that I tried to implement
+  //This adds the TCPSocket to the connections arrayList and the HashMap
+  public static synchronized void receivedConnection(TCPRegularSocket inc_connection){
+    //FIXME This is the null ptr excpetion
+    String regSocketKey = inc_connection.getIPPort();
+    connections.put(regSocketKey, inc_connection);
+  }
 
     //The incoming key will be the message body of the Register Request
     public static boolean isMessagingNodePresent(String key){
@@ -130,23 +140,54 @@ public final class Registry implements Node {
     }
 
     //This is being used as a tool to test
-    public static void printConnections() {
-        System.out.println("\n\nCurrent Connections: ");
-        for (int i = 0; i < connections_list.size(); i++) {
-            System.out.println(i + ") " + connections_list.get(i));
-        }
-        System.out.println("END OF CONNECTIONS LIST\n\n");
-    }
+//    public static void printConnections() {
+//        System.out.println("\n\nCurrent Connections: ");
+//        for (int i = 0; i < connections_list.size(); i++) {
+//            System.out.println(i + ") " + connections_list.get(i));
+//        }
+//        System.out.println("END OF CONNECTIONS LIST\n\n");
+//    }
 
     public void listMessagingNodes(){
-        System.out.println("Create the list messaging nodes fn");
+
+      int idx = 1;
+
+      if(connections_list.size() == 0){
+        System.out.println("Currently there are no Messaging Nodes connected");
+        return;
+      }
+
+      System.out.println("Current Messaging Nodes Registered: ");
+      for(String IP_port : connections_list){
+          System.out.printf("Connection #%d: %s\n", idx, IP_port);
+          idx += 1;
+      }
+      System.out.println(" ");
     }
 
     public void listWeights() {System.out.println("Create the list weights fn");}
 
     public void setupOverlay(int num_connections){
-        //TODO finish this
-        this.overlay = new OverlayCreator(connections_list, num_connections);
+
+      ArrayList<String> peerConnections;
+      TCPRegularSocket socket;
+      MessagingNodeList msl;
+
+      //Create the full overlay for the nodes
+      //this comes back as a HashMap<String, ArrayList<String>> with the IP:Port server id and the peer nodes
+      this.overlay = new OverlayCreator(connections_list, num_connections);
+
+      for (String mainNode : this.overlay.getFullOverlay().keySet()) {
+
+        peerConnections = this.overlay.getFullOverlay().get(mainNode);
+        msl = new MessagingNodeList(peerConnections);
+        socket = connections.get(ServerToRegular.get(mainNode));
+        try {
+          socket.getSender().sendData(msl.getBytes());
+        }catch(IOException ie){
+          System.err.println("An IOException occurred at Registry ln 166 " + ie.getMessage());
+        }
+      }
     }
 
     public void sendOverlayLinkWeights(){System.out.println("Create sendoverlayLinkWeights fn");}

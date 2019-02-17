@@ -1,13 +1,11 @@
 package cs455.overlay.wireformats;
 
-import cs455.overlay.node.*;
-
+import cs455.overlay.node.Node;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import javax.xml.crypto.Data;
+import java.util.ArrayList;
 
 public class EventFactory {
 
@@ -31,7 +29,8 @@ public class EventFactory {
     }
 
     //This class is responsible for holding the type of the message
-    public synchronized void createEvent(byte[] byteString, String origin) throws IOException {
+    public synchronized void createEvent(byte[] byteString, String origin)
+        throws IOException {
 
         ByteArrayInputStream baInputStream = new ByteArrayInputStream(byteString);
         DataInputStream din = new DataInputStream(new BufferedInputStream(baInputStream));
@@ -52,6 +51,8 @@ public class EventFactory {
                 break;
             case Protocol.DEREGISTER_RS:
                 event = createDeregisterRS(din);
+            case Protocol.MESSAGING_NODE_LIST:
+                event = createMessagingNodeList(din);
         }
 
         baInputStream.close();
@@ -61,7 +62,8 @@ public class EventFactory {
     }
 
     //This section is responsible for creating the register request
-    private RegisterRequest createRegisterRQ(DataInputStream din) throws IOException {
+    private RegisterRequest createRegisterRQ(DataInputStream din)
+        throws IOException {
         int ip_len = din.readInt();
         byte[] ip_addr_bytes = new byte[ip_len];
         din.readFully(ip_addr_bytes, 0, ip_len);
@@ -70,7 +72,8 @@ public class EventFactory {
         return new RegisterRequest(ip_addr, port_number);
     }
 
-    private RegisterResponse createRegisterRS(DataInputStream din) throws IOException {
+    private RegisterResponse createRegisterRS(DataInputStream din)
+        throws IOException {
         byte success = din.readByte();
         int add_len = din.readInt();
         String add_info;
@@ -111,5 +114,25 @@ public class EventFactory {
         }
 
         return drs;
+    }
+
+    private MessagingNodeList createMessagingNodeList(DataInputStream din) throws IOException{
+
+        ArrayList<String> connections = new ArrayList<>();
+        int peerLength;
+        byte[] peerIpPort = null;
+        String IP_Port;
+
+        int numOfPeers = din.readInt();
+
+        for(int i = 0; i < numOfPeers; i++){
+            peerLength = din.readInt();
+            peerIpPort = new byte[peerLength];
+            din.readFully(peerIpPort, 0 ,peerLength);
+            IP_Port = new String(peerIpPort);
+            connections.add(IP_Port);
+        }
+
+        return new MessagingNodeList(connections);
     }
 }

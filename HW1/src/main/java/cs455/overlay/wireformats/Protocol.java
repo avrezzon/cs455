@@ -19,6 +19,9 @@ public class Protocol {
   public static final byte success = 1;
   public static final byte failure = 0;
 
+  public static final int registry = 4;
+  public static final int messagingNode = 5;
+
 
 }
 

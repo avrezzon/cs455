@@ -1,12 +1,10 @@
 package cs455.overlay.transport;
 
-import cs455.overlay.wireformats.*;
-
+import cs455.overlay.wireformats.EventFactory;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
-import java.rmi.registry.Registry;
 
 public class TCPReceiverThread implements Runnable {
 
@@ -24,7 +22,6 @@ public class TCPReceiverThread implements Runnable {
 
   public void run(){
     int dataLength;
-    System.out.println("RECIEVING THREAD IS ALIVE");
     while(socket != null){
       try{
 
@@ -42,7 +39,6 @@ public class TCPReceiverThread implements Runnable {
         break;
       }
     }
-    System.out.println("RECEIVING THREAD WINDING DOWN");
   }
 
 }

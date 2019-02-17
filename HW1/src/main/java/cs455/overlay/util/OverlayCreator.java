@@ -1,7 +1,6 @@
 package cs455.overlay.util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -36,16 +35,12 @@ public class OverlayCreator {
   public OverlayCreator(ArrayList<String> connections, int k) throws IllegalArgumentException{
 
     this.ipConnections = connections.toArray(new String[0]);
-
     this.k = k;
-
     this.len = connections.size();
-
     this.fullOverlay = createOverlay();
-
-    //TODO see comment made below in regards to the function
-    //this.rmvDuplicatesOverlay = RmvDuplicatesOverlay();
   }
+
+  public HashMap<String, ArrayList<String>> getFullOverlay(){return (HashMap<String, ArrayList<String>>) this.fullOverlay.clone();}
 
   //This will take in the the number of connectiions and the possible connections that the
   private HashMap<String, ArrayList<String>> createOverlay() throws IllegalArgumentException{
@@ -137,30 +132,6 @@ public class OverlayCreator {
       idx = c;
     }
     return idx;
-  }
-
-  //TODO later if i feel like that this is important to implement then we can approach
-  private HashMap<String, ArrayList<String>> RmvDuplicatesOverlay(){
-
-    HashMap<String, ArrayList<String>> rmvDup = new HashMap<>();
-    ArrayList<String> tempConnetions;
-
-
-    for(String key : this.fullOverlay.keySet()){
-
-      ArrayList<String> tempConnections = this.fullOverlay.get(key);
-
-      //FIXME this is where i am getting a null error I think that this is when i remove all of one nodes connection
-      //This will be where we iterate over all of the values from the subsequent arrays
-      for(String node : tempConnections){
-          //go to that node as the key of the dict and remove the orig key
-        //System.out.println("Removing element " + key + " from " + fullOverlay.get(node));
-        this.fullOverlay.get(node).remove(key);
-      }
-
-    }
-
-    return rmvDup;
   }
 
   public void printMap(Map mp) {

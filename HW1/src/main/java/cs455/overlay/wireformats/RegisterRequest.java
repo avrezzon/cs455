@@ -14,7 +14,7 @@ public class RegisterRequest implements Event {
     private String ip_addr;
     private int port_number;
 
-    public RegisterRequest(String ip_addr, int port_number) throws IOException {
+    public RegisterRequest(String ip_addr, int port_number) {
         this.ip_addr = ip_addr;
         this.port_number = port_number;
     }
@@ -49,8 +49,6 @@ public class RegisterRequest implements Event {
         baOutputStream.close();
         dout.close();
 
-        System.out.println("REGISTER RQ IP: " + this.getIP());
-        System.out.println("REGISTER RQ Port: " + this.getPort());
         return marshalledBytes;
     }
 
@@ -62,26 +60,41 @@ public class RegisterRequest implements Event {
         RegisterResponse rrs = null;
 
         String key = this.ip_addr + ":" + this.getPort();
-        System.out.println("Connection key " + key);
-        System.out.println("This request was recieved on this port: " + origin);
-        Registry.printConnections();
 
         if(Registry.isMessagingNodePresent(key)){
-            //TODO this is an error case and registration should not happen
+            TCPRegularSocket socket = Registry.getTCPSocket(key);
+//                (this.originType == Protocol.registry) ? Registry.getTCPSocket(key)
+//                    : MessagingNode.getTCPSocket(key);
+            try {
+                socket.getSender().sendData(new RegisterResponse((byte) 0,
+                    "A connection already exists in the table for this entry").getBytes());
+            }catch(IOException ie){
+                System.err.println("Exception at ln 72 in RegisterRQ : " + ie.getMessage());
+            }
         }else{
             //This means that this is the first time registering the Messaging node
+
+            TCPRegularSocket socket = null;
             Registry.addServerMapping(key, origin);
-            TCPRegularSocket socket = Registry.getTCPSocket(key);
-            rrs = new RegisterResponse((byte)0);
+            socket = Registry.getTCPSocket(key);
+
+            //This section was previously using the originType
+//
+//            if (this.originType == Protocol.registry) {
+//                Registry.addServerMapping(key, origin);
+//                socket = Registry.getTCPSocket(key);
+//            }
+//            if (this.originType == Protocol.messagingNode) {
+//                MessagingNode.addServerMapping(key, origin);
+//                socket = MessagingNode.getTCPSocket(key);
+//            } //
+            rrs = new RegisterResponse((byte)1);
             try {
                 socket.getSender().sendData(rrs.getBytes());
             }catch(IOException ie){
                 System.err.println("Unable to get the bytes from the register response at RegisterRQ ln 80");
             }
-            //TODO notify the registry to print the number of connections made now
         }
-        Registry.printConnections();
-
     }
 
 }
