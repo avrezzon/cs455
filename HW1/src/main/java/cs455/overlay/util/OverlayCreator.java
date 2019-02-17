@@ -146,6 +146,7 @@ public class OverlayCreator {
 
       ArrayList<String> tempConnections = this.rmvDuplicatesOverlay.get(key);
 
+      //FIXME this is where i am getting a null error I think that this is when i remove all of one nodes connection
       //This will be where we iterate over all of the values from the subsequent arrays
       for(String node : tempConnections){
           //go to that node as the key of the dict and remove the orig key
