@@ -3,6 +3,7 @@ package cs455.overlay.node;
 import cs455.overlay.transport.EventQueueThread;
 import cs455.overlay.transport.TCPRegularSocket;
 import cs455.overlay.transport.TCPServerThread;
+import cs455.overlay.util.OverlayCreator;
 import cs455.overlay.wireformats.*;
 
 import java.io.IOException;
@@ -22,6 +23,14 @@ public final class Registry implements Node {
     private static Map<String, TCPRegularSocket> connections; //This is the regular socket pairing
     private static Map<String, String> ServerToRegular; //The broadcasted IP:port paring to the regular socket for above
     private static ArrayList<String> connections_list; //This contaings the servers IPs that are present
+
+    /**
+     * In this section Im going to need some stuff set up for the registry with the overlay
+     * I will also need a table of all of the weights
+     * Something else TODO look into this
+     * */
+
+    private OverlayCreator overlay;
 
     public Registry(int port_number) throws IOException {
         server = new TCPServerThread(port_number);
@@ -71,7 +80,7 @@ public final class Registry implements Node {
                 }else if(input_split[0].equals("list-weights")){
                     registry.listWeights();
                 }else if(input_split[0].equals("setup-overlay") ){
-                    registry.setupOverlay(0);
+                    registry.setupOverlay(Integer.parseInt(input_split[1]));
                 }else if(input_split[0].equals("send-overlay-link-weights")){
                     registry.sendOverlayLinkWeights();
                 }else if(input_split[0].equals("start")){
@@ -136,9 +145,8 @@ public final class Registry implements Node {
     public void listWeights() {System.out.println("Create the list weights fn");}
 
     public void setupOverlay(int num_connections){
-
-        System.out.println("Create the setupOverlay fn");
-
+        //TODO finish this
+        this.overlay = new OverlayCreator(connections_list, num_connections);
     }
 
     public void sendOverlayLinkWeights(){System.out.println("Create sendoverlayLinkWeights fn");}
