@@ -65,8 +65,15 @@ public class EventFactory {
       case Protocol.TASK_SUMMARY_RQ:
         //This one only has a data field of type so nothing needs to be retrieved
         event = new TaskSummaryRequest();
+        break;
       case Protocol.TASK_SUMMARY_RS:
         event = createTaskSummaryResponse(din);
+        break;
+      case Protocol.TASK_COMPLETE:
+        event = createTaskComplete(din);
+        break;
+      case Protocol.MESSAGE:
+        event = createMessage(din);
     }
 
     baInputStream.close();
@@ -205,5 +212,31 @@ public class EventFactory {
     return new TaskSummaryResponse(IP_addr, portnumber,
         new StatisticsCollectorAndDisplay(msgSent, msgSumSent, msgReceived, msgSumReceived,
             msgRelayed));
+  }
+
+  private TaskComplete createTaskComplete(DataInputStream din) throws IOException {
+    int ip_len = din.readInt();
+    byte[] ip_addr_bytes = new byte[ip_len];
+    din.readFully(ip_addr_bytes, 0, ip_len);
+    String ip_addr = new String(ip_addr_bytes);
+    int port_number = din.readInt();
+
+    return new TaskComplete(ip_addr, port_number);
+  }
+
+  private Message createMessage(DataInputStream din) throws IOException {
+    int nodeLen = din.readInt();
+    byte[] node_bytes = new byte[nodeLen];
+    din.readFully(node_bytes, 0, nodeLen);
+    String mainNode = new String(node_bytes);
+
+    nodeLen = din.readInt();
+    node_bytes = new byte[nodeLen];
+    din.readFully(node_bytes, 0, nodeLen);
+    String sinkNode = new String(node_bytes);
+
+    int msgWeight = din.readInt();
+
+    return new Message(mainNode, sinkNode, msgWeight);
   }
 }
