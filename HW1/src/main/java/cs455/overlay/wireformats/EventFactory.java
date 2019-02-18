@@ -1,6 +1,7 @@
 package cs455.overlay.wireformats;
 
 import cs455.overlay.node.Node;
+import cs455.overlay.util.StatisticsCollectorAndDisplay;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -58,6 +59,14 @@ public class EventFactory {
       case Protocol.LINK_WEIGHTS:
         event = createLinkWeights(din);
         break;
+      case Protocol.TASK_INIT:
+        event = createTaskInitiate(din);
+        break;
+      case Protocol.TASK_SUMMARY_RQ:
+        //This one only has a data field of type so nothing needs to be retrieved
+        event = new TaskSummaryRequest();
+      case Protocol.TASK_SUMMARY_RS:
+        event = createTaskSummaryResponse(din);
     }
 
     baInputStream.close();
@@ -171,5 +180,30 @@ public class EventFactory {
 
     return new LinkWeights(peerConnections);
 
+  }
+
+  private TaskInitiate createTaskInitiate(DataInputStream din) throws IOException {
+    int rounds = din.readInt();
+    return new TaskInitiate(rounds);
+  }
+
+  private TaskSummaryResponse createTaskSummaryResponse(DataInputStream din) throws IOException {
+    String IP_addr;
+    byte[] IP;
+    int len = din.readInt();
+    IP = new byte[len];
+    din.readFully(IP, 0, len);
+    IP_addr = new String(IP);
+
+    int portnumber = din.readInt();
+    int msgSent = din.readInt();
+    int msgSumSent = din.readInt();
+    int msgReceived = din.readInt();
+    int msgSumReceived = din.readInt();
+    int msgRelayed = din.readInt();
+
+    return new TaskSummaryResponse(IP_addr, portnumber,
+        new StatisticsCollectorAndDisplay(msgSent, msgSumSent, msgReceived, msgSumReceived,
+            msgRelayed));
   }
 }
