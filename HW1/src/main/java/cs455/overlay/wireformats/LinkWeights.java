@@ -57,5 +57,7 @@ public class LinkWeights implements Event {
 
   public void resolve(String origin) {
     MessagingNode.setPeerWeights(this.links);
+    System.out.println("Link weights message received");
+    MessagingNode.printConnectionWeights();
   }
 }

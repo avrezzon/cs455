@@ -129,8 +129,8 @@ public final class MessagingNode implements Node{
 
   public static TCPServerThread getServer(){return server;}
 
-  public static void setPeerWeights(ArrayList<LinkInfo> connectionsWeights) {
-    connectionsWeights = (ArrayList<LinkInfo>) connectionsWeights.clone();
+  public static void setPeerWeights(ArrayList<LinkInfo> connections) {
+    connectionsWeights = (ArrayList<LinkInfo>) connections.clone();
   }
 
   //This is responsible for starting up the associated threads with the node
