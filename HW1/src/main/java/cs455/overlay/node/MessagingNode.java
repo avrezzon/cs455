@@ -7,6 +7,7 @@ import cs455.overlay.util.StatisticsCollectorAndDisplay;
 import cs455.overlay.wireformats.Event;
 import cs455.overlay.wireformats.EventFactory;
 import cs455.overlay.wireformats.EventInstance;
+import cs455.overlay.wireformats.LinkInfo;
 import cs455.overlay.wireformats.Protocol;
 import cs455.overlay.wireformats.RegisterRequest;
 import java.io.IOException;
@@ -28,6 +29,18 @@ public final class MessagingNode implements Node{
   private static EventQueueThread eventQueue;
   private static TCPServerThread server;
 
+  //TODO I could add a thing here for actual connections
+  //TODO and here would be the ones that where already conneceted due to the order of messages sent
+  /**
+   * Message type: Protocol.LinkWeights Number of links: connections.length() -1 because of the
+   * registry entry LinkInfo1:  this.IP:this.Port -> connections[i] linkWeight
+   *
+   * Main node will have a map of the adjacent node and its weight This way the knowledge is only of
+   * the neighbor nodes When it comes to sending rounds it will only be that of a neighboring node
+   * due to the algorithm
+   */
+
+  private static ArrayList<LinkInfo> connectionsWeights;
   private static HashMap<String, TCPRegularSocket> connections; //This is the regular socket pairing
   private static HashMap<String, String> ServerToRegular; //The broadcasted IP:port paring to the regular socket for above
   private static ArrayList<String> connections_list; //This contaings the servers IPs that are present
@@ -46,7 +59,6 @@ public final class MessagingNode implements Node{
 
     String server_ip = InetAddress.getByName(server_hostname).getHostAddress();
 
-    System.out.println("Messaging node is making a TCP socket for the registry:");
     this.registry_socket = new TCPRegularSocket(new Socket(server_ip, server_portnumber));
     connections = new HashMap<String, TCPRegularSocket>();
     connections.put(server_ip + ":" + server_portnumber, this.registry_socket);
@@ -56,16 +68,13 @@ public final class MessagingNode implements Node{
 
     connections_list.add(server_ip + ":" + server_portnumber);
 
-    //The entries for the connections map will look like:
-    //'REGISTRY' : registry_socket
-    //'192.203.292.00:8088' : TCPRegularSocket
-
     this.eventFactory_instance = EventFactory.getInstance();
     eventFactory_instance.addListener(
         this); //This should correctly add the Messaging node to listen to the eventfactorys events
 
     statsCollector = new StatisticsCollectorAndDisplay();
 
+    connectionsWeights = new ArrayList<>();
   }
 
   //This adds the TCPSocket to the connections arrayList and the HashMap
@@ -120,8 +129,8 @@ public final class MessagingNode implements Node{
 
   public static TCPServerThread getServer(){return server;}
 
-  public String getIpAddr(){
-    return this.ipAddr;
+  public static void setPeerWeights(ArrayList<LinkInfo> connectionsWeights) {
+    connectionsWeights = (ArrayList<LinkInfo>) connectionsWeights.clone();
   }
 
   //This is responsible for starting up the associated threads with the node
@@ -192,8 +201,17 @@ public final class MessagingNode implements Node{
 
   public void printShortestPath(){System.out.println("Implement print shortest path");}
 
+  //TODO this is something that should be focused on I might be neglecting a lot of issues if i dont finish this
   public void exitOverlay(){
     System.out.println("Implement exit overlay");
+  }
+
+  //Note that this function is strictly for testing purposes
+  public static void printConnectionWeights() {
+    for (LinkInfo link : connectionsWeights) {
+      System.out.printf("MainNode: %s Connected to: %s Weight; %d\n", link.getSendingNode(),
+          link.getReceivingNode(), link.getConnectionWeight());
+    }
   }
 
 }

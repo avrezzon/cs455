@@ -6,11 +6,14 @@ import cs455.overlay.transport.TCPServerThread;
 import cs455.overlay.util.OverlayCreator;
 import cs455.overlay.wireformats.EventFactory;
 import cs455.overlay.wireformats.EventInstance;
+import cs455.overlay.wireformats.LinkInfo;
+import cs455.overlay.wireformats.LinkWeights;
 import cs455.overlay.wireformats.MessagingNodeList;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.Scanner;
 
 public final class Registry implements Node {
@@ -135,14 +138,14 @@ public final class Registry implements Node {
     return connections.get(regular_id);
   }
 
-  //This is being used as a tool to test
-//    public static void printConnections() {
-//        System.out.println("\n\nCurrent Connections: ");
-//        for (int i = 0; i < connections_list.size(); i++) {
-//            System.out.println(i + ") " + connections_list.get(i));
-//        }
-//        System.out.println("END OF CONNECTIONS LIST\n\n");
-//    }
+  //  This is being used as a tool to test
+  public static void printConnections() {
+    System.out.println("\n\nCurrent Connections: ");
+    for (int i = 0; i < connections_list.size(); i++) {
+      System.out.println(i + ") " + connections_list.get(i));
+    }
+    System.out.println("END OF CONNECTIONS LIST\n\n");
+  }
 
   public void listMessagingNodes() {
 
@@ -165,6 +168,7 @@ public final class Registry implements Node {
     System.out.println("Create the list weights fn");
   }
 
+  //Establishes the setup of the overlay in the overlay obj
   public void setupOverlay(int num_connections) {
 
     ArrayList<String> peerConnections;
@@ -189,7 +193,51 @@ public final class Registry implements Node {
   }
 
   public void sendOverlayLinkWeights() {
-    System.out.println("Create sendoverlayLinkWeights fn");
+
+    ArrayList<String> peerNodes;
+    ArrayList<LinkInfo> peerNodesWeights;
+    HashMap<String, ArrayList<LinkInfo>> overlayWeights = new HashMap<>();
+    Random rand = new Random();
+    int weight = 0;
+    LinkWeights linkWeights;
+    TCPRegularSocket socket;
+
+    //PreInitialize that tarray lists have been mapped
+    for (int i = 0; i < connections_list.size(); i++) {
+      overlayWeights.put(connections_list.get(i), new ArrayList<>());
+    }
+
+    for (String mainNode : overlay.getFullOverlay().keySet()) {
+      //Here we are going to iterate over all of the keys in the overlay map
+      peerNodes = overlay.getFullOverlay().get(mainNode);
+      for (String connectingNode : peerNodes) {
+
+        //A{B:8, C:2}
+        //B{A:8, C:3}   translates to mainNode.put((RecievingNode, weight))
+        //C{A:2, B:3}                 ReceivingNode.put(());
+
+        weight = rand.nextInt(10) + 1;
+        overlayWeights.get(mainNode).add(new LinkInfo(mainNode, connectingNode, weight));
+        overlayWeights.get(connectingNode).add(new LinkInfo(connectingNode, mainNode, weight));
+
+      }
+    }
+
+    //VERIFY This
+    for (String key : overlayWeights.keySet()) {
+      peerNodesWeights = overlayWeights.get(key);
+      linkWeights = new LinkWeights(peerNodesWeights);
+
+      //This is where i need to select the node that needs to be sending the message to
+      socket = connections.get(ServerToRegular.get(key));
+      try {
+        socket.getSender().sendData(linkWeights.getBytes());
+      } catch (IOException ie) {
+        System.err.println("An IOException occurred at Registry ln 235 " + ie.getMessage());
+      }
+
+    }
+
   }
 
   public void startNumRound(int rounds) {

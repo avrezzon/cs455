@@ -51,8 +51,13 @@ public class EventFactory {
         break;
       case Protocol.DEREGISTER_RS:
         event = createDeregisterRS(din);
+        break;
       case Protocol.MESSAGING_NODE_LIST:
         event = createMessagingNodeList(din);
+        break;
+      case Protocol.LINK_WEIGHTS:
+        event = createLinkWeights(din);
+        break;
     }
 
     baInputStream.close();
@@ -135,5 +140,36 @@ public class EventFactory {
     }
 
     return new MessagingNodeList(connections);
+  }
+
+  private LinkWeights createLinkWeights(DataInputStream din) throws IOException {
+
+    ArrayList<LinkInfo> peerConnections = new ArrayList<>();
+    int numConnections;
+    int len;
+    int weight;
+    byte[] IP;
+    String sender, receiver;
+
+    numConnections = din.readInt();
+
+    for (int i = 0; i < numConnections; i++) {
+      len = din.readInt();
+      IP = new byte[len];
+      din.readFully(IP, 0, len);
+      sender = new String(IP);
+
+      len = din.readInt();
+      IP = new byte[len];
+      din.readFully(IP, 0, len);
+      receiver = new String(IP);
+
+      weight = din.readInt();
+
+      peerConnections.add(new LinkInfo(sender, receiver, weight));
+    }
+
+    return new LinkWeights(peerConnections);
+
   }
 }
