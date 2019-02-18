@@ -16,6 +16,15 @@ public class StatisticsCollectorAndDisplay {
     this.msgRelayed = 0;
   }
 
+  public StatisticsCollectorAndDisplay(int msgSent, int msgSumSent, int msgReceived,
+      int msgSumReceived, int msgRelayed) {
+    this.msgSent = msgSent;
+    this.msgSumSent = msgSumSent;
+    this.msgReceived = msgReceived;
+    this.msgSumReceived = msgSumReceived;
+    this.msgRelayed = msgRelayed;
+  }
+
   //TODO Verify that there are no race conditions
   public void SendMsg(int msgWeight) {
     msgSent += 1;
