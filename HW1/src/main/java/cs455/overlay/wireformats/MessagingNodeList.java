@@ -27,14 +27,9 @@ public class MessagingNodeList implements Event {
     DataOutputStream dout = new DataOutputStream(new BufferedOutputStream(baOutputStream));
 
     dout.writeInt(this.type);
-    System.out.println("MSL type: " + this.type);
-
     dout.writeInt(this.numberOfPeers);
-    System.out.println("MSL number of peers: " + this.numberOfPeers);
-
     for (String IP_Port : this.connections) {
       dout.writeInt(IP_Port.length());
-      System.out.printf("MSL peer ip length :%d, ip: %s\n", IP_Port.length(), IP_Port);
       peer = IP_Port.getBytes();
       dout.write(peer, 0, IP_Port.length());
     }

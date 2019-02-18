@@ -7,6 +7,7 @@ import cs455.overlay.util.StatisticsCollectorAndDisplay;
 import cs455.overlay.wireformats.Event;
 import cs455.overlay.wireformats.EventFactory;
 import cs455.overlay.wireformats.EventInstance;
+import cs455.overlay.wireformats.LinkInfo;
 import cs455.overlay.wireformats.Protocol;
 import cs455.overlay.wireformats.RegisterRequest;
 import java.io.IOException;
@@ -39,6 +40,7 @@ public final class MessagingNode implements Node{
    * due to the algorithm
    */
 
+  private static ArrayList<LinkInfo> connectionsWeights;
   private static HashMap<String, TCPRegularSocket> connections; //This is the regular socket pairing
   private static HashMap<String, String> ServerToRegular; //The broadcasted IP:port paring to the regular socket for above
   private static ArrayList<String> connections_list; //This contaings the servers IPs that are present
@@ -72,6 +74,7 @@ public final class MessagingNode implements Node{
 
     statsCollector = new StatisticsCollectorAndDisplay();
 
+    connectionsWeights = new ArrayList<>();
   }
 
   //This adds the TCPSocket to the connections arrayList and the HashMap

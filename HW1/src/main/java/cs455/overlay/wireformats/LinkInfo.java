@@ -24,4 +24,5 @@ public class LinkInfo {
   public int getConnectionWeight() {
     return this.connectionWeight;
   }
+
 }
