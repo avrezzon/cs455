@@ -15,6 +15,7 @@ public class Protocol {
   public static final int TASK_COMPLETE = 18;
   public static final int TASK_SUMMARY_RQ = 19;
   public static final int TASK_SUMMARY_RS = 20;
+  public static final int MESSAGE = 21;
 
   public static final byte success = 1;
   public static final byte failure = 0;
