@@ -26,7 +26,8 @@ public final class Registry implements Node {
   private static Map<String, TCPRegularSocket> connections; //This is the regular socket pairing
   private static Map<String, String> ServerToRegular; //The broadcasted IP:port paring to the regular socket for above
   private static ArrayList<String> connections_list; //This contaings the servers IPs that are present
-  private OverlayCreator overlay; //This contains
+  private static HashMap<String, ArrayList<LinkInfo>> connectionsWeights;
+  private OverlayCreator overlay;
 
   public Registry(int port_number) throws IOException {
     server = new TCPServerThread(port_number);
@@ -38,6 +39,7 @@ public final class Registry implements Node {
     connections = new HashMap<>();
     ServerToRegular = new HashMap<>();
     connections_list = new ArrayList<>();
+    connectionsWeights = new HashMap<>();
   }
 
   //This is responsible for spinning up the threads that are used within the registry
@@ -147,6 +149,7 @@ public final class Registry implements Node {
     System.out.println("END OF CONNECTIONS LIST\n\n");
   }
 
+  //Lists all of the messaging nodes within the registry's connections
   public void listMessagingNodes() {
 
     int idx = 1;
@@ -164,8 +167,25 @@ public final class Registry implements Node {
     System.out.println(" ");
   }
 
+  //Lists the main node and the connections that it has with the associated weights
   public void listWeights() {
-    System.out.println("Create the list weights fn");
+
+    ArrayList<LinkInfo> links;
+    int counter = 1;
+    System.out.println("The weights for the nodes in the overlay: ");
+
+    for (String key : connectionsWeights.keySet()) {
+      links = connectionsWeights.get(key);
+      System.out.printf("Connections for node %s\n", key);
+      for (LinkInfo link : links) {
+        System.out
+            .printf("\tConnection #%d to %s with weight of %d\n", counter, link.getReceivingNode(),
+                link.getConnectionWeight());
+        counter += 1;
+      }
+      System.out.println(" ");
+      counter = 1;
+    }
   }
 
   //Establishes the setup of the overlay in the overlay obj
@@ -192,6 +212,7 @@ public final class Registry implements Node {
     }
   }
 
+  //Sends the distributed weights to all of the nodes
   public void sendOverlayLinkWeights() {
 
     ArrayList<String> peerNodes;
@@ -223,7 +244,9 @@ public final class Registry implements Node {
       }
     }
 
-    //VERIFY This
+    //Appropriately sets the weights and allows the Registry to create the routing cache
+    connectionsWeights = (HashMap<String, ArrayList<LinkInfo>>) overlayWeights.clone();
+
     for (String key : overlayWeights.keySet()) {
       peerNodesWeights = overlayWeights.get(key);
       linkWeights = new LinkWeights(peerNodesWeights);
@@ -239,6 +262,9 @@ public final class Registry implements Node {
     }
 
   }
+
+  //TODO I need to implement Dijkstra's algorithim and need to determine a way to dispurse the
+  //Routing cache to all of the messaging nodes --> Idea is that this could also be a singleton instance that I could reference values from
 
   public void startNumRound(int rounds) {
     System.out.println("Create start number of rounds");
