@@ -129,8 +129,8 @@ public final class MessagingNode implements Node{
 
   public static TCPServerThread getServer(){return server;}
 
-  public String getIpAddr(){
-    return this.ipAddr;
+  public static void setPeerWeights(ArrayList<LinkInfo> connectionsWeights) {
+    connectionsWeights = (ArrayList<LinkInfo>) connectionsWeights.clone();
   }
 
   //This is responsible for starting up the associated threads with the node
@@ -204,6 +204,14 @@ public final class MessagingNode implements Node{
   //TODO this is something that should be focused on I might be neglecting a lot of issues if i dont finish this
   public void exitOverlay(){
     System.out.println("Implement exit overlay");
+  }
+
+  //Note that this function is strictly for testing purposes
+  public static void printConnectionWeights() {
+    for (LinkInfo link : connectionsWeights) {
+      System.out.printf("MainNode: %s Connected to: %s Weight; %d\n", link.getSendingNode(),
+          link.getReceivingNode(), link.getConnectionWeight());
+    }
   }
 
 }

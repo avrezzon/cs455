@@ -1,5 +1,6 @@
 package cs455.overlay.wireformats;
 
+import cs455.overlay.node.MessagingNode;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -55,11 +56,6 @@ public class LinkWeights implements Event {
   }
 
   public void resolve(String origin) {
-    //TODO this will fill the nodes primary connection table
-    System.out.println("Node now just needs to process all of the info");
-    for (LinkInfo link : this.links) {
-      System.out.printf("MainNode: %s Connected to: %s Weight; %d\n", link.getSendingNode(),
-          link.getReceivingNode(), link.getConnectionWeight());
-    }
+    MessagingNode.setPeerWeights(this.links);
   }
 }
