@@ -6,6 +6,7 @@ import cs455.overlay.transport.TCPServerThread;
 import cs455.overlay.util.OverlayCreator;
 import cs455.overlay.wireformats.EventFactory;
 import cs455.overlay.wireformats.EventInstance;
+import cs455.overlay.wireformats.LinkInfo;
 import cs455.overlay.wireformats.MessagingNodeList;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -135,14 +136,14 @@ public final class Registry implements Node {
     return connections.get(regular_id);
   }
 
-  //This is being used as a tool to test
-//    public static void printConnections() {
-//        System.out.println("\n\nCurrent Connections: ");
-//        for (int i = 0; i < connections_list.size(); i++) {
-//            System.out.println(i + ") " + connections_list.get(i));
-//        }
-//        System.out.println("END OF CONNECTIONS LIST\n\n");
-//    }
+  //  This is being used as a tool to test
+  public static void printConnections() {
+    System.out.println("\n\nCurrent Connections: ");
+    for (int i = 0; i < connections_list.size(); i++) {
+      System.out.println(i + ") " + connections_list.get(i));
+    }
+    System.out.println("END OF CONNECTIONS LIST\n\n");
+  }
 
   public void listMessagingNodes() {
 
@@ -189,7 +190,21 @@ public final class Registry implements Node {
   }
 
   public void sendOverlayLinkWeights() {
-    System.out.println("Create sendoverlayLinkWeights fn");
+
+    ArrayList<String> peerNodes;
+    HashMap<String, ArrayList<LinkInfo>> overlayWeights;
+
+    //TODO few steps need to be implemented
+    //Im going to need to create a HashMap<String mainNode, ArrayList<LinkInfo>>
+    //I will need to precompute the values of weights and store that in the map so that the random numbers are bidirectinal
+    //This will make more sense with the mapping
+    for (String mainNode : overlay.getFullOverlay().keySet()) {
+      //Here we are going to iterate over all of the keys in the overlay map
+
+      peerNodes = overlay.getFullOverlay().get(mainNode);
+
+
+    }
   }
 
   public void startNumRound(int rounds) {
