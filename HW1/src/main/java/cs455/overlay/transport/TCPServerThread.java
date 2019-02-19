@@ -53,6 +53,8 @@ public class TCPServerThread implements Runnable {
                 inc_socket = server.accept();
                 //Adds the new connection into the connections map
                 TCPRegularSocket connection = new TCPRegularSocket(inc_socket);
+
+                System.out.println("RECIEVED A CONNECTION1!!!!!!!!!!!!!");
                 if (originType) { //TODO I need to figure out if im acutally connecting the ports
 
                     Registry.receivedConnection(connection);

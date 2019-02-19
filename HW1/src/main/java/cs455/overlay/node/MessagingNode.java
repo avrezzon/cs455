@@ -40,8 +40,8 @@ public final class MessagingNode implements Node{
     //The information derives from the server sockets IP and port
     server = new TCPServerThread();
 
-    this.ipAddr = InetAddress.getLocalHost().getHostAddress();
-    this.portnumber = server.getPortnumber();
+    ipAddr = InetAddress.getLocalHost().getHostAddress();
+    portnumber = server.getPortnumber();
 
     eventQueue = new EventQueueThread();
 
