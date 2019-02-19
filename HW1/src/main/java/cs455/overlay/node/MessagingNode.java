@@ -208,6 +208,8 @@ public final class MessagingNode implements Node{
 
   //Note that this function is strictly for testing purposes
   public static void printConnectionWeights() {
+
+    System.out.println("Entered into the print connections");
     for (LinkInfo link : connectionsWeights) {
       System.out.printf("MainNode: %s Connected to: %s Weight; %d\n", link.getSendingNode(),
           link.getReceivingNode(), link.getConnectionWeight());

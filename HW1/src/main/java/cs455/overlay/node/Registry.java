@@ -216,10 +216,13 @@ public final class Registry implements Node {
   public void sendOverlayLinkWeights() {
 
     ArrayList<String> peerNodes;
-    ArrayList<LinkInfo> peerNodesWeights;
+    ArrayList<LinkInfo> peerNodesWeights; //FIXME this should only be of length k connections
+
     HashMap<String, ArrayList<LinkInfo>> overlayWeights = new HashMap<>();
     Random rand = new Random();
+
     int weight = 0;
+
     LinkWeights linkWeights;
     TCPRegularSocket socket;
 
@@ -228,9 +231,12 @@ public final class Registry implements Node {
       overlayWeights.put(connections_list.get(i), new ArrayList<>());
     }
 
+
     for (String mainNode : overlay.getFullOverlay().keySet()) {
       //Here we are going to iterate over all of the keys in the overlay map
       peerNodes = overlay.getFullOverlay().get(mainNode);
+      peerNodesWeights = overlayWeights.get(mainNode);
+
       for (String connectingNode : peerNodes) {
 
         //A{B:8, C:2}
@@ -238,14 +244,19 @@ public final class Registry implements Node {
         //C{A:2, B:3}                 ReceivingNode.put(());
 
         weight = rand.nextInt(10) + 1;
-        overlayWeights.get(mainNode).add(new LinkInfo(mainNode, connectingNode, weight));
-        overlayWeights.get(connectingNode).add(new LinkInfo(connectingNode, mainNode, weight));
+
+        if (!containsNode(peerNodesWeights,
+            connectingNode)) {//Conecting node doesn't exist within the connections list for the main node
+          overlayWeights.get(mainNode).add(new LinkInfo(mainNode, connectingNode, weight));
+          overlayWeights.get(connectingNode).add(new LinkInfo(connectingNode, mainNode, weight));
+        }
 
       }
     }
 
     //Appropriately sets the weights and allows the Registry to create the routing cache
-    connectionsWeights = (HashMap<String, ArrayList<LinkInfo>>) overlayWeights.clone();
+    connectionsWeights = (HashMap<String, ArrayList<LinkInfo>>) overlayWeights
+        .clone(); //TODO double check if this is the correct data tstructure to use
 
     for (String key : overlayWeights.keySet()) {
       peerNodesWeights = overlayWeights.get(key);
@@ -261,10 +272,18 @@ public final class Registry implements Node {
 
     }
 
+
   }
 
   //TODO I need to implement Dijkstra's algorithim and need to determine a way to dispurse the
   //Routing cache to all of the messaging nodes --> Idea is that this could also be a singleton instance that I could reference values from
+
+  //FIXME this is the issue
+  //This will be used to determine if a connection already exists within an arraylist by value of sinnkNode of the linkInfo
+  public boolean containsNode(final ArrayList<LinkInfo> links, final String sinkNode) {
+    return links.stream().filter(o -> o.getReceivingNode().equals(sinkNode)).findFirst()
+        .isPresent();
+  }
 
   public void startNumRound(int rounds) {
     System.out.println("Create start number of rounds");
