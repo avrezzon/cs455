@@ -51,6 +51,6 @@ public  class Message implements Event {
   //TODO Implement this function
   //This will be responsible for doing all of the stats collections and relaying sinking the message so on and on
   public void resolve(String origin) {
-
+    System.out.println("Recieved a message from my buddy " + this.originNode);
   }
 }

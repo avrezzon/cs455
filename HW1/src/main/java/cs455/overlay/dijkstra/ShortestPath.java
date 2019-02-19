@@ -8,6 +8,8 @@ public class ShortestPath {
   // from the set of vertices not yet included in shortest path tree
   public static final int V = 9;
 
+  //TODO create a function that surveys all of the surrounding nodes from the focal poin and
+
   int minDistance(int dist[], Boolean sptSet[]) {
     // Initialize min value
     int min = Integer.MAX_VALUE, min_index = -1;

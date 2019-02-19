@@ -1,14 +1,12 @@
 package cs455.overlay.node;
 
+import com.sun.org.apache.regexp.internal.RE;
 import cs455.overlay.transport.EventQueueThread;
 import cs455.overlay.transport.TCPRegularSocket;
 import cs455.overlay.transport.TCPServerThread;
 import cs455.overlay.util.OverlayCreator;
-import cs455.overlay.wireformats.EventFactory;
-import cs455.overlay.wireformats.EventInstance;
-import cs455.overlay.wireformats.LinkInfo;
-import cs455.overlay.wireformats.LinkWeights;
-import cs455.overlay.wireformats.MessagingNodeList;
+import cs455.overlay.wireformats.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -80,7 +78,7 @@ public final class Registry implements Node {
         } else if (input_split[0].equals("send-overlay-link-weights")) {
           registry.sendOverlayLinkWeights();
         } else if (input_split[0].equals("start")) {
-          registry.startNumRound(0);
+          registry.startNumRound(0);  //TODO change this to something else
         } else if (input_split[0].equals("exit")) {
           System.exit(0);
         } else if (input_split[0].equals("help")) {
@@ -287,5 +285,16 @@ public final class Registry implements Node {
 
   public void startNumRound(int rounds) {
     System.out.println("Create start number of rounds");
+      TaskInitiate ti = new TaskInitiate(0);
+
+    //TODO Lets verify that we can send messages before we even start thinking\
+    for(String serverIP : connections_list){
+        TCPRegularSocket socket = Registry.getTCPSocket(serverIP);
+        try {
+            socket.getSender().sendData(ti.getBytes());
+        }catch(IOException ie){
+            System.err.println("Had an issue with sending a task initiate message: " + ie.getMessage());
+        }
+    }
   }
 }

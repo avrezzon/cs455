@@ -53,11 +53,11 @@ public class TCPServerThread implements Runnable {
                 inc_socket = server.accept();
                 //Adds the new connection into the connections map
                 TCPRegularSocket connection = new TCPRegularSocket(inc_socket);
-                //TODO I feel like issues will happen right here
-                //Registry.receivedConnection(connection);
-                if (originType) {
+                if (originType) { //TODO I need to figure out if im acutally connecting the ports
+
                     Registry.receivedConnection(connection);
                 } else {
+                    System.out.println("Your messaging node server thread has recieved a connection!!!!!!!!");
                     MessagingNode.receivedConnection(connection);
                 }
 

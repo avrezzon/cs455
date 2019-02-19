@@ -21,25 +21,13 @@ import java.util.Scanner;
 public final class MessagingNode implements Node{
 
   private EventFactory eventFactory_instance;
-  private String ipAddr;
-  private int portnumber;
+  private static String ipAddr;
+  private static int portnumber; //TODO check if this is really necessary
 
   private TCPRegularSocket registry_socket;
 
   private static EventQueueThread eventQueue;
   private static TCPServerThread server;
-
-  //TODO I could add a thing here for actual connections
-  //TODO and here would be the ones that where already conneceted due to the order of messages sent
-  /**
-   * Message type: Protocol.LinkWeights Number of links: connections.length() -1 because of the
-   * registry entry LinkInfo1:  this.IP:this.Port -> connections[i] linkWeight
-   *
-   * Main node will have a map of the adjacent node and its weight This way the knowledge is only of
-   * the neighbor nodes When it comes to sending rounds it will only be that of a neighboring node
-   * due to the algorithm
-   */
-
   private static ArrayList<LinkInfo> connectionsWeights;
   private static HashMap<String, TCPRegularSocket> connections; //This is the regular socket pairing
   private static HashMap<String, String> ServerToRegular; //The broadcasted IP:port paring to the regular socket for above
@@ -60,7 +48,7 @@ public final class MessagingNode implements Node{
     String server_ip = InetAddress.getByName(server_hostname).getHostAddress();
 
     this.registry_socket = new TCPRegularSocket(new Socket(server_ip, server_portnumber));
-    connections = new HashMap<String, TCPRegularSocket>();
+    connections = new HashMap<>();
     connections.put(server_ip + ":" + server_portnumber, this.registry_socket);
 
     ServerToRegular = new HashMap<>();
@@ -82,6 +70,7 @@ public final class MessagingNode implements Node{
   public static synchronized void receivedConnection(TCPRegularSocket inc_connection) {
     String regSocketKey = inc_connection.getIPPort();
     connections.put(regSocketKey, inc_connection);
+    System.out.printf("Added IP %s with tcpregsocket of %s to the connections table:MESSAGINGNODE\n", regSocketKey, inc_connection.toString());
   }
   //The incoming key will be the message body of the Register Request
 
@@ -121,13 +110,13 @@ public final class MessagingNode implements Node{
     System.out.println("END OF CONNECTIONS LIST\n\n");
   }
 
-  public String getIP(){return this.ipAddr;}
-
-  public int getPortnumber(){return this.portnumber;}
+  public static String getIPport(){return ipAddr +":"+ portnumber;}
 
   public static EventQueueThread getEventQueue(){return eventQueue;}
 
   public static TCPServerThread getServer(){return server;}
+
+  public static ArrayList<String> getConnectionsList(){return connections_list;}
 
   public static void setPeerWeights(ArrayList<LinkInfo> connections) {
     connectionsWeights = (ArrayList<LinkInfo>) connections.clone();
