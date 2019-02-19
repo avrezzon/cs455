@@ -85,6 +85,7 @@ public class RegisterRequest implements Event {
         }else{
             //This means that this is the first time registering the Messaging node
 
+            //TODO this is probably the issue THIS NEEDS TO BE ADDRESSED WHEN I GET HOME
             TCPRegularSocket socket = null;
             try {
                 if (this.originType == Protocol.registry) {

@@ -47,6 +47,7 @@ public class MessagingNodeList implements Event {
     return this.type;
   }
 
+  //FIXME this is the place where it appears to be that Im not making the connections
   public void resolve(String origin) {
 
     TCPRegularSocket socket;
@@ -56,12 +57,14 @@ public class MessagingNodeList implements Event {
 
       if (MessagingNode.isMessagingNodePresent(IP_port)) {
         //Nothing should happen in this instance
+        System.out.println("It appears that the messing node " + IP_port + " is already there" );
       } else {
         //This means that this is the first time registering the Messaging node
+        System.out.println("Messaging Node list has reached else");
         MessagingNode.addServerMapping(IP_port, origin);
         socket = MessagingNode.getTCPSocket(IP_port);
 
-        String[] elements = socket.getIPPort().split(":");
+        String[] elements = IP_port.split(":");
         rrq = new RegisterRequest(elements[0], Integer.parseInt(elements[1]),
             Protocol.messagingNode);
         try {
