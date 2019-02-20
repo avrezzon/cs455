@@ -1,12 +1,15 @@
 package cs455.overlay.node;
 
-import com.sun.org.apache.regexp.internal.RE;
 import cs455.overlay.transport.EventQueueThread;
 import cs455.overlay.transport.TCPRegularSocket;
 import cs455.overlay.transport.TCPServerThread;
 import cs455.overlay.util.OverlayCreator;
-import cs455.overlay.wireformats.*;
-
+import cs455.overlay.wireformats.EventFactory;
+import cs455.overlay.wireformats.EventInstance;
+import cs455.overlay.wireformats.LinkInfo;
+import cs455.overlay.wireformats.LinkWeights;
+import cs455.overlay.wireformats.MessagingNodeList;
+import cs455.overlay.wireformats.TaskInitiate;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -74,7 +77,10 @@ public final class Registry implements Node {
         } else if (input_split[0].equals("list-weights")) {
           registry.listWeights();
         } else if (input_split[0].equals("setup-overlay")) {
-          registry.setupOverlay(Integer.parseInt(input_split[1]));
+          if (input_split.length == 2) {
+            //TODO make an assertion about what needs to happen
+            registry.setupOverlay(Integer.parseInt(input_split[1]));
+          }
         } else if (input_split[0].equals("send-overlay-link-weights")) {
           registry.sendOverlayLinkWeights();
         } else if (input_split[0].equals("start")) {
@@ -224,7 +230,7 @@ public final class Registry implements Node {
     LinkWeights linkWeights;
     TCPRegularSocket socket;
 
-    //PreInitialize that tarray lists have been mapped
+    //PreInitialize that array lists have been mapped
     for (int i = 0; i < connections_list.size(); i++) {
       overlayWeights.put(connections_list.get(i), new ArrayList<>());
     }

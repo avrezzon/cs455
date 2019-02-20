@@ -47,6 +47,7 @@ public final class MessagingNode implements Node{
 
     String server_ip = InetAddress.getByName(server_hostname).getHostAddress();
 
+    //TODO I nee3d to create an inital TCPRegular socket for the connections so i can reach to its server!
     this.registry_socket = new TCPRegularSocket(new Socket(server_ip, server_portnumber));
     connections = new HashMap<>();
     connections.put(server_ip + ":" + server_portnumber, this.registry_socket);
@@ -75,15 +76,8 @@ public final class MessagingNode implements Node{
   //The incoming key will be the message body of the Register Request
 
   public static boolean isMessagingNodePresent(String key) {
-    //TODO this is my issue with the exception
-    try {
-      if (ServerToRegular.containsKey(key)) {
-        return true;
-      }
-      return false;
-    } catch (NullPointerException ne) {
-      return false;
-    }
+    //FIXME this is the line that trips the issue soooooooooo
+    return ServerToRegular.containsKey(key);
   }
 
   public static void addServerMapping(String serverIP, String regularIP) {
@@ -103,10 +97,17 @@ public final class MessagingNode implements Node{
   //This is being used as a tool to test
 
   public static void printConnections() {
+    System.out.printf("The IP for this MN is %s\n", MessagingNode.getIPport());
     System.out.println("\n\nCurrent Connections: ");
     for (int i = 0; i < connections_list.size(); i++) {
       System.out.println(i + ") " + connections_list.get(i));
     }
+
+    System.out.println("Connections mapping hashmap");
+    for (String key : connections.keySet()) {
+      System.out.printf("Node %s is c %s\n", key, connections.get(key).toString());
+    }
+
     System.out.println("END OF CONNECTIONS LIST\n\n");
   }
 
