@@ -21,8 +21,8 @@ import java.util.Scanner;
 public final class MessagingNode implements Node{
 
   private EventFactory eventFactory_instance;
-  private static String ipAddr;
-  private static int portnumber; //TODO check if this is really necessary
+  private String ipAddr;
+  private int portnumber;
 
   private TCPRegularSocket registry_socket;
 
@@ -101,7 +101,9 @@ public final class MessagingNode implements Node{
 //    System.out.println("END OF CONNECTIONS LIST~~~~~~~");
   }
 
-  public static String getIPport(){return ipAddr +":"+ portnumber;}
+  public String getIPport() {
+    return ipAddr + ":" + portnumber;
+  }
 
   public static EventQueueThread getEventQueue(){return eventQueue;}
 
