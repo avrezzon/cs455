@@ -203,7 +203,7 @@ public final class Registry implements Node {
     //this comes back as a HashMap<String, ArrayList<String>> with the IP:Port server id and the peer nodes
     this.overlay = new OverlayCreator(connections_list, num_connections);
 
-    for (String mainNode : this.overlay.getFullOverlay().keySet()) {
+    for (String mainNode : this.overlay.getRmvDuplicatesOverlay().keySet()) {
 
       peerConnections = this.overlay.getFullOverlay().get(mainNode);
       msl = new MessagingNodeList(peerConnections);
