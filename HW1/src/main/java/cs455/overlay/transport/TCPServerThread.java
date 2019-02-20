@@ -54,12 +54,9 @@ public class TCPServerThread implements Runnable {
                 //Adds the new connection into the connections map
                 TCPRegularSocket connection = new TCPRegularSocket(inc_socket);
 
-                System.out.println("RECIEVED A CONNECTION Of type " + originType);
                 if (originType) { //TODO I need to figure out if im acutally connecting the ports
-
                     Registry.receivedConnection(connection);
                 } else {
-                    System.out.println("Your messaging node server thread has recieved a connection!!!!!!!!");
                     MessagingNode.receivedConnection(connection);
                 }
 

@@ -1,6 +1,5 @@
 package cs455.overlay.wireformats;
 
-import cs455.overlay.node.MessagingNode;
 import cs455.overlay.node.Registry;
 import cs455.overlay.transport.TCPRegularSocket;
 import java.io.BufferedOutputStream;
@@ -62,51 +61,39 @@ public class RegisterRequest implements Event {
     String additional_info = null;
     RegisterResponse rrs = null;
     boolean present;
-    String key = this.ip_addr + ":" + this.getPort();
+    String key = this.ip_addr + ":" + this.port_number;
+    TCPRegularSocket socket;
 
-    System.out.println("The protocol being used is: " + this.originType);
-    //In this case the minute that the protocol is 5 system breaks
-    present = (this.originType == Protocol.registry) ? (Registry.isMessagingNodePresent(key))
-        : (MessagingNode.isMessagingNodePresent(key));
-
-    if (present) {
-      TCPRegularSocket socket = null;//Registry.getTCPSocket(key);
-      if (this.originType == Protocol.registry) {
-
+    if (this.originType == Protocol.registry) {
+      if (Registry.isMessagingNodePresent(key)) {
+        //This portion says that we are done and sending a a failed response back
         socket = Registry.getTCPSocket(key);
-      }
-      if (this.originType == Protocol.messagingNode) {
-        socket = MessagingNode.getTCPSocket(key);
-      }
-
-      try {
-        socket.getSender().sendData(new RegisterResponse((byte) 0,
-            "A connection already exists in the table for this entry").getBytes());
-      } catch (IOException ie) {
-        System.err.println("Exception at ln 72 in RegisterRQ : " + ie.getMessage());
-      }
-    } else {
-      //This means that this is the first time registering the Messaging node
-
-      //TODO this is probably the issue THIS NEEDS TO BE ADDRESSED WHEN I GET HOME
-      TCPRegularSocket socket = null;
-
-      if (this.originType == Protocol.registry) {
+        try {
+          socket.getSender().sendData(new RegisterResponse((byte) 0,
+              "A connection already exists in the table for this entry").getBytes());
+        } catch (IOException ie) {
+          System.err.println("Exception at ln 72 in RegisterRQ : " + ie.getMessage());
+        }
+      } else {
+        //This is the registry portion that sends back a successful registration rq
         Registry.addServerMapping(key, origin);
         socket = Registry.getTCPSocket(key);
-      } else {
-        MessagingNode.addServerMapping(key, origin);
-        socket = MessagingNode.getTCPSocket(key);
+        rrs = new RegisterResponse((byte) 1);
+        try {
+          socket.getSender().sendData(rrs.getBytes());
+        } catch (IOException ie) {
+          System.err.println(
+              "Unable to get the bytes from the register response at RegisterRQ ln 80");
+        }
       }
-      rrs = new RegisterResponse((byte) 1);
-      try {
-        socket.getSender().sendData(rrs.getBytes());
-      } catch (IOException ie) {
-        System.err.println(
-            "Unable to get the bytes from the register response at RegisterRQ ln 80");
-      }
-
     }
+//    if(this.originType == Protocol.messagingNode){
+//      //This would be the section that is dedicated to the messaging node protocol for registration
+//      System.out.println("Working on this shit all night"); //NOTE that every time i run this all of the nodes do respond
+//
+//
+//    }
+//    //END OF RESOLVE
   }
 
 }

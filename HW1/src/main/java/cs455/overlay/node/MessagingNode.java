@@ -67,27 +67,25 @@ public final class MessagingNode implements Node{
   }
 
   //This adds the TCPSocket to the connections arrayList and the HashMap
-
   public static synchronized void receivedConnection(TCPRegularSocket inc_connection) {
     String regSocketKey = inc_connection.getIPPort();
     connections.put(regSocketKey, inc_connection);
-    System.out.printf("Added IP %s with tcpregsocket of %s to the connections table:MESSAGINGNODE\n", regSocketKey, inc_connection.toString());
   }
-  //The incoming key will be the message body of the Register Request
 
-  public static boolean isMessagingNodePresent(String key) {
-    //FIXME this is the line that trips the issue soooooooooo
+  //The incoming key will be the message body of the Register Request
+  public static synchronized boolean isMessagingNodePresent(String key) {
     return ServerToRegular.containsKey(key);
   }
 
-  public static void addServerMapping(String serverIP, String regularIP) {
+  public static synchronized void addServerMapping(String serverIP, String regularIP) {
     ServerToRegular.put(serverIP, regularIP);
     connections_list.add(serverIP);
+    System.out.println("Updated the connections list!! size is now " + connections_list.size());
     System.out.println(
         "Registry successfully connected new node, number of peer nodes is :" + connections_list
             .size());
 
-    printConnections();
+    //printConnections();
   }
 
   public static TCPRegularSocket getTCPSocket(String socket_id) {
@@ -98,17 +96,13 @@ public final class MessagingNode implements Node{
 
   public static void printConnections() {
     System.out.printf("The IP for this MN is %s\n", MessagingNode.getIPport());
-    System.out.println("\n\nCurrent Connections: ");
-    for (int i = 0; i < connections_list.size(); i++) {
-      System.out.println(i + ") " + connections_list.get(i));
-    }
+    //System.out.println("Current Connections: ");
+//    for (String key : connections.keySet()) {
+//      System.out.printf("Node %s %s\n", key, connections.get(key).toString());
+//    }
 
-    System.out.println("Connections mapping hashmap");
-    for (String key : connections.keySet()) {
-      System.out.printf("Node %s is c %s\n", key, connections.get(key).toString());
-    }
-
-    System.out.println("END OF CONNECTIONS LIST\n\n");
+    System.out.println("Num of connections: " + connections.size());
+//    System.out.println("END OF CONNECTIONS LIST~~~~~~~");
   }
 
   public static String getIPport(){return ipAddr +":"+ portnumber;}
