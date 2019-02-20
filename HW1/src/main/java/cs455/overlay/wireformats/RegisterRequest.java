@@ -1,11 +1,13 @@
 package cs455.overlay.wireformats;
 
+import cs455.overlay.node.MessagingNode;
 import cs455.overlay.node.Registry;
 import cs455.overlay.transport.TCPRegularSocket;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.Socket;
 
 
 public class RegisterRequest implements Event {
@@ -62,7 +64,7 @@ public class RegisterRequest implements Event {
     RegisterResponse rrs = null;
     boolean present;
     String key = this.ip_addr + ":" + this.port_number;
-    TCPRegularSocket socket;
+    TCPRegularSocket socket = null;
 
     if (this.originType == Protocol.registry) {
       if (Registry.isMessagingNodePresent(key)) {
@@ -87,12 +89,33 @@ public class RegisterRequest implements Event {
         }
       }
     }
-//    if(this.originType == Protocol.messagingNode){
-//      //This would be the section that is dedicated to the messaging node protocol for registration
-//      System.out.println("Working on this shit all night"); //NOTE that every time i run this all of the nodes do respond
-//
-//
-//    }
+    if (this.originType == Protocol.messagingNode) {
+      //This would be the section that is dedicated to the messaging node protocol for registration
+      if (MessagingNode.isMessagingNodePresent(key)) {
+        //This case means that we don't need to do anything
+      } else {
+        //This means that we need to do some setup
+        //The first thing that we need to do is create a regular socket for the connection that we want to create since it doesnt exist atm
+        try {
+          socket = new TCPRegularSocket(new Socket(ip_addr,
+              port_number)); //This creates the regular socket for the server port that we want to ping
+        } catch (IOException ie) {
+          System.out
+              .println("Could not correctly open the socket for " + ip_addr + ":" + port_number);
+          System.out.println(ie.getMessage());
+        }
+        MessagingNode.addServerMapping(ip_addr + ":" + port_number, socket.getIPPort());
+        rrs = new RegisterResponse((byte) 1);
+        try {
+          socket.getSender().sendData(rrs.getBytes());
+        } catch (IOException ie) {
+          System.err.println(
+              "Unable to get the bytes from the register response at RegisterRQ ln 80");
+        }
+      }
+
+
+    }
 //    //END OF RESOLVE
   }
 

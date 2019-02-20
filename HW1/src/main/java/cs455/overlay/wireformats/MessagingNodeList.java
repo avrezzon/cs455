@@ -54,14 +54,7 @@ public class MessagingNodeList implements Event {
     RegisterRequest rrq;
     String[] ip_port;
 
-    System.out.println("current values in connections: ");
-    for (String IP : connections) {
-      System.out.println(IP);
-    }
-
     for (String IP_port : connections) {
-
-      System.out.println("Iterating to connection: " + IP_port);
 
       if (MessagingNode.isMessagingNodePresent(IP_port)) {
         //Nothing should happen in this instance

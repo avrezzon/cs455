@@ -29,7 +29,7 @@ public final class MessagingNode implements Node{
   private static EventQueueThread eventQueue;
   private static TCPServerThread server;
   private static ArrayList<LinkInfo> connectionsWeights;
-  private static HashMap<String, TCPRegularSocket> connections; //This is the regular socket pairing
+  private static HashMap<String, TCPRegularSocket> connections; //This is the regular socket pairing TODO Fix this
   private static HashMap<String, String> ServerToRegular; //The broadcasted IP:port paring to the regular socket for above
   private static ArrayList<String> connections_list; //This contaings the servers IPs that are present
 
@@ -80,12 +80,11 @@ public final class MessagingNode implements Node{
   public static synchronized void addServerMapping(String serverIP, String regularIP) {
     ServerToRegular.put(serverIP, regularIP);
     connections_list.add(serverIP);
-    System.out.println("Updated the connections list!! size is now " + connections_list.size());
     System.out.println(
         "Registry successfully connected new node, number of peer nodes is :" + connections_list
             .size());
 
-    //printConnections();
+    printConnections();
   }
 
   public static TCPRegularSocket getTCPSocket(String socket_id) {
@@ -95,13 +94,10 @@ public final class MessagingNode implements Node{
   //This is being used as a tool to test
 
   public static void printConnections() {
-    System.out.printf("The IP for this MN is %s\n", MessagingNode.getIPport());
-    //System.out.println("Current Connections: ");
-//    for (String key : connections.keySet()) {
-//      System.out.printf("Node %s %s\n", key, connections.get(key).toString());
-//    }
 
+    //TODO after reviewing how big the connections get we need to remove based upon the response
     System.out.println("Num of connections: " + connections.size());
+    System.out.println("Num of connections_List: " + connections_list.size());
 //    System.out.println("END OF CONNECTIONS LIST~~~~~~~");
   }
 
