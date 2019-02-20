@@ -54,10 +54,10 @@ public class TCPServerThread implements Runnable {
                 //Adds the new connection into the connections map
                 TCPRegularSocket connection = new TCPRegularSocket(inc_socket);
 
-                if (originType) { //TODO I need to figure out if im acutally connecting the ports
+                if (originType) {
                     Registry.receivedConnection(connection);
                 } else {
-                    MessagingNode.receivedConnection(connection);
+                    MessagingNode.receivedConnection(connection); //FIXME
                 }
 
                 new Thread(connection.getReceiverThread()).start();

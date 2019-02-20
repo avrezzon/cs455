@@ -54,6 +54,13 @@ public class MessagingNodeList implements Event {
     RegisterRequest rrq;
     String[] ip_port;
 
+    System.out.println("Establishing message list with this node");
+    System.out.println("These are the nodes that " + MessagingNode.getIPport() + " would be connecting to: ");
+    for(String peerNode : connections){
+        System.out.println("\tConnected to " + peerNode);
+    }
+
+    /** README prior to the submission I discovered that this didn't actually connect to the Messaging Node
     for (String IP_port : connections) {
 
       if (MessagingNode.isMessagingNodePresent(IP_port)) {
@@ -79,7 +86,7 @@ public class MessagingNodeList implements Event {
           System.out.println("Could not create a socket");
         }
       }
-    }
+    }*/
 
   }
 }

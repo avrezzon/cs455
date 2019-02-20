@@ -12,7 +12,6 @@ public class EventFactory {
 
   private static EventFactory eventFactory_instance = null;
   private Node listening_node;
-  private boolean isP2PRQ = false;
 
   public static EventFactory getInstance() {
     if (eventFactory_instance == null) {
@@ -34,7 +33,7 @@ public class EventFactory {
   //TODO if i receive a message from another messaging node lets return TRUE and add that to the connections table
   //All of the other functions could return false and still add to the event queue
 
-  public synchronized boolean createEvent(byte[] byteString, String origin)
+  public synchronized void createEvent(byte[] byteString, String origin)
       throws IOException {
 
       ByteArrayInputStream baInputStream = new ByteArrayInputStream(byteString);
@@ -82,13 +81,7 @@ public class EventFactory {
 
       baInputStream.close();
       din.close();
-      if (isP2PRQ == false) {
-          this.listening_node.onEvent(new EventInstance(event, origin));
-          return false;
-      }else{
-          isP2PRQ = false;
-          return true;
-      }
+      this.listening_node.onEvent(new EventInstance(event, origin));
   }
 
   private RegisterRequest createRegisterRQ(DataInputStream din)
@@ -99,10 +92,6 @@ public class EventFactory {
     String ip_addr = new String(ip_addr_bytes);
     int port_number = din.readInt();
     int originType = din.readInt();
-
-    if(originType == Protocol.messagingNode){
-      this.isP2PRQ = true;
-    }
 
     return new RegisterRequest(ip_addr, port_number, originType);
   }

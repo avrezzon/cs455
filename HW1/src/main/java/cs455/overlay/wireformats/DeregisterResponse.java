@@ -30,7 +30,6 @@ public class DeregisterResponse implements Event{
     return false;
   }
 
-  //NOTE anytime that we evaluate this we need to check to see if it is null
   public String getAdditionalInfo() {
     return this.Additional_Info;
   }
@@ -64,13 +63,15 @@ public class DeregisterResponse implements Event{
   }
 
   public void resolve(String origin) {
-    //TODO exit based upon the response
-    System.out.println("Recieved response from exiting the overlay");
     if(status_code == Protocol.success){
-      System.out.println("Killing threads");
+      System.out.println("Messaging node was able to successfully exit the overlay");
       MessagingNode.getEventQueue().killThread();
       MessagingNode.getServer().killThread();
-      //TODO follow up with other cleanup needed
+      System.exit(0);
+    }else{
+        System.out.println("Messaging node was unable to exit the overlay, status code: " + this.status_code);
+        System.out.println(this.Additional_Info);
+        System.exit(-1);
     }
 
   }

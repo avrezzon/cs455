@@ -123,6 +123,12 @@ public final class Registry implements Node {
     connections.put(regSocketKey, inc_connection);
   }
 
+  public static synchronized void removeConnection(String key){
+    connections_list.remove(key);
+    ServerToRegular.remove(key);
+    System.out.println("Removed " + key + " from the connections table, size is now {" + connections_list.size() + "}.");
+  }
+
   //The incoming key will be the message body of the Register Request
   public static boolean isMessagingNodePresent(String key) {
     if (ServerToRegular.containsKey(key)) {
@@ -203,7 +209,7 @@ public final class Registry implements Node {
     //this comes back as a HashMap<String, ArrayList<String>> with the IP:Port server id and the peer nodes
     this.overlay = new OverlayCreator(connections_list, num_connections);
 
-    for (String mainNode : this.overlay.getRmvDuplicatesOverlay().keySet()) {
+    for (String mainNode : this.overlay.getFullOverlay().keySet()) {
 
       peerConnections = this.overlay.getFullOverlay().get(mainNode);
       msl = new MessagingNodeList(peerConnections);

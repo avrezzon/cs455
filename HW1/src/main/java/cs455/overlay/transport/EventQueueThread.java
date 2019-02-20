@@ -42,6 +42,5 @@ public class EventQueueThread implements Runnable {
                 System.err.println("ERROR OCCURED IN EVENT_QUEUE_THREAD: " + ie.getMessage());
             }
         }
-        System.out.println("EVENT QUEUE THREAD WINDING DOWN");
     }
 }

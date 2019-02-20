@@ -26,15 +26,10 @@ public class TCPReceiverThread implements Runnable {
     boolean isP2P;
     while(socket != null){
       try{
-
         dataLength = din.readInt();
         byte[] data = new byte[dataLength];
         din.readFully(data, 0, dataLength);
-        isP2P = eventFactory.createEvent(data, this.IPPort);
-        if(isP2P){
-          //Add the connection and nothing else
-          //MessagingNode.addServerMapping();
-        }
+        eventFactory.createEvent(data, this.IPPort);
       }catch (SocketException se){
         System.err.println(se.getMessage());
         break;
