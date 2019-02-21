@@ -59,5 +59,6 @@ public class RegisterResponse implements Event{
 
   public void resolve(String origin){
     //FIXME THIS NEEDS TO DRIVE WHETHER OR NOT SOMETHING SHOULD CONNECT
+    System.out.println("Yeeeee");
   }
 }
