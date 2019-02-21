@@ -120,6 +120,13 @@ public class RegisterRequest implements Event {
 //              "Unable to get the bytes from the register response at RegisterRQ ln 80");
 //        }
 //      }
+        MessagingNode.addServerMapping(key, origin);
+        socket = MessagingNode.getTCPSocket(key);
+        try {
+            socket.getSender().sendData(new RegisterResponse((byte) 1).getBytes());
+        }catch (IOException ie){
+            System.out.println(ie.getMessage());
+        }
     }
 
   }
