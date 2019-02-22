@@ -4,12 +4,10 @@ import cs455.overlay.transport.EventQueueThread;
 import cs455.overlay.transport.TCPRegularSocket;
 import cs455.overlay.transport.TCPServerThread;
 import cs455.overlay.util.StatisticsCollectorAndDisplay;
+import cs455.overlay.wireformats.*;
 import cs455.overlay.wireformats.Event;
-import cs455.overlay.wireformats.EventFactory;
-import cs455.overlay.wireformats.EventInstance;
-import cs455.overlay.wireformats.LinkInfo;
-import cs455.overlay.wireformats.Protocol;
-import cs455.overlay.wireformats.RegisterRequest;
+
+import java.awt.*;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -73,18 +71,18 @@ public final class MessagingNode implements Node{
   }
 
   //The incoming key will be the message body of the Register Request
+  //FIXME
   public static synchronized boolean isMessagingNodePresent(String key) {
     return ServerToRegular.containsKey(key);
   }
 
+  //FIXME
   public static synchronized void addServerMapping(String serverIP, String regularIP) {
     ServerToRegular.put(serverIP, regularIP);
     connections_list.add(serverIP);
     System.out.println(
         "Registry successfully connected new node, number of peer nodes is :" + connections_list
             .size());
-
-    printConnections();
   }
 
   public static TCPRegularSocket getTCPSocket(String socket_id) {
@@ -93,13 +91,11 @@ public final class MessagingNode implements Node{
   }
   //This is being used as a tool to test
 
-  public static void printConnections() {
-
-    //TODO after reviewing how big the connections get we need to remove based upon the response
-    System.out.println("Num of connections: " + connections.size());
-    System.out.println("Num of connections_List: " + connections_list.size());
-//    System.out.println("END OF CONNECTIONS LIST~~~~~~~");
-  }
+//  public static void printConnections() {
+//    System.out.println("Num of connections: " + connections.size());
+//    System.out.println("Num of connections_List: " + connections_list.size());
+////    System.out.println("END OF CONNECTIONS LIST~~~~~~~");
+//  }
 
   public String getIPport() {
     return ipAddr + ":" + portnumber;
@@ -157,8 +153,7 @@ public final class MessagingNode implements Node{
 
       while(true){
         input = scnr.nextLine();
-        input_split = input.split(" ");  //Check to make sure this means
-        //"setup-etc 9" evals. ["setup-etc", "9"]
+        input_split = input.split(" ");
         if(input_split[0].equals("print-shortest-path")){
           node.printShortestPath();
         }else if(input_split[0].equals("exit-overlay")){
@@ -181,21 +176,30 @@ public final class MessagingNode implements Node{
     System.exit(0);
   }
 
-  public void printShortestPath(){System.out.println("Implement print shortest path");}
+  public void printShortestPath(){System.out.println("TODO Implement shortest path");}
 
-  //TODO this is something that should be focused on I might be neglecting a lot of issues if i dont finish this
   public void exitOverlay(){
-    System.out.println("Implement exit overlay");
+    try{
+      String ip_port = MessagingNode.getIPport();
+      String[] ip_port_split = ip_port.split(":");
+      DeregisterRequest deregisterRequest = new DeregisterRequest(ip_port_split[0],Integer.parseInt(ip_port_split[1]));
+      registry_socket.getSender().sendData(deregisterRequest.getBytes());
+    }catch (IOException ie){
+      System.out.println(ie.getMessage());
+    }
   }
 
-  //Note that this function is strictly for testing purposes
   public static void printConnectionWeights() {
 
-    System.out.println("Entered into the print connections");
-    for (LinkInfo link : connectionsWeights) {
-      System.out.printf("MainNode: %s Connected to: %s Weight; %d\n", link.getSendingNode(),
-          link.getReceivingNode(), link.getConnectionWeight());
+    if(connectionsWeights.size() == 0){
+      System.out.println("There are currently no weights in the overlay. Please run \"send-overlay-link-weights\"");
+    }else {
+      for (LinkInfo link : connectionsWeights) {
+        System.out.printf("MainNode: %s Connected to: %s Weight; %d\n", link.getSendingNode(),
+                link.getReceivingNode(), link.getConnectionWeight());
+      }
     }
+
   }
 
 }

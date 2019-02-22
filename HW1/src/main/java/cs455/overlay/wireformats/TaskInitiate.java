@@ -47,11 +47,9 @@ public class TaskInitiate implements Event {
     System.out.println("Connections size is " + MessagingNode.getConnectionsList().size());
 
     for (int i = 1; i < MessagingNode.getConnectionsList().size(); i++) {
-          //FIXME he isnt getting populated so then ln 54 has a null reference to the socket
       receivingNode = MessagingNode.getConnectionsList().get(i);
       System.out.println("Trying to message " + receivingNode);
           receivingSocket = MessagingNode.getTCPSocket(receivingNode);
-
           msg = new Message(MessagingNode.getIPport(), receivingNode, 0);
           try {
               receivingSocket.getSender().sendData(msg.getBytes());

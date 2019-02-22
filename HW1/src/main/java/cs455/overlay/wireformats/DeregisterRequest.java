@@ -52,39 +52,25 @@ public class DeregisterRequest implements Event{
   }
 
   public void resolve(String origin){
-      System.out.println("Big oof nothing has been implemented for this");
 
-//    byte success;
-//    String additional_info;
-//    DeregisterResponse drs = null;
-//
-//    String key = new String(this.ip_addr + ":" + this.getPort());
-//    TCPRegularSocket socket = Registry.getConnections().get(key);
-//
-//    if(socket != null){
-//      success = 1;
-//      try {
-//        socket = new TCPRegularSocket(new Socket(this.ip_addr, this.port_number));
-//        //Registry.removeConnection(key);
-//        socket.killSocket();
-//        drs = new DeregisterResponse(success);
-//        System.out.println(
-//            "Deregistration request successful. The number of messaging nodes currently constituting the overlay is ("
-//                + Registry.getConnections().size() + ")");
-//        //need to kill the thread associated with this
-//      }catch (IOException ie){
-//        System.err.println("ERROR IN REGISTRY.reslove() ln 64: " + ie.getMessage());
-//      }
-//    }else {
-//      success = 0;
-//      additional_info = "Error in Deregister Request: Node already Exists in the Registry connections table.";
-//      drs = new DeregisterResponse(success, additional_info);
-//    }
-//
-//    try {
-//      socket.getSender().sendData(drs.getBytes());
-//    }catch (IOException ie){
-//      System.err.println("ERRROR IN DEREGISTER_RQ: " + ie.getMessage());
-//    }
+    byte success;
+    String additional_info;
+    DeregisterResponse drs = null;
+
+    String key = new String(this.ip_addr + ":" + this.getPort());
+    TCPRegularSocket socket = Registry.getTCPSocket(key);
+    if(socket != null){
+      drs = new DeregisterResponse((byte) 1);
+      try {
+        socket.getSender().sendData(drs.getBytes());
+        Registry.removeConnection(key);
+      }catch(IOException ie){
+        System.out.println("Could not successfully deregister");
+      }
+    }else{
+        //TODO Im not sure how this happens
+    }
+
+
   }
 }

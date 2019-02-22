@@ -123,6 +123,12 @@ public final class Registry implements Node {
     connections.put(regSocketKey, inc_connection);
   }
 
+  public static synchronized void removeConnection(String key){
+    connections_list.remove(key);
+    ServerToRegular.remove(key);
+    System.out.println("Removed " + key + " from the connections table, size is now {" + connections_list.size() + "}.");
+  }
+
   //The incoming key will be the message body of the Register Request
   public static boolean isMessagingNodePresent(String key) {
     if (ServerToRegular.containsKey(key)) {

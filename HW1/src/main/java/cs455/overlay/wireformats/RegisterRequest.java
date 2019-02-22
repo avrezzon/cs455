@@ -15,7 +15,10 @@ public class RegisterRequest implements Event {
   private final int type = Protocol.REGISTER_RQ;
   private String ip_addr;
   private int port_number;
-  private int originType; //TODO this will still allow the resolve method to know who it should register to
+  private int originType;
+
+  public String key;
+  public String origin;
 
   public RegisterRequest(String ip_addr, int port_number, int originType) {
     this.ip_addr = ip_addr;
@@ -90,33 +93,42 @@ public class RegisterRequest implements Event {
       }
     }
     if (this.originType == Protocol.messagingNode) {
+      //FIXME
+      //Note that this does NOT actually get to register with other peer nodes
+
       //This would be the section that is dedicated to the messaging node protocol for registration
-      if (MessagingNode.isMessagingNodePresent(key)) {
-        //This case means that we don't need to do anything
-      } else {
-        //This means that we need to do some setup
-        //The first thing that we need to do is create a regular socket for the connection that we want to create since it doesnt exist atm
+//      if (MessagingNode.isMessagingNodePresent(key)) {
+//        //This case means that we don't need to do anything
+//      } else {
+//
+//        //This means that we need to do some setup
+//        //The first thing that we need to do is create a regular socket for the connection that we want to create since it doesnt exist atm
+//        try {
+//          socket = new TCPRegularSocket(new Socket(ip_addr,
+//              port_number)); //This creates the regular socket for the server port that we want to ping
+//        } catch (IOException ie) {
+//          System.out
+//              .println("Could not correctly open the socket for " + ip_addr + ":" + port_number);
+//          System.out.println(ie.getMessage());
+//        }
+//        MessagingNode.addServerMapping(ip_addr + ":" + port_number, socket.getIPPort());
+//        rrs = new RegisterResponse((byte) 1);
+//        try {
+//          socket.getSender().sendData(rrs.getBytes());
+//        } catch (IOException ie) {
+//          System.err.println(
+//              "Unable to get the bytes from the register response at RegisterRQ ln 80");
+//        }
+//      }
+        MessagingNode.addServerMapping(key, origin);
+        socket = MessagingNode.getTCPSocket(key);
         try {
-          socket = new TCPRegularSocket(new Socket(ip_addr,
-              port_number)); //This creates the regular socket for the server port that we want to ping
-        } catch (IOException ie) {
-          System.out
-              .println("Could not correctly open the socket for " + ip_addr + ":" + port_number);
-          System.out.println(ie.getMessage());
+            socket.getSender().sendData(new RegisterResponse((byte) 1).getBytes());
+        }catch (IOException ie){
+            System.out.println(ie.getMessage());
         }
-        MessagingNode.addServerMapping(ip_addr + ":" + port_number, socket.getIPPort());
-        rrs = new RegisterResponse((byte) 1);
-        try {
-          socket.getSender().sendData(rrs.getBytes());
-        } catch (IOException ie) {
-          System.err.println(
-              "Unable to get the bytes from the register response at RegisterRQ ln 80");
-        }
-      }
-
-
     }
-//    //END OF RESOLVE
+
   }
 
 }
