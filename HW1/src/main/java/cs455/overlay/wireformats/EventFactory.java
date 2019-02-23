@@ -30,56 +30,58 @@ public class EventFactory {
   }
 
   //This class is responsible for holding the type of the message
+  //TODO if i receive a message from another messaging node lets return TRUE and add that to the connections table
+  //All of the other functions could return false and still add to the event queue
+
   public synchronized void createEvent(byte[] byteString, String origin)
       throws IOException {
 
-    ByteArrayInputStream baInputStream = new ByteArrayInputStream(byteString);
-    DataInputStream din = new DataInputStream(new BufferedInputStream(baInputStream));
+      ByteArrayInputStream baInputStream = new ByteArrayInputStream(byteString);
+      DataInputStream din = new DataInputStream(new BufferedInputStream(baInputStream));
 
-    int type = din.readInt();
+      int type = din.readInt();
 
-    Event event = null;
+      Event event = null;
 
-    switch (type) {
-      case Protocol.REGISTER_RQ:
-        event = createRegisterRQ(din);
-        break;
-      case Protocol.REGISTER_RS:
-        event = createRegisterRS(din);
-        break;
-      case Protocol.DEREGISTER_RQ:
-        event = createDeregisterRQ(din);
-        break;
-      case Protocol.DEREGISTER_RS:
-        event = createDeregisterRS(din);
-        break;
-      case Protocol.MESSAGING_NODE_LIST:
-        event = createMessagingNodeList(din);
-        break;
-      case Protocol.LINK_WEIGHTS:
-        event = createLinkWeights(din);
-        break;
-      case Protocol.TASK_INIT:
-        event = createTaskInitiate(din);
-        break;
-      case Protocol.TASK_SUMMARY_RQ:
-        //This one only has a data field of type so nothing needs to be retrieved
-        event = new TaskSummaryRequest();
-        break;
-      case Protocol.TASK_SUMMARY_RS:
-        event = createTaskSummaryResponse(din);
-        break;
-      case Protocol.TASK_COMPLETE:
-        event = createTaskComplete(din);
-        break;
-      case Protocol.MESSAGE:
-        event = createMessage(din);
-    }
+      switch (type) {
+          case Protocol.REGISTER_RQ:
+              event = createRegisterRQ(din);
+              break;
+          case Protocol.REGISTER_RS:
+              event = createRegisterRS(din);
+              break;
+          case Protocol.DEREGISTER_RQ:
+              event = createDeregisterRQ(din);
+              break;
+          case Protocol.DEREGISTER_RS:
+              event = createDeregisterRS(din);
+              break;
+          case Protocol.MESSAGING_NODE_LIST:
+              event = createMessagingNodeList(din);
+              break;
+          case Protocol.LINK_WEIGHTS:
+              event = createLinkWeights(din);
+              break;
+          case Protocol.TASK_INIT:
+              event = createTaskInitiate(din);
+              break;
+          case Protocol.TASK_SUMMARY_RQ:
+              //This one only has a data field of type so nothing needs to be retrieved
+              event = new TaskSummaryRequest();
+              break;
+          case Protocol.TASK_SUMMARY_RS:
+              event = createTaskSummaryResponse(din);
+              break;
+          case Protocol.TASK_COMPLETE:
+              event = createTaskComplete(din);
+              break;
+          case Protocol.MESSAGE:
+              event = createMessage(din);
+      }
 
-    baInputStream.close();
-    din.close();
-
-    this.listening_node.onEvent(new EventInstance(event, origin));
+      baInputStream.close();
+      din.close();
+      this.listening_node.onEvent(new EventInstance(event, origin));
   }
 
   private RegisterRequest createRegisterRQ(DataInputStream din)
@@ -90,6 +92,7 @@ public class EventFactory {
     String ip_addr = new String(ip_addr_bytes);
     int port_number = din.readInt();
     int originType = din.readInt();
+
     return new RegisterRequest(ip_addr, port_number, originType);
   }
 

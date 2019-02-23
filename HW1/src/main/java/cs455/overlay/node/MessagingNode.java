@@ -4,12 +4,10 @@ import cs455.overlay.transport.EventQueueThread;
 import cs455.overlay.transport.TCPRegularSocket;
 import cs455.overlay.transport.TCPServerThread;
 import cs455.overlay.util.StatisticsCollectorAndDisplay;
+import cs455.overlay.wireformats.*;
 import cs455.overlay.wireformats.Event;
-import cs455.overlay.wireformats.EventFactory;
-import cs455.overlay.wireformats.EventInstance;
-import cs455.overlay.wireformats.LinkInfo;
-import cs455.overlay.wireformats.Protocol;
-import cs455.overlay.wireformats.RegisterRequest;
+
+import java.awt.*;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -28,20 +26,8 @@ public final class MessagingNode implements Node{
 
   private static EventQueueThread eventQueue;
   private static TCPServerThread server;
-
-  //TODO I could add a thing here for actual connections
-  //TODO and here would be the ones that where already conneceted due to the order of messages sent
-  /**
-   * Message type: Protocol.LinkWeights Number of links: connections.length() -1 because of the
-   * registry entry LinkInfo1:  this.IP:this.Port -> connections[i] linkWeight
-   *
-   * Main node will have a map of the adjacent node and its weight This way the knowledge is only of
-   * the neighbor nodes When it comes to sending rounds it will only be that of a neighboring node
-   * due to the algorithm
-   */
-
   private static ArrayList<LinkInfo> connectionsWeights;
-  private static HashMap<String, TCPRegularSocket> connections; //This is the regular socket pairing
+  private static HashMap<String, TCPRegularSocket> connections; //This is the regular socket pairing TODO Fix this
   private static HashMap<String, String> ServerToRegular; //The broadcasted IP:port paring to the regular socket for above
   private static ArrayList<String> connections_list; //This contaings the servers IPs that are present
 
@@ -52,15 +38,16 @@ public final class MessagingNode implements Node{
     //The information derives from the server sockets IP and port
     server = new TCPServerThread();
 
-    this.ipAddr = InetAddress.getLocalHost().getHostAddress();
-    this.portnumber = server.getPortnumber();
+    ipAddr = InetAddress.getLocalHost().getHostAddress();
+    portnumber = server.getPortnumber();
 
     eventQueue = new EventQueueThread();
 
     String server_ip = InetAddress.getByName(server_hostname).getHostAddress();
 
+    //TODO I nee3d to create an inital TCPRegular socket for the connections so i can reach to its server!
     this.registry_socket = new TCPRegularSocket(new Socket(server_ip, server_portnumber));
-    connections = new HashMap<String, TCPRegularSocket>();
+    connections = new HashMap<>();
     connections.put(server_ip + ":" + server_portnumber, this.registry_socket);
 
     ServerToRegular = new HashMap<>();
@@ -78,33 +65,24 @@ public final class MessagingNode implements Node{
   }
 
   //This adds the TCPSocket to the connections arrayList and the HashMap
-
   public static synchronized void receivedConnection(TCPRegularSocket inc_connection) {
     String regSocketKey = inc_connection.getIPPort();
     connections.put(regSocketKey, inc_connection);
   }
-  //The incoming key will be the message body of the Register Request
 
-  public static boolean isMessagingNodePresent(String key) {
-    //TODO this is my issue with the exception
-    try {
-      if (ServerToRegular.containsKey(key)) {
-        return true;
-      }
-      return false;
-    } catch (NullPointerException ne) {
-      return false;
-    }
+  //The incoming key will be the message body of the Register Request
+  //FIXME
+  public static synchronized boolean isMessagingNodePresent(String key) {
+    return ServerToRegular.containsKey(key);
   }
 
-  public static void addServerMapping(String serverIP, String regularIP) {
+  //FIXME
+  public static synchronized void addServerMapping(String serverIP, String regularIP) {
     ServerToRegular.put(serverIP, regularIP);
     connections_list.add(serverIP);
     System.out.println(
         "Registry successfully connected new node, number of peer nodes is :" + connections_list
             .size());
-
-    printConnections();
   }
 
   public static TCPRegularSocket getTCPSocket(String socket_id) {
@@ -113,21 +91,21 @@ public final class MessagingNode implements Node{
   }
   //This is being used as a tool to test
 
-  public static void printConnections() {
-    System.out.println("\n\nCurrent Connections: ");
-    for (int i = 0; i < connections_list.size(); i++) {
-      System.out.println(i + ") " + connections_list.get(i));
-    }
-    System.out.println("END OF CONNECTIONS LIST\n\n");
+//  public static void printConnections() {
+//    System.out.println("Num of connections: " + connections.size());
+//    System.out.println("Num of connections_List: " + connections_list.size());
+////    System.out.println("END OF CONNECTIONS LIST~~~~~~~");
+//  }
+
+  public String getIPport() {
+    return ipAddr + ":" + portnumber;
   }
-
-  public String getIP(){return this.ipAddr;}
-
-  public int getPortnumber(){return this.portnumber;}
 
   public static EventQueueThread getEventQueue(){return eventQueue;}
 
   public static TCPServerThread getServer(){return server;}
+
+  public static ArrayList<String> getConnectionsList(){return connections_list;}
 
   public static void setPeerWeights(ArrayList<LinkInfo> connections) {
     connectionsWeights = (ArrayList<LinkInfo>) connections.clone();
@@ -175,8 +153,7 @@ public final class MessagingNode implements Node{
 
       while(true){
         input = scnr.nextLine();
-        input_split = input.split(" ");  //Check to make sure this means
-        //"setup-etc 9" evals. ["setup-etc", "9"]
+        input_split = input.split(" ");
         if(input_split[0].equals("print-shortest-path")){
           node.printShortestPath();
         }else if(input_split[0].equals("exit-overlay")){
@@ -199,21 +176,30 @@ public final class MessagingNode implements Node{
     System.exit(0);
   }
 
-  public void printShortestPath(){System.out.println("Implement print shortest path");}
+  public void printShortestPath(){System.out.println("TODO Implement shortest path");}
 
-  //TODO this is something that should be focused on I might be neglecting a lot of issues if i dont finish this
   public void exitOverlay(){
-    System.out.println("Implement exit overlay");
+    try{
+      String ip_port = MessagingNode.getIPport();
+      String[] ip_port_split = ip_port.split(":");
+      DeregisterRequest deregisterRequest = new DeregisterRequest(ip_port_split[0],Integer.parseInt(ip_port_split[1]));
+      registry_socket.getSender().sendData(deregisterRequest.getBytes());
+    }catch (IOException ie){
+      System.out.println(ie.getMessage());
+    }
   }
 
-  //Note that this function is strictly for testing purposes
   public static void printConnectionWeights() {
 
-    System.out.println("Entered into the print connections");
-    for (LinkInfo link : connectionsWeights) {
-      System.out.printf("MainNode: %s Connected to: %s Weight; %d\n", link.getSendingNode(),
-          link.getReceivingNode(), link.getConnectionWeight());
+    if(connectionsWeights.size() == 0){
+      System.out.println("There are currently no weights in the overlay. Please run \"send-overlay-link-weights\"");
+    }else {
+      for (LinkInfo link : connectionsWeights) {
+        System.out.printf("MainNode: %s Connected to: %s Weight; %d\n", link.getSendingNode(),
+                link.getReceivingNode(), link.getConnectionWeight());
+      }
     }
+
   }
 
 }

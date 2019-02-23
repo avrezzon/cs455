@@ -1,5 +1,6 @@
 package cs455.overlay.transport;
 
+import cs455.overlay.node.MessagingNode;
 import cs455.overlay.wireformats.EventFactory;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -22,14 +23,13 @@ public class TCPReceiverThread implements Runnable {
 
   public void run(){
     int dataLength;
+    boolean isP2P;
     while(socket != null){
       try{
-
         dataLength = din.readInt();
         byte[] data = new byte[dataLength];
         din.readFully(data, 0, dataLength);
         eventFactory.createEvent(data, this.IPPort);
-
       }catch (SocketException se){
         System.err.println(se.getMessage());
         break;

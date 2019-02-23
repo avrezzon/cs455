@@ -9,6 +9,7 @@ import cs455.overlay.wireformats.EventInstance;
 import cs455.overlay.wireformats.LinkInfo;
 import cs455.overlay.wireformats.LinkWeights;
 import cs455.overlay.wireformats.MessagingNodeList;
+import cs455.overlay.wireformats.TaskInitiate;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -76,11 +77,14 @@ public final class Registry implements Node {
         } else if (input_split[0].equals("list-weights")) {
           registry.listWeights();
         } else if (input_split[0].equals("setup-overlay")) {
-          registry.setupOverlay(Integer.parseInt(input_split[1]));
+          if (input_split.length == 2) {
+            //TODO make an assertion about what needs to happen
+            registry.setupOverlay(Integer.parseInt(input_split[1]));
+          }
         } else if (input_split[0].equals("send-overlay-link-weights")) {
           registry.sendOverlayLinkWeights();
         } else if (input_split[0].equals("start")) {
-          registry.startNumRound(0);
+          registry.startNumRound(0);  //TODO change this to something else
         } else if (input_split[0].equals("exit")) {
           System.exit(0);
         } else if (input_split[0].equals("help")) {
@@ -117,6 +121,12 @@ public final class Registry implements Node {
     //FIXME This is the null ptr excpetion
     String regSocketKey = inc_connection.getIPPort();
     connections.put(regSocketKey, inc_connection);
+  }
+
+  public static synchronized void removeConnection(String key){
+    connections_list.remove(key);
+    ServerToRegular.remove(key);
+    System.out.println("Removed " + key + " from the connections table, size is now {" + connections_list.size() + "}.");
   }
 
   //The incoming key will be the message body of the Register Request
@@ -226,7 +236,7 @@ public final class Registry implements Node {
     LinkWeights linkWeights;
     TCPRegularSocket socket;
 
-    //PreInitialize that tarray lists have been mapped
+    //PreInitialize that array lists have been mapped
     for (int i = 0; i < connections_list.size(); i++) {
       overlayWeights.put(connections_list.get(i), new ArrayList<>());
     }
@@ -287,5 +297,16 @@ public final class Registry implements Node {
 
   public void startNumRound(int rounds) {
     System.out.println("Create start number of rounds");
+      TaskInitiate ti = new TaskInitiate(0);
+
+    //TODO Lets verify that we can send messages before we even start thinking\
+    for(String serverIP : connections_list){
+        TCPRegularSocket socket = Registry.getTCPSocket(serverIP);
+        try {
+            socket.getSender().sendData(ti.getBytes());
+        }catch(IOException ie){
+            System.err.println("Had an issue with sending a task initiate message: " + ie.getMessage());
+        }
+    }
   }
 }

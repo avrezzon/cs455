@@ -58,9 +58,7 @@ public class RegisterResponse implements Event{
   }
 
   public void resolve(String origin){
-    //This is void and does nothing since nothing needs to happen
-    //Acknowledgement
-    //TODO this might be something else
-    System.out.println("Response Recieved!!!!");
+    //FIXME THIS NEEDS TO DRIVE WHETHER OR NOT SOMETHING SHOULD CONNECT
+    System.out.println("Yeeeee");
   }
 }

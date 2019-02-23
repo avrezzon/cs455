@@ -1,5 +1,7 @@
 package cs455.overlay.wireformats;
 
+import cs455.overlay.node.MessagingNode;
+import cs455.overlay.transport.TCPRegularSocket;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -37,8 +39,24 @@ public class TaskInitiate implements Event {
   }
 
   public void resolve(String origin) {
-    //TODO Resolve what this means
-    System.out.println("Task Initiated");
+      System.out.println("RECEIVED A TASK INITIATE MESSAGE");
+      TCPRegularSocket receivingSocket;
+      Message msg;
+    String receivingNode;
+
+    System.out.println("Connections size is " + MessagingNode.getConnectionsList().size());
+
+    for (int i = 1; i < MessagingNode.getConnectionsList().size(); i++) {
+      receivingNode = MessagingNode.getConnectionsList().get(i);
+      System.out.println("Trying to message " + receivingNode);
+          receivingSocket = MessagingNode.getTCPSocket(receivingNode);
+          msg = new Message(MessagingNode.getIPport(), receivingNode, 0);
+          try {
+              receivingSocket.getSender().sendData(msg.getBytes());
+          }catch(IOException ie){
+              System.err.println("Issue when sending a message in task initiate: " + ie.getMessage());
+          }
+      }
   }
 
 }
