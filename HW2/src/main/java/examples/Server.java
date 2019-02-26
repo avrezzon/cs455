@@ -1,4 +1,4 @@
-package Examples;
+package examples;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -16,25 +16,30 @@ public class Server {
   public static void main(String[] args) throws IOException {
     // Open the selector
     Selector selector = Selector.open();
+
     // Create our input channel
     ServerSocketChannel serverSocket = ServerSocketChannel.open();
     serverSocket.bind(new InetSocketAddress("localhost", 5001));
     serverSocket.configureBlocking(false);
+
     // Register our channel to the selector
     serverSocket.register(selector, SelectionKey.OP_ACCEPT);
 
     // Loop on selector
     while (true) {
       System.out.println("Listening for new connections or new messages.");
+
       // Block here
       selector.select();
       System.out.println("\tActivity on selector!");
 
       // Key(s) are ready
       Set<SelectionKey> selectedKeys = selector.selectedKeys();
+
       // Loop over ready keys
       Iterator<SelectionKey> iter = selectedKeys.iterator();
       while (iter.hasNext()) {
+
         // Grab current key
         SelectionKey key = iter.next();
 
