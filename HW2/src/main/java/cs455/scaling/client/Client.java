@@ -19,8 +19,9 @@ public class Client {
     this.msgRate = messageRate;
   }
 
-  public void generateMessages() {
+  public void sendMessages() {
     //TODO add the main message calculation and use the sender thread
+    //TODO this class should send payload.getBytes to the server to recieve the msg NOTE msg size always 8 KB
   }
 
   public static void main(String[] args) {
@@ -44,7 +45,7 @@ public class Client {
     }
 
     //TODO start up the sender thread
-    client.generateMessages();
+    client.sendMessages();
 
   }
 

@@ -5,6 +5,9 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
+//The purpose of this class is to send that to the server that is specified by the cmd line args
+//The client will send messages to the server at a
+
 public class Client {
 
   private static SocketChannel client;
