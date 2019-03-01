@@ -34,7 +34,12 @@ public class Server {
         SelectionKey.OP_ACCEPT); //TODO I need to figure out what this means
 
     //TODO here I need to pre initialize the threads including the thread pool with the worker threads\
-    //
+  }
+
+  public static void main(String[] args){
+
+    //Selector selector = Selector.open();
+
   }
 
 }

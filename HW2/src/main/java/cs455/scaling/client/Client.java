@@ -10,6 +10,7 @@ public class Client {
 
   private int msgRate; //This will have a value between 2 - 4
   private SocketChannel client;
+  private SenderThread sender;
   //TODO add in the sender thread
   //TODO find an efficient means to store the previous messages sent to the server
   //TODO implement the statistics collector for the client
