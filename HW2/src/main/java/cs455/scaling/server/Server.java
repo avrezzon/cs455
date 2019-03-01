@@ -38,8 +38,20 @@ public class Server {
 
   public static void main(String[] args){
 
-    //Selector selector = Selector.open();
+      Server server= null;
 
+      if(args.length != 4){
+          System.err.println("Error: Recieved " + args.length + " args. Expected 4");
+          System.err.println("java cs455.scaling.server.Server portnum thread-pool-size batch-size batch-time");
+          System.exit(-1);
+      }
+
+      try {
+          server = new Server(Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]) );
+      }catch(IOException ie){
+          System.err.println("Unable to create the server: " + ie.getMessage());
+          System.exit(-1);
+      }
   }
 
 }
