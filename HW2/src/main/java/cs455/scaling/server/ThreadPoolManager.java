@@ -1,5 +1,6 @@
 package cs455.scaling.server;
 
+import java.nio.channels.SelectionKey;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentHashMap;
@@ -9,8 +10,9 @@ public class ThreadPoolManager {
 
     private static ArrayList<WorkerThread> threadPool; //FIXME this could be a queue of threads
     private static ConcurrentLinkedQueue<Task> taskQueue;
-    private static LinkedList<ClientNode> clients; //FIXME Im not sure if access is synchronized
-    private static ConcurrentHashMap<String, String> clientConnections; //TODO fix the key value pairing
+  private static ConcurrentHashMap<String, SelectionKey> clientConnections; //TODO fix the key value pairing
+  private LinkedList<Batch> messageBatch;
+
 
     private int maxBatchSize;
     private int maxBatchTime;
@@ -32,7 +34,7 @@ public class ThreadPoolManager {
     }
 
     public synchronized void register(String clientInfo){
-        clients.add(new ClientNode(this.maxBatchSize, this.maxBatchTime));
+      //clients.add(new ClientNode(this.maxBatchSize, this.maxBatchTime));
     }
 
     public synchronized static void addTask(Task task){
