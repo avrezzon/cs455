@@ -1,0 +1,53 @@
+IO						NIO
+- Blocking IO		  - Non-blocking IO
+- Stream oriented	  - Buffer oriented
+- Large messages	  - Smaller messages
+- More threads		  - Selector
+- Intuitive			  - Efficient
+- Waiter			  - Bartender
+
+NIO Selectors allow a single thread to monitor multiple channels of input.
+
+// Selector
+Selector selector = Selector.open();
+
+// Register a channel
+channel.configureBlocking(false);
+SelectionKey key = channel.register(selector, SelectionKey.OP_READ);
+
+// Key Status
+Connect – when a client attempts to connect to the server. Represented by SelectionKey.OP_CONNECT
+Accept – when the server accepts a connection from a client. Represented by SelectionKey.OP_ACCEPT
+Read – when the server is ready to read from the channel. Represented by SelectionKey.OP_READ
+Write – when the server is ready to write to the channel. Represented by SelectionKey.OP_WRITE
+
+// Check Key Status
+selectionKey.isAcceptable();
+selectionKey.isConnectable();
+selectionKey.isReadable();
+selectionKey.isWriteable();
+
+// Key
+Channel channel = key.channel();
+
+Selector selector = key.selector();
+
+key.attach(Object);
+Object object = key.attachment();	// ID, Flag, name,
+
+
+// Usage
+
+// Monitor select
+int channels = selector.select(); // Blocks until at least one channel is ready
+
+// Grab the keys
+Set<SelectionKey> selectedKeys = selector.selectedKeys(); 	// Each represents a ready channel, iterate over them
+
+// Guides/Tutorials/Resources
+https://www.baeldung.com/java-nio-selector   	(Example)
+https://dzone.com/articles/java-nio-vs-io 		(Introduction)
+http://www.zoftino.com/java-nio-tutorial		(Tutorial)
+http://tutorials.jenkov.com/java-nio/index.html	(Guide book)
+
+
