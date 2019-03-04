@@ -33,10 +33,11 @@ public class Server {
   }
 
   //This will only be called from the worker thread FIXME
-  public static void register() throws IOException {
+  public static SocketChannel register() throws IOException {
     SocketChannel socket = serverSocket.accept();
     socket.configureBlocking(false);
     socket.register(selector, SelectionKey.OP_READ);
+    return socket; //This sends back a socket so that it can be associated with the task
   }
 
   public static Set<SelectionKey> getKeys() throws IOException {
@@ -61,6 +62,10 @@ public class Server {
     } catch (IOException ie) {
       System.err.println("Unable to create the server: " + ie.getMessage());
       System.exit(-1);
+    }
+
+    while (true) {
+      //Is this where the server should block waiting to get activity on the selector
     }
 
   }
