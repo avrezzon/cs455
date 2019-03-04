@@ -1,5 +1,6 @@
 package cs455.scaling.server;
 
+import cs455.scaling.protocol.Task;
 import java.nio.channels.SocketChannel;
 
 public class WorkerThread implements Runnable {
@@ -25,6 +26,12 @@ public class WorkerThread implements Runnable {
   private void attachBatch(Batch msgBatch) {
 
   }
+
+  public synchronized static void addTask(Task task) {
+    ThreadPoolManager.addTask(task);
+    //TODO need to notify the thread pool of a job
+  }
+
 
   //TODO this object is the task queue
     //If the queue is empty after a notifyall then sleep

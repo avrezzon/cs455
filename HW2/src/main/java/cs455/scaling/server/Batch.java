@@ -1,6 +1,6 @@
 package cs455.scaling.server;
 
-import cs455.scaling.wireformats.Payload;
+import cs455.scaling.protocol.Payload;
 import java.util.LinkedList;
 
 //NOTE that this class should be thread safe due to the fact that a worker thread is ONLY allowed to modify the batch of

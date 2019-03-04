@@ -6,7 +6,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.Iterator;
 import java.util.Set;
 
 //
@@ -14,9 +13,9 @@ import java.util.Set;
 public class Server {
 
   private static Selector selector;
-  private ServerSocketChannel serverSocket;
+  private static ServerSocketChannel serverSocket;
   private ThreadPoolManager threadPoolManager; //This is where the majority of the data is
-
+  private MessageRelayerThread messageRelayer;
 
   public Server(int port_number, int threadPoolSize, int batchSize, int batchTime)
       throws IOException {
@@ -30,51 +29,19 @@ public class Server {
         SelectionKey.OP_ACCEPT); //This adds the channel to the the selecctor and it knows its capable of accepting things
 
     this.threadPoolManager = new ThreadPoolManager(threadPoolSize, batchSize, batchTime);
+    this.messageRelayer = new MessageRelayerThread(this.serverSocket);
   }
 
-  //This is where the server registers the new client channels
-  //Im not 100% certain that this operation is thread safe
-  private void register() throws IOException {
+  //This will only be called from the worker thread FIXME
+  public static void register() throws IOException {
     SocketChannel socket = serverSocket.accept();
     socket.configureBlocking(false);
     socket.register(selector, SelectionKey.OP_READ);
-    System.out.println("A new client has been registered within the selector");
-    System.out.println(socket.getRemoteAddress());
-    //TODO the selection keys will be bound with a socketChannel do I really need the concurrent hash map?
   }
 
-  //This is where the body of the server is active listening into the channels for various events
-  public void listenToChannels() {
-    while (true) {
-      try {
-        selector.select();
-        Set<SelectionKey> selectedKeys = selector.selectedKeys();
-        Iterator<SelectionKey> iter = selectedKeys.iterator();
-        while (iter.hasNext()) {
-
-          SelectionKey key = iter.next();
-          if (key.isValid() == false) {
-            continue;
-          }
-
-          if (key.isAcceptable()) {
-            register();
-          }
-
-          // Previous connection has data to read
-          if (key.isReadable()) {
-            //readAndRespond(key);
-          }
-
-          // Remove it from our set
-          iter.remove();
-
-        }
-      } catch (IOException ie) {
-        System.out.println(ie.getMessage());
-
-      }
-    }
+  public static Set<SelectionKey> getKeys() throws IOException {
+    selector.select();
+    return selector.selectedKeys();
   }
 
   public static void main(String[] args) {
@@ -96,6 +63,5 @@ public class Server {
       System.exit(-1);
     }
 
-    server.listenToChannels();
   }
 }

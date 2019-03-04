@@ -1,6 +1,6 @@
 package cs455.scaling.client;
 
-import cs455.scaling.wireformats.Payload;
+import cs455.scaling.protocol.Payload;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;

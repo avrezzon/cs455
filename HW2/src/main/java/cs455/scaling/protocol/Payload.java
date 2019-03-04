@@ -1,4 +1,4 @@
-package cs455.scaling.wireformats;
+package cs455.scaling.protocol;
 
 import cs455.scaling.hash.Hash;
 import java.security.NoSuchAlgorithmException;

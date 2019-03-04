@@ -1,9 +1,8 @@
 package cs455.scaling.server;
 
-import cs455.scaling.wireformats.Payload;
-
+import cs455.scaling.protocol.Payload;
+import cs455.scaling.protocol.Task;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
 import java.util.LinkedList;
 
 //This will be the Link list of connections that is maintained of
