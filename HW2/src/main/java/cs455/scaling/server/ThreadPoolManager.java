@@ -19,9 +19,9 @@ public class ThreadPoolManager {
 
     //thread-pool-size batch-size batch-time
     public ThreadPoolManager(int threadPoolSize, int maxBatchSize, int maxBatchTime){
-        for(int i = 0; i < threadPoolSize; i++){
-            threadPool.add(new WorkerThread());
-        }
+//        for(int i = 0; i < threadPoolSize; i++){
+//            threadPool.add(new WorkerThread());
+//        }
         clientConnections = new ConcurrentHashMap<>(16); //Not sure how many keys i should allow up to
         this.maxBatchSize = maxBatchSize;
         this.maxBatchTime = maxBatchTime;
