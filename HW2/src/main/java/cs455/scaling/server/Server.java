@@ -47,12 +47,12 @@ public class Server {
             continue;
           }
           if (key.isAcceptable()) {
-            System.out.println("Adding connection");
             this.threadPoolManager.addTask(new Task());
           }
           // Previous connection has data to read
           if (key.isReadable()) {
             //TODO need to add the task to the task queue
+            System.out.println("Getting messages");
             //readAndRespond(key);
           }
           // Remove it from our set
