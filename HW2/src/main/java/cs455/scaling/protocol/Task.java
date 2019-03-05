@@ -8,7 +8,6 @@ public class Task {
 
   public enum Type {
     Accept,
-    Read,
     Work,
     Write
   }
@@ -18,6 +17,7 @@ public class Task {
   private String Id;
   private Payload payload;
 
+  //This is the task that is created for registering
   public Task() {
     this.client = null;
     this.type = Type.Accept; //When a new Task is created it needs to start in a waiting state
@@ -29,11 +29,10 @@ public class Task {
     try {
       switch (this.type) {
         case Accept:
+          System.out.println("Accepting a task");
           this.client = Server.register();
           this.Id = client.getRemoteAddress().toString();
           System.out.println("Successfully registered " + Id + " with the server.");
-          break;
-        case Read:
           break;
         case Work:
           break;

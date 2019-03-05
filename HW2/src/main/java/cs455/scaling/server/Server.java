@@ -1,11 +1,13 @@
 package cs455.scaling.server;
 
+import cs455.scaling.protocol.Task;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.Iterator;
 import java.util.Set;
 
 //
@@ -15,7 +17,6 @@ public class Server {
   private static Selector selector;
   private static ServerSocketChannel serverSocket;
   private ThreadPoolManager threadPoolManager; //This is where the majority of the data is
-  private MessageRelayerThread messageRelayer;
 
   public Server(int port_number, int threadPoolSize, int batchSize, int batchTime)
       throws IOException {
@@ -29,7 +30,38 @@ public class Server {
         SelectionKey.OP_ACCEPT); //This adds the channel to the the selecctor and it knows its capable of accepting things
 
     this.threadPoolManager = new ThreadPoolManager(threadPoolSize, batchSize, batchTime);
-    this.messageRelayer = new MessageRelayerThread(this.serverSocket);
+  }
+
+  public void startup() {
+    this.threadPoolManager.bootup();
+    try {
+      while (true) {
+        selector.select();
+        Set<SelectionKey> selectedKeys = selector.selectedKeys();
+        Iterator<SelectionKey> iter = selectedKeys.iterator();
+        while (iter.hasNext()) {
+
+          SelectionKey key = iter.next();
+          if (key.isValid() == false) {
+            System.out.println("Encountered an invalid key");
+            continue;
+          }
+          if (key.isAcceptable()) {
+            System.out.println("Adding connection");
+            this.threadPoolManager.addTask(new Task());
+          }
+          // Previous connection has data to read
+          if (key.isReadable()) {
+            //TODO need to add the task to the task queue
+            //readAndRespond(key);
+          }
+          // Remove it from our set
+          iter.remove();
+        }
+      }
+    } catch (IOException ie) {
+      System.err.println(ie.getMessage());
+    }
   }
 
   //This will only be called from the worker thread FIXME
@@ -38,11 +70,6 @@ public class Server {
     socket.configureBlocking(false);
     socket.register(selector, SelectionKey.OP_READ);
     return socket; //This sends back a socket so that it can be associated with the task
-  }
-
-  public static Set<SelectionKey> getKeys() throws IOException {
-    selector.select();
-    return selector.selectedKeys();
   }
 
   public static void main(String[] args) {
@@ -59,14 +86,13 @@ public class Server {
     try {
       server = new Server(Integer.parseInt(args[0]), Integer.parseInt(args[1]),
           Integer.parseInt(args[2]), Integer.parseInt(args[3]));
+
     } catch (IOException ie) {
       System.err.println("Unable to create the server: " + ie.getMessage());
       System.exit(-1);
     }
 
-    while (true) {
-      //Is this where the server should block waiting to get activity on the selector
-    }
+    server.startup();
 
   }
 }

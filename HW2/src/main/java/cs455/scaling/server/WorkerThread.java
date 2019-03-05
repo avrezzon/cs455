@@ -17,20 +17,21 @@ public class WorkerThread implements Runnable {
     taskChannel = null;
   }
 
-  //TODO need to implement
-  private synchronized void sleep() {
-
+  private void doWork(Task job) {
+    job.resolve();
   }
+
+
 
   //TODO This should be used when a thread needs to detach from the main chain
   private void attachBatch(Batch msgBatch) {
 
   }
 
-  public synchronized static void addTask(Task task) {
-    ThreadPoolManager.addTask(task);
-    //TODO need to notify the thread pool of a job
-  }
+//  public synchronized void addTask(Task task) {
+//    ThreadPoolManager.addTask(task);
+//    //TODO need to notify the thread pool of a job
+//  }
 
 
   //TODO this object is the task queue
@@ -45,16 +46,23 @@ public class WorkerThread implements Runnable {
 //        }
 //        //take the action here;
 //    }
-//    synchronized(lockObject)
-//    {
-//        //establish_the_condition;
-//
-//        lockObject.notify();
-//
-//        //any additional code if needed
-//    }
 
-  public void run() {
-    //Do work
+
+  public synchronized void run() {
+    System.out.println("Entered in run for the ");
+    try {
+      while (true) {
+        synchronized (ThreadPoolManager.taskQueue) {
+          while (ThreadPoolManager.taskQueue.isEmpty()) {
+            ThreadPoolManager.taskQueue.wait();
+          }
+          if (!ThreadPoolManager.taskQueue.isEmpty()) {
+            doWork(ThreadPoolManager.taskQueue.poll());
+          }
+        }
+      }
+    } catch (InterruptedException ie) {
+      System.out.println(ie.getMessage());
+    }
   }
 }
