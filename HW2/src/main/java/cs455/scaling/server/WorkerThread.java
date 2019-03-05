@@ -22,7 +22,6 @@ public class WorkerThread implements Runnable {
   }
 
   public synchronized void run() {
-    System.out.println("Entered in run for the ");
     try {
       while (true) {
         synchronized (ThreadPoolManager.taskQueue) {

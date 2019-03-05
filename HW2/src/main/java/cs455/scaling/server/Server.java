@@ -36,11 +36,10 @@ public class Server {
     this.threadPoolManager.bootup();
     try {
       while (true) {
-        selector.select();
+        selector.selectNow(); //This will not block and it prevents the nullptrexception
         Set<SelectionKey> selectedKeys = selector.selectedKeys();
         Iterator<SelectionKey> iter = selectedKeys.iterator();
         while (iter.hasNext()) {
-
           SelectionKey key = iter.next();
           if (key.isValid() == false) {
             System.out.println("Encountered an invalid key");
@@ -52,6 +51,7 @@ public class Server {
           // Previous connection has data to read
           if (key.isReadable()) {
             //TODO need to add the task to the task queue
+            //FIXME none of this is working
             System.out.println("Getting messages");
             //readAndRespond(key);
           }
@@ -64,7 +64,7 @@ public class Server {
     }
   }
 
-  //This will only be called from the worker thread FIXME
+  //This will only be called from the worker thread to register the client
   public static SocketChannel register() throws IOException {
     SocketChannel socket = serverSocket.accept();
     socket.configureBlocking(false);

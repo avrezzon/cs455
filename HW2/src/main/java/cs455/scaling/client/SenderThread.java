@@ -20,16 +20,17 @@ public class SenderThread implements Runnable {
 
   public void run() {
     System.out.println("The sender thread is up and running");
-    while (true) {
+    while (socket != null) {
       try {
+
+        //FIXME none of this is sending and its driving me insane
         Payload msg = new Payload();
-        System.out.println("Sent message " + msg.getBytes());
         buffer.put(msg.getBytes());
         socket.write(buffer);
         Thread.sleep(1000 / this.msgRate);
+        buffer.clear();
 
         //TODO add all of the necessary fields for the stats collector.
-        buffer.clear();
         //FIXME add some of the other maintenance associated with sending a message
 
       } catch (InterruptedException ie) {
