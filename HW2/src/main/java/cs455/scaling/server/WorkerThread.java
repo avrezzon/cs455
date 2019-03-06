@@ -25,12 +25,21 @@ public class WorkerThread implements Runnable {
     try {
       while (true) {
         synchronized (ThreadPoolManager.taskQueue) {
-          while (ThreadPoolManager.taskQueue.isEmpty()) {
+          if (ThreadPoolManager.taskQueue.isEmpty()) {
             ThreadPoolManager.taskQueue.wait();
           }
           if (!ThreadPoolManager.taskQueue.isEmpty()) {
-            doWork(ThreadPoolManager.taskQueue.poll());
+            System.out.println("\t" + Thread.currentThread().getName()
+                + " Has received an event from the task queue");
+            try {
+              doWork(ThreadPoolManager.taskQueue.poll());
+            } catch (NullPointerException ne) {
+              System.out.println(
+                  Thread.currentThread().getName() + " received a null ptr exception" + ne
+                      .getMessage() + ne.getStackTrace());
+            }
           }
+          System.out.println(Thread.currentThread().getName() + " is going back to sleep");
         }
       }
     } catch (InterruptedException ie) {

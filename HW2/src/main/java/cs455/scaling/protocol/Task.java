@@ -29,10 +29,11 @@ public class Task {
     try {
       switch (this.type) {
         case Accept:
-          System.out.println("Accepting a task");
           this.client = Server.register();
           this.Id = client.getRemoteAddress().toString();
-          System.out.println("Successfully registered " + Id + " with the server.");
+          System.out.println(
+              "Successfully registered " + Id + " with the server. Completed by " + Thread
+                  .currentThread().getName());
           break;
         case Work:
           break;
