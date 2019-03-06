@@ -24,12 +24,7 @@ public class ClientNode {
     //TODO create the payload out of the passed task
     public synchronized void append(Task task){
         //TODO convert a task or extrapolate the payload
-        Payload temp = null;
-        try {
-            temp = new Payload();
-        }catch (NoSuchAlgorithmException ne){
-            System.err.println("Unable to create a payload in Client.append() : " + ne.getMessage());
-        }
+        Payload temp = new Payload();
         this.msgBatch.append(temp);
     }
 

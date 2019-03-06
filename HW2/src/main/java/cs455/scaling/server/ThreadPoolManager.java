@@ -29,7 +29,7 @@ public class ThreadPoolManager {
   public void addTask(Task task) {
     synchronized (taskQueue) {
       taskQueue.add(task);
-      taskQueue.notifyAll();
+      taskQueue.notify();
     }
   }
 

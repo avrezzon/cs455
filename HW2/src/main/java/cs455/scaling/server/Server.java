@@ -36,7 +36,7 @@ public class Server {
     this.threadPoolManager.bootup();
     try {
       while (true) {
-        selector.selectNow(); //This will not block and it prevents the nullptrexception
+        selector.select(); //This will not block and it prevents the nullptrexception
         Set<SelectionKey> selectedKeys = selector.selectedKeys();
         Iterator<SelectionKey> iter = selectedKeys.iterator();
         while (iter.hasNext()) {

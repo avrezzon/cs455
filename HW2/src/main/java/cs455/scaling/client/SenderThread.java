@@ -15,17 +15,18 @@ public class SenderThread implements Runnable {
   public SenderThread(SocketChannel socket, int msgRate) {
     this.msgRate = msgRate;
     this.socket = socket; //This was the channel that associated to the server
-    buffer = ByteBuffer.allocate(8000); //ByteBuffer of 8KB TODO check that this number is rights
   }
 
   public void run() {
     System.out.println("The sender thread is up and running");
     while (socket != null) {
       try {
-
+        System.out.println("yee");
         //FIXME none of this is sending and its driving me insane
         Payload msg = new Payload();
-        buffer.put(msg.getBytes());
+        System.out.println("MSG: " + msg.getBytes());
+        buffer = ByteBuffer.wrap(msg.getBytes());
+        System.out.print(buffer.array());
         socket.write(buffer);
         Thread.sleep(1000 / this.msgRate);
         buffer.clear();
@@ -35,9 +36,6 @@ public class SenderThread implements Runnable {
 
       } catch (InterruptedException ie) {
         System.out.println("The client sender thread is winding down: " + ie.getMessage());
-        break;
-      } catch (NoSuchAlgorithmException ne) {
-        System.err.println("Was unable to start the sender thread: " + ne.getMessage());
         break;
       } catch (IOException ie) {
         System.err.println("Issue trying to write the buffer to the socket: " + ie.getMessage());
