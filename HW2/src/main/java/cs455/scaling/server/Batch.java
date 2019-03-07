@@ -1,6 +1,6 @@
 package cs455.scaling.server;
 
-import cs455.scaling.protocol.Payload;
+import java.nio.channels.SelectionKey;
 import java.util.LinkedList;
 
 //NOTE that this class should be thread safe due to the fact that a worker thread is ONLY allowed to modify the batch of
@@ -12,33 +12,27 @@ public class Batch {
     private int maxBatchSize;
     private double maxBatchTime; //This is declared as volatile so that the time is synchronized among the threads
     private double timesUp;
-    private LinkedList<Payload> messages;
-    //TODO this class could raise an event that would trigger the java nio if the thing has reached its time
+  private LinkedList<SelectionKey> clientMessages;
+  private BatchTimer batchTimer; //This is the thread that will be created to dispatch the thread constant r
 
     public Batch(int batchSize, double maxBatchTime) {
         this.maxBatchSize = batchSize;
         this.maxBatchTime = maxBatchTime;
-        this.timesUp = System.currentTimeMillis() + this.maxBatchTime; //This will be the time when the message should of been sent
-        this.messages = new LinkedList<Payload>();
+      this.timesUp = System.currentTimeMillis() + this.maxBatchTime;
+      this.clientMessages = new LinkedList<>();
+
     }
 
-    //This is called when the batch has been sent and need to reset the state of the batch
-    private void reset() {
-        this.messages.clear();
-        this.length = 0;
-        this.timesUp = System.currentTimeMillis() + this.maxBatchTime;
-    }
 
     //NOTE: after this function is called a new batch is created
     //TODO determine who will be accessing this guy
-    public LinkedList<Payload> detach() {
-        LinkedList<Payload> linkedMsg = (LinkedList<Payload>) this.messages.clone();
-        reset();
+    public LinkedList<SelectionKey> detach() {
+      LinkedList<SelectionKey> linkedMsg = (LinkedList<SelectionKey>) clientMessages.clone();
         return linkedMsg;
     }
 
-    public void append(Payload hashedPayload){
-        messages.add(hashedPayload);
+  public void append(SelectionKey key) {
+    clientMessages.add(key);
     }
 
 }

@@ -18,7 +18,6 @@ public class Server {
   private static ServerSocketChannel serverSocket;
   private ThreadPoolManager threadPoolManager; //This is where the majority of the data is
   public static ServerStatistics stats;
-  private StatsThread statsThread;
 
   public Server(int port_number, int threadPoolSize, int batchSize, int batchTime)
       throws IOException {
