@@ -1,9 +1,11 @@
 package cs455.scaling.protocol;
 
+import cs455.scaling.server.Batch;
 import cs455.scaling.server.Server;
 import cs455.scaling.server.ThreadPoolManager;
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
+import java.util.Iterator;
 
 public class Task {
 
@@ -14,15 +16,33 @@ public class Task {
   }
 
   private SelectionKey key;
+  private int dispatchIdx;
 
   //This is the task that is created for registering
   public Task(SelectionKey key) {
     this.key = key;
+    this.dispatchIdx = -1;
+  }
+
+  public Task(int dispatchIdx) {
+    this.key = null;
+    this.dispatchIdx = dispatchIdx;
   }
 
   //This will do the function based upon the type of action so that the worker thread can just call the resolve fn
   public void resolve() {
     try {
+
+      //This is the case where I need to detach the node from the front and decrement the idx
+      //TODO check here because I dont know if i should aquire the lock on the entire messageBatch or just the dispatchIndex
+      if (dispatchIdx != -1) {
+        synchronized (ThreadPoolManager.messageBatch) {
+          Batch currentBatch = ThreadPoolManager.removeBatch(dispatchIdx);
+          Iterator<SelectionKey> keys = currentBatch.getBatchMessages();
+          //TODO here is where I can iterate over the keys and read the messages from the clients
+        }
+      }
+
       if (this.key
           .isValid()) {  //Need to validate that we aren't trying to read from an already closed channel
         if (this.key

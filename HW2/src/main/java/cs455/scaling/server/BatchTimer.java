@@ -1,3 +1,6 @@
+
+//IMPORTANT --> this class might not be used remove prior to submission if necessary
+
 package cs455.scaling.server;
 
 public class BatchTimer implements Runnable {
@@ -13,7 +16,6 @@ public class BatchTimer implements Runnable {
     while (System.currentTimeMillis() / 1000 != end) {
       continue;
     }
-    //TODO figure the logic that should fall behind this
     System.out.println("BATCH LAUNCHING --> max batch time ");
   }
 }
