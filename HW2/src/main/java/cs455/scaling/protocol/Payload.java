@@ -2,7 +2,6 @@ package cs455.scaling.protocol;
 
 import cs455.scaling.hash.Hash;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.Random;
 
 //This is the data packet that will be sent to the server
@@ -29,9 +28,8 @@ public class Payload {
   }
 
   //The hash needs to be saved so that when the server does send a responsed
-  public String calculateMsgHash() throws NoSuchAlgorithmException {
+  public void calculateMsgHash() throws NoSuchAlgorithmException {
     this.hash = Hash.SHA1FromBytes(msg);
-    return this.hash;
   }
 
   public byte[] getBytes() {

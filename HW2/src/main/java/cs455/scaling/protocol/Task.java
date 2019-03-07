@@ -4,7 +4,10 @@ import cs455.scaling.server.Batch;
 import cs455.scaling.server.Server;
 import cs455.scaling.server.ThreadPoolManager;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
+import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 
 public class Task {
@@ -29,6 +32,29 @@ public class Task {
     this.dispatchIdx = dispatchIdx;
   }
 
+  //This method will
+  private void doWork(SelectionKey key) throws IOException {
+
+    ByteBuffer buffer = ByteBuffer.allocate(8000);
+    SocketChannel client = (SocketChannel) key.channel();
+
+    int bytesRead = client.read(buffer);
+    if (bytesRead == -1) {
+      client.close();
+    } else {
+      Payload payload = new Payload(buffer.array());
+      try {
+        payload.calculateMsgHash();
+      } catch (NoSuchAlgorithmException ne) {
+        System.err.println(ne.getMessage() + ne.getStackTrace());
+      }
+      buffer = ByteBuffer.wrap(payload.getHashBytes());
+      buffer.flip();
+      client.write(buffer);
+      buffer.clear();
+    }
+  }
+
   //This will do the function based upon the type of action so that the worker thread can just call the resolve fn
   public void resolve() {
     try {
@@ -39,7 +65,12 @@ public class Task {
         synchronized (ThreadPoolManager.messageBatch) {
           Batch currentBatch = ThreadPoolManager.removeBatch(dispatchIdx);
           Iterator<SelectionKey> keys = currentBatch.getBatchMessages();
-          //TODO here is where I can iterate over the keys and read the messages from the clients
+          while (keys.hasNext()) {
+            SelectionKey key = keys.next();
+            //This is where the main action needs to happen
+            doWork(key);
+            keys.remove();
+          }
         }
       }
 

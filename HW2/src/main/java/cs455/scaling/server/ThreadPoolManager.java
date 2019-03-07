@@ -31,6 +31,7 @@ public class ThreadPoolManager {
     this.maxBatchSize = maxBatchSize;
     this.maxBatchTime = maxBatchTime;
     messageBatch = new LinkedList<Batch>();
+    messageBatch.add(new Batch(maxBatchSize, maxBatchTime));
     taskQueue = new ConcurrentLinkedQueue<>();
 
     headNodeIdx = 0; //Upon initialization the head node should be the first node
@@ -65,6 +66,7 @@ public class ThreadPoolManager {
       //from the detachment, a new task should be added to the taskQueue with the dispatch batch object
       //that the worker thread will perform work on
       taskQueue.add(new Task(headNodeIdx));
+      messageBatch.add(new Batch(maxBatchSize, maxBatchTime));
       headNodeIdx = headNodeIdx + 1; // increments the pointer
       System.out.println("Sending a batch to the queue to be processed");
 
