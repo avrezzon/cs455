@@ -4,7 +4,6 @@ import cs455.scaling.protocol.Payload;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.security.NoSuchAlgorithmException;
 
 public class SenderThread implements Runnable {
 
@@ -26,7 +25,6 @@ public class SenderThread implements Runnable {
         Payload msg = new Payload();
         System.out.println("MSG: " + msg.getBytes());
         buffer = ByteBuffer.wrap(msg.getBytes());
-        System.out.print(buffer.array());
         socket.write(buffer);
         Thread.sleep(1000 / this.msgRate);
         buffer.clear();

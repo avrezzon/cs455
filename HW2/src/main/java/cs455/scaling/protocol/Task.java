@@ -2,7 +2,7 @@ package cs455.scaling.protocol;
 
 import cs455.scaling.server.Server;
 import java.io.IOException;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.SelectionKey;
 
 public class Task {
 
@@ -12,34 +12,27 @@ public class Task {
     Write
   }
 
-  private Type type; // This is the state of the task
-  private SocketChannel client;
-  private String Id;
-  private Payload payload;
+  private SelectionKey key;
 
   //This is the task that is created for registering
-  public Task() {
-    this.client = null;
-    this.type = Type.Accept; //When a new Task is created it needs to start in a waiting state
-    this.payload = null; //This will be assigned once the worker thread has read the message
+  public Task(SelectionKey key) {
+    this.key = key;
   }
 
   //This will do the function based upon the type of action so that the worker thread can just call the resolve fn
   public void resolve() {
     try {
-      switch (this.type) {
-        case Accept:
-          this.client = Server.register();
-          this.Id = client.getRemoteAddress().toString();
-          System.out.println(
-              "Successfully registered " + Id + " with the server. Completed by " + Thread
-                  .currentThread().getName());
-          break;
-        case Work:
-          break;
-        case Write:
-          break;
+      if (this.key.isValid()) {
+        if (this.key.isAcceptable()) {
+          Server.register();
+        }
+
+        if (this.key.isReadable()) {
+          //FIXME
+          Server.stats.receivedMsg();
+        }
       }
+
     } catch (IOException ie) {
       System.err.println(ie.getMessage());
     }

@@ -17,45 +17,37 @@ public class Server {
   private static Selector selector;
   private static ServerSocketChannel serverSocket;
   private ThreadPoolManager threadPoolManager; //This is where the majority of the data is
+  public static ServerStatistics stats;
+  private StatsThread statsThread;
 
   public Server(int port_number, int threadPoolSize, int batchSize, int batchTime)
       throws IOException {
 
-    this.selector = Selector.open();
+    selector = Selector.open();
 
-    this.serverSocket = ServerSocketChannel.open();
-    this.serverSocket.bind(new InetSocketAddress(port_number));
-    this.serverSocket.configureBlocking(false);
-    this.serverSocket.register(this.selector,
+    serverSocket = ServerSocketChannel.open();
+    serverSocket.bind(new InetSocketAddress(port_number));
+    serverSocket.configureBlocking(false);
+    serverSocket.register(selector,
         SelectionKey.OP_ACCEPT); //This adds the channel to the the selecctor and it knows its capable of accepting things
 
     this.threadPoolManager = new ThreadPoolManager(threadPoolSize, batchSize, batchTime);
+    stats = new ServerStatistics();
+
   }
 
+  //This method will startup the thread pool and select from the selector to grab the keys
   public void startup() {
     this.threadPoolManager.bootup();
+    new Thread(new StatsThread()).start();
     try {
       while (true) {
-        selector.select(); //This will not block and it prevents the nullptrexception
+        selector.selectNow();
         Set<SelectionKey> selectedKeys = selector.selectedKeys();
         Iterator<SelectionKey> iter = selectedKeys.iterator();
         while (iter.hasNext()) {
           SelectionKey key = iter.next();
-          if (key.isValid() == false) {
-            System.out.println("Encountered an invalid key");
-            continue;
-          }
-          if (key.isAcceptable()) {
-            this.threadPoolManager.addTask(new Task());
-          }
-          // Previous connection has data to read
-          if (key.isReadable()) {
-            //TODO need to add the task to the task queue
-            //FIXME none of this is working
-            System.out.println("Getting messages");
-            //readAndRespond(key);
-          }
-          // Remove it from our set
+          this.threadPoolManager.addTask(new Task(key));
           iter.remove();
         }
       }
@@ -65,11 +57,11 @@ public class Server {
   }
 
   //This will only be called from the worker thread to register the client
-  public static SocketChannel register() throws IOException {
+  public static void register() throws IOException {
     SocketChannel socket = serverSocket.accept();
     socket.configureBlocking(false);
     socket.register(selector, SelectionKey.OP_READ);
-    return socket; //This sends back a socket so that it can be associated with the task
+    stats.addConnection();
   }
 
   public static void main(String[] args) {
