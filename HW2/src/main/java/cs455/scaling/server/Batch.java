@@ -8,31 +8,32 @@ import java.util.LinkedList;
 //This is stored within the client node and is what the worker thread will append the new message contents to
 public class Batch {
 
-    public int length;
-    private int maxBatchSize;
-    private double maxBatchTime; //This is declared as volatile so that the time is synchronized among the threads
-    private double timesUp;
+  public int length;
+  private int maxBatchSize;
+  private int maxBatchTime; //This is declared as volatile so that the time is synchronized among the threads
+  private long dispatchTime;
   private LinkedList<SelectionKey> clientMessages;
-  private BatchTimer batchTimer; //This is the thread that will be created to dispatch the thread constant r
 
-    public Batch(int batchSize, double maxBatchTime) {
-        this.maxBatchSize = batchSize;
-        this.maxBatchTime = maxBatchTime;
-      this.timesUp = System.currentTimeMillis() + this.maxBatchTime;
-      this.clientMessages = new LinkedList<>();
-
-    }
+  public Batch(int batchSize, int maxBatchTime) {
+    this.maxBatchSize = batchSize;
+    this.maxBatchTime = maxBatchTime;
+    this.dispatchTime = System.currentTimeMillis() / 1000 + this.maxBatchTime;
+    this.clientMessages = new LinkedList<>();
+  }
 
 
-    //NOTE: after this function is called a new batch is created
-    //TODO determine who will be accessing this guy
-    public LinkedList<SelectionKey> detach() {
-      LinkedList<SelectionKey> linkedMsg = (LinkedList<SelectionKey>) clientMessages.clone();
-        return linkedMsg;
-    }
-
+  //This is the method that will add the new key into the current head of the batch
   public void append(SelectionKey key) {
     clientMessages.add(key);
+  }
+
+  //This method is called to determine the state of the batch whether or not is should dispatch
+  public synchronized boolean dispatch() {
+    long now = System.currentTimeMillis() / 1000;
+    if (now == dispatchTime || clientMessages.size() == maxBatchSize) {
+      return true;
     }
+    return false;
+  }
 
 }
