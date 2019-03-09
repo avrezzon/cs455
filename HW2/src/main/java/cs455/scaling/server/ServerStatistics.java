@@ -33,7 +33,8 @@ public class ServerStatistics {
   public synchronized String toString() {
     long now = System.currentTimeMillis() / 1000;
     double serverThroughput = this.sentMsg / 5.0;
-    double meanClientThroughput = (this.receivedMsg / clientConnections) / 5.0;
+    double meanClientThroughput =
+        (clientConnections == 0) ? (0) : (this.receivedMsg / clientConnections) / 5.0;
     double stdevPerClientThroughput = 0;
     lastTime = now;
     this.receivedMsg = 0;

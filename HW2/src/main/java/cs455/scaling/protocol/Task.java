@@ -1,6 +1,5 @@
 package cs455.scaling.protocol;
 
-import cs455.scaling.server.Batch;
 import cs455.scaling.server.Server;
 import cs455.scaling.server.ThreadPoolManager;
 import java.io.IOException;
@@ -8,15 +7,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.security.NoSuchAlgorithmException;
-import java.util.Iterator;
 
 public class Task {
-
-  public enum Type {
-    Accept,
-    Work,
-    Write
-  }
 
   private SelectionKey key;
   private int dispatchIdx;
@@ -61,24 +53,25 @@ public class Task {
 
       //This is the case where I need to detach the node from the front and decrement the idx
       //TODO check here because I dont know if i should aquire the lock on the entire messageBatch or just the dispatchIndex
-      if (dispatchIdx != -1) {
-        synchronized (ThreadPoolManager.messageBatch) {
-          Batch currentBatch = ThreadPoolManager.removeBatch(dispatchIdx);
-          Iterator<SelectionKey> keys = currentBatch.getBatchMessages();
-          while (keys.hasNext()) {
-            SelectionKey key = keys.next();
-            //This is where the main action needs to happen
-            doWork(key);
-            keys.remove();
-          }
-        }
-      }
+//      if (dispatchIdx != -1) {
+//        synchronized (ThreadPoolManager.messageBatch) {
+//          Batch currentBatch = ThreadPoolManager.removeBatch(dispatchIdx);
+//          Iterator<SelectionKey> keys = currentBatch.getBatchMessages();
+//          while (keys.hasNext()) {
+//            SelectionKey key = keys.next();
+//            //This is where the main action needs to happen
+//            doWork(key);
+//            keys.remove();
+//          }
+//        }
+//      }
 
       if (this.key
           .isValid()) {  //Need to validate that we aren't trying to read from an already closed channel
         if (this.key
             .isAcceptable()) {  //An acceptable flag will show that we need to connect to a new client
-          Server.register();
+          this.key.attach(null);
+          Server.register(this.key);
         }
 
         if (this.key.isReadable()) {

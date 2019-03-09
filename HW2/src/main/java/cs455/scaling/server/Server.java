@@ -16,8 +16,9 @@ public class Server {
 
   private static Selector selector;
   private static ServerSocketChannel serverSocket;
-  private ThreadPoolManager threadPoolManager; //This is where the majority of the data is
   public static ServerStatistics stats;
+
+  private ThreadPoolManager threadPoolManager; //This is where the majority of the data is
 
   public Server(int port_number, int threadPoolSize, int batchSize, int batchTime)
       throws IOException {
@@ -46,7 +47,12 @@ public class Server {
         Iterator<SelectionKey> iter = selectedKeys.iterator();
         while (iter.hasNext()) {
           SelectionKey key = iter.next();
-          this.threadPoolManager.addTask(new Task(key));
+          if (key.isReadable()) {
+            this.threadPoolManager.addTask(new Task(key));
+          }
+          if (key.isAcceptable()) { //TODO I might need to fix this
+            register(key);
+          }
           iter.remove();
         }
       }
@@ -56,7 +62,7 @@ public class Server {
   }
 
   //This will only be called from the worker thread to register the client
-  public static void register() throws IOException {
+  public static void register(SelectionKey key) throws IOException {
     SocketChannel socket = serverSocket.accept();
     socket.configureBlocking(false);
     socket.register(selector, SelectionKey.OP_READ);

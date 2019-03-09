@@ -20,8 +20,7 @@ public class SenderThread implements Runnable {
     System.out.println("The sender thread is up and running");
     while (socket != null) {
       try {
-        System.out.println("yee");
-        //FIXME none of this is sending and its driving me insane
+
         Payload msg = new Payload();
         System.out.println("MSG: " + msg.getBytes());
         buffer = ByteBuffer.wrap(msg.getBytes());
