@@ -71,9 +71,11 @@ public class ThreadPoolManager {
   //This is invoked once the server gets activity on a channel
   //TODO check to make sure that this queue doesnt get built up to long
   public void addTask(Task task) {
-    synchronized (taskQueue) {
-      taskQueue.add(task);
-      taskQueue.notifyAll();
+    synchronized (this) {
+      synchronized (taskQueue) {
+        taskQueue.add(task);
+      }
+      notifyAll();
     }
   }
 
@@ -95,9 +97,10 @@ public class ThreadPoolManager {
       currentBatch.append(key);
       System.out.println("The current batch size is: " + currentBatch.length);
     }
+    Server.stats.receivedMsg();
   }
 
-  //TODO I need to implement a remove batch @ idx so that the headnode IS NOT PUBLIC
+  //FIXME I am not sure that this style of implementation will do me the best with processing the data
   public synchronized static Batch removeBatch(int dispatchIdx) {
     headNodeIdx -= 1;
     return messageBatch.remove(dispatchIdx);

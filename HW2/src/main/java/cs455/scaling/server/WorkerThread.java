@@ -16,6 +16,7 @@ public class WorkerThread implements Runnable {
           //Only when the task queue is empty should a thread be put to sleep
           if (ThreadPoolManager.isTaskQueueEmpty()) {
             wait();
+            System.out.println(Thread.currentThread().getName() + " has been notified");
           }
 
           //If the thread has received a notify or there is a task in the queue should the thread

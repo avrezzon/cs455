@@ -24,7 +24,9 @@ public class Task {
     this.dispatchIdx = dispatchIdx;
   }
 
-  //This method will
+  //This method will take the key within the batch and will read the 8KB byte array
+  //then it will calculate the hash of that message
+  //Sends the hashed message back to the client as a response
   private void doWork(SelectionKey key) throws IOException {
 
     ByteBuffer buffer = ByteBuffer.allocate(8000);
