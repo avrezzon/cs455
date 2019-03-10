@@ -1,6 +1,7 @@
 package cs455.scaling.server;
 
 import cs455.scaling.protocol.Task;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class WorkerThread implements Runnable {
 
@@ -9,21 +10,24 @@ public class WorkerThread implements Runnable {
 
   }
 
-  public synchronized void run() {
+
+  public void run() {
+
+    ConcurrentLinkedQueue<Task> queue = ThreadPoolManager.getTaskQueueRef();
+
     try {
       while (true) {
-        synchronized (this) {
+        synchronized (queue) {
           //Only when the task queue is empty should a thread be put to sleep
-          if (ThreadPoolManager.isTaskQueueEmpty()) {
-            wait();
-            System.out.println(Thread.currentThread().getName() + " has been notified");
+          while (ThreadPoolManager.isTaskQueueEmpty()) {
+            queue.wait();
           }
 
           //If the thread has received a notify or there is a task in the queue should the thread
           //then check to see if it can poll a task, other threads may of gotten to the queue before
           //another thread could get there
 
-          //This getNextTask will poll from the
+          //This getNextTask will poll from the ThreadPoolManager's taskQueue
           Task job = ThreadPoolManager.getNextTask();
           if (job != null) {
             job.resolve();

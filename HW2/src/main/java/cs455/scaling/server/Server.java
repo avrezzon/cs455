@@ -1,6 +1,5 @@
 package cs455.scaling.server;
 
-import cs455.scaling.protocol.Task;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
@@ -18,7 +17,7 @@ public class Server {
   private static ServerSocketChannel serverSocket;
   public static ServerStatistics stats;
 
-  private ThreadPoolManager threadPoolManager; //This is where the majority of the data is
+  private ThreadPoolManagerThread threadPoolManagerThread; //This is where the majority of the data is
 
   public Server(int port_number, int threadPoolSize, int batchSize, int batchTime)
       throws IOException {
@@ -31,28 +30,24 @@ public class Server {
     serverSocket.register(selector,
         SelectionKey.OP_ACCEPT); //This adds the channel to the the selecctor and it knows its capable of accepting things
 
-    this.threadPoolManager = new ThreadPoolManager(threadPoolSize, batchSize, batchTime);
+    this.threadPoolManagerThread = new ThreadPoolManagerThread(threadPoolSize, batchSize,
+        batchTime);
     stats = new ServerStatistics();
 
   }
 
   //This method will startup the thread pool and select from the selector to grab the keys
   public void startup() {
-    this.threadPoolManager.bootup();
     new Thread(new StatsThread()).start();
+    new Thread(threadPoolManagerThread).start();
     try {
       while (true) {
-        selector.selectNow();
+        selector.select();
         Set<SelectionKey> selectedKeys = selector.selectedKeys();
         Iterator<SelectionKey> iter = selectedKeys.iterator();
         while (iter.hasNext()) {
           SelectionKey key = iter.next();
-          if (key.isReadable()) {
-            this.threadPoolManager.addTask(new Task(key));
-          }
-          if (key.isAcceptable()) { //TODO I might need to fix this
-            register(key);
-          }
+          threadPoolManagerThread.addPendingTask(key);
           iter.remove();
         }
       }
@@ -63,10 +58,13 @@ public class Server {
 
   //This will only be called from the worker thread to register the client
   public static void register(SelectionKey key) throws IOException {
-    SocketChannel socket = serverSocket.accept();
-    socket.configureBlocking(false);
-    socket.register(selector, SelectionKey.OP_READ);
-    stats.addConnection();
+    if (key.attachment() != null) {
+      SocketChannel socket = serverSocket.accept();
+      socket.configureBlocking(false);
+      socket.register(selector, SelectionKey.OP_READ);
+      stats.addConnection();
+      key.attach(null);
+    }
   }
 
   public static void main(String[] args) {
