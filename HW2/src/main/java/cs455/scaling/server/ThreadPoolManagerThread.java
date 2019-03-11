@@ -21,7 +21,6 @@ public class ThreadPoolManagerThread implements Runnable {
     threadPoolManager = new ThreadPoolManager(threadPoolSize, batchSize, batchTime);
   }
 
-
   public synchronized void addPendingTask(SelectionKey key) {
     if (key.isAcceptable() || key.isReadable()) {
       key.attach(new Object());

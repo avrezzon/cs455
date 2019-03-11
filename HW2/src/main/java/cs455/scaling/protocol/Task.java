@@ -58,15 +58,15 @@ public class Task {
     public void resolve() {
         try {
 
-            if (dispatch) {
-                Batch currentBatch = ThreadPoolManager.removeBatch();
-                Iterator<SelectionKey> keys = currentBatch.getBatchMessages();
-                while (keys.hasNext()) {
-                    SelectionKey key = keys.next();
-                    doWork(key);
-                    keys.remove();
-                }
-            }
+//            if (dispatch) {
+//                Batch currentBatch = ThreadPoolManager.removeBatch();
+//                Iterator<SelectionKey> keys = currentBatch.getBatchMessages();
+//                while (keys.hasNext()) {
+//                    SelectionKey key = keys.next();
+//                    doWork(key);
+//                    keys.remove();
+//                }
+//            }
 
             //Need to validate that we aren't trying to read from an already closed channel
             if (this.key.isValid()) {

@@ -12,7 +12,7 @@ public class ThreadPoolManager {
     private ArrayList<WorkerThread> threadPool;
     private final static ConcurrentLinkedQueue<Task> taskQueue = new ConcurrentLinkedQueue<>();
     private static BatchMessages batchMessages;
-    //TODO add the BatchMessage class implementation
+
 
     public ThreadPoolManager(int threadPoolSize, int maxBatchSize, int maxBatchTime) {
 
@@ -22,7 +22,7 @@ public class ThreadPoolManager {
             threadPool.add(new WorkerThread());
         }
 
-        this.batchMessages = new BatchMessages(maxBatchSize, maxBatchTime);
+        batchMessages = new BatchMessages(maxBatchSize, maxBatchTime);
     }
 
     //This method is so that the worker threads have a reference to be notifyed on
@@ -63,17 +63,16 @@ public class ThreadPoolManager {
         }
     }
 
-    //TODO review white board
+    //FIXME
     public static void addMsgKey(SelectionKey key) {
-
         if (key.attachment() != null) {
-            Server.stats.receivedMsg();
+            batchMessages.append(key);
         }
 
     }
 
     //TODO review white board
-    public synchronized static Batch removeBatch() {
+    public static Batch removeBatch() {
         return batchMessages.getDispatchBatch();
     }
 }

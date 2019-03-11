@@ -23,7 +23,7 @@ public class BatchMessages {
         this.batchTime = batchTime;
     }
 
-    public synchronized void append(SelectionKey key){
+    public void append(SelectionKey key) {
 
         Batch currentBatch = null;
         synchronized (batchLL){
@@ -36,7 +36,7 @@ public class BatchMessages {
                 //create the new batch that the next current key will be able to append to
                 batchLL.add(new Batch(batchSize, batchTime));
 
-                //TODO signal batch for dispatch by creating a method to add the new type of task to taskQueue
+                //Signal the task queue that I need to add a new task for the completed dispatch
                 ThreadPoolManager.addTask(new Task(true));
             }
 
@@ -46,7 +46,7 @@ public class BatchMessages {
     }
 
     //This method will be invoked once the task that contains the dispatch info calls the .resolve()
-    public synchronized Batch getDispatchBatch(){
+    public Batch getDispatchBatch() {
         Batch dispatchBatch = null;
         synchronized (batchLL){
             //All that I need to do is retrieve the batch and decrement the headNode
