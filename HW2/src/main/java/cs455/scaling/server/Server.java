@@ -62,8 +62,8 @@ public class Server {
       SocketChannel socket = serverSocket.accept();
       socket.configureBlocking(false);
       socket.register(selector, SelectionKey.OP_READ);
-      stats.addConnection();
       key.attach(null);
+      stats.addConnection();
     }
   }
 

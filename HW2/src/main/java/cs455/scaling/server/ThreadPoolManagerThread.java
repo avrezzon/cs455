@@ -23,11 +23,11 @@ public class ThreadPoolManagerThread implements Runnable {
 
 
   public synchronized void addPendingTask(SelectionKey key) {
-    if (key.isAcceptable()) {
+    if (key.isAcceptable() || key.isReadable()) {
       key.attach(new Object());
     }
     pendingTasks.add(new Task(key));
-    Server.stats.receivedMsg();
+
   }
 
   private synchronized void acceptTask(Task task) {

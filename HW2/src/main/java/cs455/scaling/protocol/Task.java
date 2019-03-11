@@ -54,7 +54,7 @@ public class Task {
     try {
 
       //This is the case where I need to detach the node from the front and decrement the idx
-      //TODO check here because I dont know if i should aquire the lock on the entire messageBatch or just the dispatchIndex
+//      //TODO check here because I dont know if i should aquire the lock on the entire messageBatch or just the dispatchIndex
 //      if (dispatchIdx != -1) {
 //        synchronized (ThreadPoolManager.messageBatch) {
 //          Batch currentBatch = ThreadPoolManager.removeBatch(dispatchIdx);
@@ -68,17 +68,18 @@ public class Task {
 //        }
 //      }
 
-      if (this.key
-          .isValid()) {  //Need to validate that we aren't trying to read from an already closed channel
-        if (this.key
-            .isAcceptable()) {  //An acceptable flag will show that we need to connect to a new client
-          this.key.attach(null);
+      //Need to validate that we aren't trying to read from an already closed channel
+      if (this.key.isValid()) {
+
+        //An acceptable flag will show that we need to connect to a new client
+        if (this.key.isAcceptable()) {
           Server.register(this.key);
         }
 
+        //This will extract the key from the task and pass it into the linked list of batches
         if (this.key.isReadable()) {
-          //This will extract the key from the task and pass it into the linked list of batches
           ThreadPoolManager.addMsgKey(this.key);
+          this.key.attach(null);
         }
       }
 
