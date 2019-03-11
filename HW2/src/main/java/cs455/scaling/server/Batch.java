@@ -34,7 +34,7 @@ public class Batch {
   }
 
   //This method is called to determine the state of the batch whether or not is should dispatch
-  public synchronized boolean dispatch() {
+  public synchronized boolean readyToDispatch() {
     long now = System.currentTimeMillis() / 1000;
     if (now == dispatchTime || clientMessages.size() == maxBatchSize) {
       return true;

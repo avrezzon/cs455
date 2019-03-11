@@ -11,15 +11,8 @@ public class ThreadPoolManager {
 
     private ArrayList<WorkerThread> threadPool;
     private final static ConcurrentLinkedQueue<Task> taskQueue = new ConcurrentLinkedQueue<>();
-    private final static LinkedList<Batch> messageBatch = new LinkedList<>();
-
-    //NOTE that this will not always be 0, this way we can append to other links
-    //This was marked as volatile so that every time it is fetched the current thread knows exactly what
-    //node to write to
-    private static volatile int headNodeIdx;
-
-    private int maxBatchSize;
-    private int maxBatchTime;
+    private static BatchMessages batchMessages;
+    //TODO add the BatchMessage class implementation
 
     public ThreadPoolManager(int threadPoolSize, int maxBatchSize, int maxBatchTime) {
 
@@ -29,15 +22,7 @@ public class ThreadPoolManager {
             threadPool.add(new WorkerThread());
         }
 
-        //Defines the command line arguments that were provided
-        this.maxBatchSize = maxBatchSize;
-        this.maxBatchTime = maxBatchTime;
-
-        //Adds the origin node to start the process
-        messageBatch.add(new Batch(maxBatchSize, maxBatchTime));
-
-        //Upon initialization the head node should be the first node
-        headNodeIdx = 0;
+        this.batchMessages = new BatchMessages(maxBatchSize, maxBatchTime);
     }
 
     //This method is so that the worker threads have a reference to be notifyed on
@@ -71,7 +56,7 @@ public class ThreadPoolManager {
     }
 
     //This is invoked once the Manager accepts the task that is current in his queue
-    public synchronized void addTask(Task task) {
+    public synchronized static void addTask(Task task) {
         synchronized (taskQueue) {
             taskQueue.add(task);
             taskQueue.notifyAll();
@@ -89,6 +74,6 @@ public class ThreadPoolManager {
 
     //TODO review white board
     public synchronized static Batch removeBatch() {
-        return null;
+        return batchMessages.getDispatchBatch();
     }
 }
