@@ -55,20 +55,22 @@ public class Task {
   public void resolve() {
     try {
 
-      //This is the case where I need to detach the node from the front and decrement the idx
-//      //TODO check here because I dont know if i should aquire the lock on the entire messageBatch or just the dispatchIndex
-//      if (dispatchIdx != -1) {
-//        synchronized (ThreadPoolManager.messageBatch) {
-//          Batch currentBatch = ThreadPoolManager.removeBatch(dispatchIdx);
-//          Iterator<SelectionKey> keys = currentBatch.getBatchMessages();
-//          while (keys.hasNext()) {
-//            SelectionKey key = keys.next();
-//            //This is where the main action needs to happen
-//            doWork(key);
-//            keys.remove();
-//          }
-//        }
-//      }
+        //FIXME I need to do the Message batch for inserts and deletions prior to handling this
+      /*
+      *
+      * if (dispatchIdx != -1) {
+        synchronized (ThreadPoolManager.messageBatch) {
+          Batch currentBatch = ThreadPoolManager.removeBatch(dispatchIdx);
+          Iterator<SelectionKey> keys = currentBatch.getBatchMessages();
+          while (keys.hasNext()) {
+            SelectionKey key = keys.next();
+            //This is where the main action needs to happen
+            doWork(key);
+            keys.remove();
+          }
+        }
+      }
+      */
 
       //Need to validate that we aren't trying to read from an already closed channel
       if (this.key.isValid()) {

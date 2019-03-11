@@ -29,7 +29,7 @@ public class SenderThread implements Runnable {
         buffer.clear();
 
         //TODO add all of the necessary fields for the stats collector.
-        //FIXME add some of the other maintenance associated with sending a message
+        //FIXME add the hashes of the sent messages back to the Clients linked list of sent messages
 
       } catch (InterruptedException ie) {
         System.out.println("The client sender thread is winding down: " + ie.getMessage());

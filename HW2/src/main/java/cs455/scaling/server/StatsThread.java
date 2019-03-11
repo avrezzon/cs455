@@ -4,7 +4,7 @@ public class StatsThread implements Runnable {
 
   public void run() {
 
-    //TODO this needs to be fixed along with all of the other classes that used the timer
+    //FIXME ensure that the elapsed time i.e. 5 seconds or whatever the specified time is consistent throughout the timers
     long timesUp = System.currentTimeMillis() / 1000 + 5;
 
     while (true) {

@@ -70,12 +70,11 @@ public class Client {
       System.exit(-1);
     }
 
-    //This will start up the sender thread and it will start to
     client.sendMessages();
 
+    //FIXME match the projects description for how these things need to handle the server responses
     while (true) {
       client.readMessages();
-      //TODO add all of the extra things for the stats collector
     }
 
   }

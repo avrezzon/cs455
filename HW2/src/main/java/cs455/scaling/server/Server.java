@@ -64,9 +64,11 @@ public class Server {
   //This will only be called from the worker thread to register the client
   public static void register(SelectionKey key) throws IOException {
     if (key.attachment() != null) {
+
       SocketChannel socket = serverSocket.accept();
       socket.configureBlocking(false);
       socket.register(selector, SelectionKey.OP_READ);
+
       key.attach(null);
       stats.addConnection();
     }
