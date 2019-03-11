@@ -43,6 +43,11 @@ public class ThreadPoolManager {
     headNodeIdx = 0;
   }
 
+  //This method is so that the worker threads have a reference to be notifyed on
+  public static ConcurrentLinkedQueue<Task> getTaskQueueRef() {
+    return taskQueue;
+  }
+
   //This is will spin up all of the threads in the thread pool
   public void bootup() {
     for (int i = 0; i < threadPool.size(); i++) {
@@ -79,7 +84,6 @@ public class ThreadPoolManager {
 
   //TODO The bottom two methods may need to be re-written depending on the new implementation of the manager
 
-
   //With this method we will check the current head node to determine if the batch needs to be sent out back to
   //The clients.  NOTE upon a successful detatchment, the method will insert a new link as the head node prior to the detachment
   public static void addMsgKey(SelectionKey key) {
@@ -92,21 +96,6 @@ public class ThreadPoolManager {
       Server.stats.receivedMsg();
     }
 
-//    Batch currentBatch = messageBatch.get(headNodeIdx);
-//    synchronized (currentBatch) {
-//      //FIXME there could be a potential concurrency issue dealing with this
-////      if(currentBatch.dispatch()){
-////        //This is the case where the batch should be removed from the head of the linked list
-////        //from the detachment, a new task should be added to the taskQueue with the dispatch batch object
-////        //that the worker thread will perform work on
-////        taskQueue.add(new Task(headNodeIdx));
-////        messageBatch.add(new Batch(maxBatchSize, maxBatchTime));
-////        headNodeIdx = headNodeIdx + 1; // increments the pointer
-////      }
-//      currentBatch.append(key);
-//      System.out.println("The current batch size is: " + currentBatch.length);
-//    }
-//    Server.stats.receivedMsg();
   }
 
   //FIXME I am not sure that this style of implementation will do me the best with processing the data
@@ -114,9 +103,5 @@ public class ThreadPoolManager {
 //    headNodeIdx -= 1;
 //    return messageBatch.remove(dispatchIdx);
     return null;
-  }
-
-  public static ConcurrentLinkedQueue<Task> getTaskQueueRef() {
-    return taskQueue;
   }
 }

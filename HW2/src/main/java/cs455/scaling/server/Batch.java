@@ -9,7 +9,6 @@ import java.util.LinkedList;
 //This is stored within the client node and is what the worker thread will append the new message contents to
 public class Batch {
 
-  public int length;
   private int maxBatchSize;
   private int maxBatchTime; //This is declared as volatile so that the time is synchronized among the threads
   private long dispatchTime;
