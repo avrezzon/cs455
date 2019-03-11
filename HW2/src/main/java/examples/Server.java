@@ -76,7 +76,7 @@ public class Server {
 
   private static void readAndRespond(SelectionKey key) throws IOException {
     // Create a buffer to read into
-    ByteBuffer buffer = ByteBuffer.allocate(256);
+    ByteBuffer buffer = ByteBuffer.allocate(8000);
 
     // Grab the socket from the key
     SocketChannel client = (SocketChannel) key.channel();
@@ -90,8 +90,8 @@ public class Server {
       // Return their message to them
       System.out.println("\t\tReceived: " + new String(buffer.array()));
       // Flip the buffer to now write
-      buffer.flip();
-      client.write(buffer);
+      //buffer.flip();
+      //client.write(buffer);
       // Clear the buffer
       buffer.clear();
     }

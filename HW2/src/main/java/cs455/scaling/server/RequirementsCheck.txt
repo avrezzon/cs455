@@ -1,0 +1,4 @@
+Should be able to handle 100 Clients sending 10 messages/s
+● Server Throughput: 1000.0 ± 10.0 messages/s
+● Mean Per-client Throughput: 10.0 ± 1.0 messages/s
+● Std. Dev. Of Per-client Throughput: <1.0 messages/s

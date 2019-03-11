@@ -1,28 +1,51 @@
 package cs455.scaling.client;
 
+import cs455.scaling.protocol.Payload;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.LinkedList;
 
 //When we run this class the command line args will look like
 //java cs455.scaling.client.Client server-host server-port message-rate
 public class Client {
 
   private int msgRate; //This will have a value between 2 - 4
-  private SocketChannel client;
-  private SenderThread sender;
-  //TODO add in the sender thread
-  //TODO find an efficient means to store the previous messages sent to the server
-  //TODO implement the statistics collector for the client
+  private SocketChannel server;
+  private SenderThread senderThread;
+  private static LinkedList<Payload> sentMessages;
+  private static ClientStatistics StatsCollector;
+  private static ByteBuffer buffer;
 
+  //The ctor holds the registration process for the client
   public Client(String host_name, int port_number, int messageRate) throws IOException {
-    this.client = SocketChannel.open(new InetSocketAddress(host_name, port_number));
+
+    this.server = SocketChannel.open(new InetSocketAddress(host_name, port_number));
     this.msgRate = messageRate;
+    this.senderThread = new SenderThread(this.server, messageRate);
+    sentMessages = new LinkedList<Payload>();
+    StatsCollector = new ClientStatistics();
+    buffer = ByteBuffer.allocate(8000);
+
   }
 
   public void sendMessages() {
-    //TODO add the main message calculation and use the sender thread
-    //TODO this class should send payload.getBytes to the server to recieve the msg NOTE msg size always 8 KB
+    new Thread(this.senderThread).start();
+  }
+
+  //FIXME for the correct functionality
+  public void readMessages() {
+    String response = null;
+    try {
+      buffer.clear();
+      server.read(buffer);
+      response = new String(buffer.array()).trim();
+      System.out.println("Server responded with: " + response);
+      buffer.clear();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   public static void main(String[] args) {
@@ -37,7 +60,9 @@ public class Client {
     }
 
     try {
+      //Here the client registers with the server, see the ctor
       client = new Client(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]));
+
     } catch (IOException ie) {
       System.err.println(
           "Client was unable to open connection with the Server. Recieved IOException: " + ie
@@ -45,8 +70,13 @@ public class Client {
       System.exit(-1);
     }
 
-    //TODO start up the sender thread
+    //This will start up the sender thread and it will start to
     client.sendMessages();
+
+    while (true) {
+      client.readMessages();
+      //TODO add all of the extra things for the stats collector
+    }
 
   }
 

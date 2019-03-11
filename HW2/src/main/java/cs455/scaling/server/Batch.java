@@ -1,8 +1,7 @@
 package cs455.scaling.server;
 
-import cs455.scaling.wireformats.Payload;
-import sun.awt.image.ImageWatched;
-
+import java.nio.channels.SelectionKey;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 //NOTE that this class should be thread safe due to the fact that a worker thread is ONLY allowed to modify the batch of
@@ -10,37 +9,38 @@ import java.util.LinkedList;
 //This is stored within the client node and is what the worker thread will append the new message contents to
 public class Batch {
 
-    public int length;
-    private int maxBatchSize;
-    private double maxBatchTime; //This is declared as volatile so that the time is synchronized among the threads
-    private double timesUp;
-    private LinkedList<Payload> messages;
-    //TODO this class could raise an event that would trigger the java nio if the thing has reached its time
+  public int length;
+  private int maxBatchSize;
+  private int maxBatchTime; //This is declared as volatile so that the time is synchronized among the threads
+  private long dispatchTime;
+  private LinkedList<SelectionKey> clientMessages;
 
-    public Batch(int batchSize, double maxBatchTime) {
-        this.maxBatchSize = batchSize;
-        this.maxBatchTime = maxBatchTime;
-        this.timesUp = System.currentTimeMillis() + this.maxBatchTime; //This will be the time when the message should of been sent
-        this.messages = new LinkedList<Payload>();
-    }
+  public Batch(int batchSize, int maxBatchTime) {
+    this.maxBatchSize = batchSize;
+    this.maxBatchTime = maxBatchTime;
+    this.dispatchTime = System.currentTimeMillis() / 1000 + this.maxBatchTime;
+    this.clientMessages = new LinkedList<>();
+  }
 
-    //This is called when the batch has been sent and need to reset the state of the batch
-    private void reset() {
-        this.messages.clear();
-        this.length = 0;
-        this.timesUp = System.currentTimeMillis() + this.maxBatchTime;
-    }
 
-    //NOTE: after this function is called a new batch is created
-    //TODO determine who will be accessing this guy
-    public LinkedList<Payload> detach() {
-        LinkedList<Payload> linkedMsg = (LinkedList<Payload>) this.messages.clone();
-        reset();
-        return linkedMsg;
-    }
+  //This is the method that will add the new key into the current head of the batch
+  public void append(SelectionKey key) {
+    clientMessages.add(key);
 
-    public void append(Payload hashedPayload){
-        messages.add(hashedPayload);
+  }
+
+  //This method will return an iterable of the Selection keys back to the task -->Task will have ea batch attached so I can call this
+  public Iterator<SelectionKey> getBatchMessages() {
+    return clientMessages.iterator();
+  }
+
+  //This method is called to determine the state of the batch whether or not is should dispatch
+  public synchronized boolean dispatch() {
+    long now = System.currentTimeMillis() / 1000;
+    if (now == dispatchTime || clientMessages.size() == maxBatchSize) {
+      return true;
     }
+    return false;
+  }
 
 }
