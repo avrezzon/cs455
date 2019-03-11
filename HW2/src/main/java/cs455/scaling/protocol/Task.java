@@ -79,7 +79,6 @@ public class Task {
         //This will extract the key from the task and pass it into the linked list of batches
         if (this.key.isReadable()) {
           ThreadPoolManager.addMsgKey(this.key);
-          this.key.attach(null);
         }
       }
 

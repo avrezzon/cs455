@@ -83,6 +83,12 @@ public class ThreadPoolManager {
   //With this method we will check the current head node to determine if the batch needs to be sent out back to
   //The clients.  NOTE upon a successful detatchment, the method will insert a new link as the head node prior to the detachment
   public static void addMsgKey(SelectionKey key) {
+
+    if (key.attachment() != null) {
+      Server.stats.receivedMsg();
+      key.attach(null);
+    }
+
 //    Batch currentBatch = messageBatch.get(headNodeIdx);
 //    synchronized (currentBatch) {
 //      //FIXME there could be a potential concurrency issue dealing with this
