@@ -85,8 +85,11 @@ public class ThreadPoolManager {
   public static void addMsgKey(SelectionKey key) {
 
     if (key.attachment() != null) {
+
+      //TODO First i should determine whether or not the current head node should be disatched
+
+      messageBatch.get(headNodeIdx).append(key);
       Server.stats.receivedMsg();
-      key.attach(null);
     }
 
 //    Batch currentBatch = messageBatch.get(headNodeIdx);

@@ -42,14 +42,19 @@ public class Server {
     new Thread(threadPoolManagerThread).start();
     try {
       while (true) {
+
         selector.select();
         Set<SelectionKey> selectedKeys = selector.selectedKeys();
         Iterator<SelectionKey> iter = selectedKeys.iterator();
+
         while (iter.hasNext()) {
+
           SelectionKey key = iter.next();
           threadPoolManagerThread.addPendingTask(key);
           iter.remove();
+
         }
+
       }
     } catch (IOException ie) {
       System.err.println(ie.getMessage());

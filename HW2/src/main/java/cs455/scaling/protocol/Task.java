@@ -47,6 +47,8 @@ public class Task {
       client.write(buffer);
       buffer.clear();
     }
+    key.attach(null); //Only at this point should the client be able to be added to the queue
+    Server.stats.sendMsg();
   }
 
   //This will do the function based upon the type of action so that the worker thread can just call the resolve fn
