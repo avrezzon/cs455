@@ -63,7 +63,6 @@ public class ThreadPoolManager {
         }
     }
 
-    //FIXME
     public static void addMsgKey(SelectionKey key) {
         if (key.attachment() != null) {
             batchMessages.append(key);
@@ -71,7 +70,6 @@ public class ThreadPoolManager {
 
     }
 
-    //TODO review white board
     public static Batch removeBatch() {
         return batchMessages.getDispatchBatch();
     }

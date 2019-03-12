@@ -32,19 +32,22 @@ public class ServerStatistics {
 
   public synchronized String toString() {
     long now = System.currentTimeMillis() / 1000;
-    double serverThroughput = this.sentMsg / 5.0;
+      double serverThroughput = this.sentMsg / 20.0;
     double meanClientThroughput =
-        (clientConnections == 0) ? (0) : (this.receivedMsg / clientConnections) / 5.0;
+            (clientConnections == 0) ? (0) : (this.receivedMsg / clientConnections) / 20.0;
     double stdevPerClientThroughput = 0;
+
+      String result = "[" + now + "] Server Throughput: " + serverThroughput +
+              " messages/s, Active Client Connections: " + this.clientConnections +
+              ", Mean Per-client Throughput: " + meanClientThroughput
+              + " messages/s, Std. Dev. Of Per-client Throughput: " + stdevPerClientThroughput
+              + " messages/s";
+
     lastTime = now;
     this.receivedMsg = 0;
     this.sentMsg = 0;
 
-    return "[" + now + "] Server Throughput: " + serverThroughput +
-        " messages/s, Active Client Connections: " + this.clientConnections +
-        ", Mean Per-client Throughput: " + meanClientThroughput
-        + " messages/s, Std. Dev. Of Per-client Throughput: " + stdevPerClientThroughput
-        + " messages/s";
+      return result;
   }
 
 }

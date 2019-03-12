@@ -42,7 +42,7 @@ public class BatchMessages {
 
             //Add the current key now to the selected batch that
             currentBatch.append(key);
-            Server.stats.receivedMsg();
+
         }
     }
 
