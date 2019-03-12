@@ -1,15 +1,12 @@
 package cs455.scaling.protocol;
 
-import cs455.scaling.server.Batch;
 import cs455.scaling.server.Server;
 import cs455.scaling.server.ThreadPoolManager;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.security.NoSuchAlgorithmException;
-import java.util.Iterator;
 
 public class Task {
 
@@ -58,6 +55,7 @@ public class Task {
     public void resolve() {
         try {
 
+            //FIXME focus on being able to add them correctly rather than removing yet
 //            if (dispatch) {
 //                Batch currentBatch = ThreadPoolManager.removeBatch();
 //                Iterator<SelectionKey> keys = currentBatch.getBatchMessages();
@@ -78,6 +76,7 @@ public class Task {
 
                 //This will extract the key from the task and pass it into the linked list of batches
                 if (this.key.isReadable()) {
+                    //FIXME something is wrong with the build that now all I can register is one key
                     ThreadPoolManager.addMsgKey(this.key);
                 }
             }
