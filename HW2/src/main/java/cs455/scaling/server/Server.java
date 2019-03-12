@@ -42,8 +42,7 @@ public class Server {
     new Thread(threadPoolManagerThread).start();
     try {
       while (true) {
-
-          selector.select();
+          selector.selectNow();
         Set<SelectionKey> selectedKeys = selector.selectedKeys();
         Iterator<SelectionKey> iter = selectedKeys.iterator();
 
@@ -74,7 +73,7 @@ public class Server {
               stats.addConnection();
           }
       } catch (NullPointerException ne) {
-          //SOMETHING
+          //This means that the client has already registered
     }
   }
 

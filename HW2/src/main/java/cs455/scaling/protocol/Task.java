@@ -35,30 +35,31 @@ public class Task {
         SocketChannel client = (SocketChannel) key.channel();
 
         int bytesRead = client.read(buffer);
+
         if (bytesRead == -1) {
             client.close();
+            Server.stats.dropConnection();
         } else {
-            Payload payload = new Payload(buffer.array());
-            try {
-                payload.calculateMsgHash();
-            } catch (NoSuchAlgorithmException ne) {
-                System.err.println(ne.getMessage() + ne.getStackTrace());
+            if (bytesRead == 8000) {
+                Payload payload = new Payload(buffer.array());
+                try {
+                    payload.calculateMsgHash();
+                } catch (NoSuchAlgorithmException ne) {
+                    System.err.println(ne.getMessage() + ne.getStackTrace());
+                }
+
+                buffer = ByteBuffer.wrap(payload.getHash().getBytes());
+                client.write(buffer);
+                buffer.clear();
+                Server.stats.sendMsg();
             }
-            buffer = ByteBuffer.wrap(payload.getHashBytes());
-            buffer.flip();
-            client.write(buffer);
-            buffer.clear();
         }
-        key.attach(null); //Only at this point should the client be able to be added to the queue
-        Server.stats.sendMsg();
-        Server.stats.receivedMsg();
     }
 
     //This will do the function based upon the type of action so that the worker thread can just call the resolve fn
     public void resolve() {
         try {
 
-            //FIXME focus on being able to add them correctly rather than removing yet
             if (dispatch) {
                 Batch currentBatch = ThreadPoolManager.removeBatch();
                 Iterator<SelectionKey> keys = currentBatch.getBatchMessages();
@@ -66,6 +67,7 @@ public class Task {
                     SelectionKey key = keys.next();
                     doWork(key);
                     keys.remove();
+
                 }
             } else {
                 //Need to validate that we aren't trying to read from an already closed channel
@@ -78,7 +80,6 @@ public class Task {
 
                     //This will extract the key from the task and pass it into the linked list of batches
                     if (this.key.isReadable()) {
-                        //FIXME something is wrong with the build that now all I can register is one key
                         ThreadPoolManager.addMsgKey(this.key);
                     }
                 }

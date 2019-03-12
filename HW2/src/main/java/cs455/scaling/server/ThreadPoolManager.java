@@ -63,13 +63,12 @@ public class ThreadPoolManager {
         }
     }
 
+    //HERE
     public static void addMsgKey(SelectionKey key) {
-        if (key.attachment() != null) {
-            batchMessages.append(key);
-        }
-
+        batchMessages.append(key);
     }
 
+    //HERE
     public static Batch removeBatch() {
         return batchMessages.getDispatchBatch();
     }

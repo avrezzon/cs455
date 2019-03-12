@@ -1,40 +1,42 @@
 package cs455.scaling.server;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class ServerStatistics {
 
-  private int clientConnections;
-  private int sentMsg;
-  private int receivedMsg;
+    private AtomicInteger clientConnections;
+    private AtomicInteger sentMsg;
+    private AtomicInteger receivedMsg;
   private long lastTime;
 
   public ServerStatistics() {
-    this.clientConnections = 0;
-    this.sentMsg = 0;
-    this.receivedMsg = 0;
+      this.clientConnections = new AtomicInteger(0);
+      this.sentMsg = new AtomicInteger(0);
+      this.receivedMsg = new AtomicInteger(0);
     this.lastTime = System.currentTimeMillis() / 1000;
   }
 
   public synchronized void addConnection() {
-    this.clientConnections += 1;
+      this.clientConnections.getAndIncrement();
   }
 
   public synchronized void dropConnection() {
-    this.clientConnections -= 1;
+      this.clientConnections.getAndDecrement();
   }
 
   public synchronized void receivedMsg() {
-    this.receivedMsg += 1;
+      this.receivedMsg.getAndIncrement();
   }
 
   public synchronized void sendMsg() {
-    this.sentMsg += 1;
+      this.sentMsg.getAndIncrement();
   }
 
   public synchronized String toString() {
     long now = System.currentTimeMillis() / 1000;
-      double serverThroughput = this.sentMsg / 20.0;
+      double serverThroughput = this.sentMsg.get() / 20.0;
     double meanClientThroughput =
-            (clientConnections == 0) ? (0) : (this.receivedMsg / clientConnections) / 20.0;
+            (clientConnections.get() == 0) ? (0) : (this.receivedMsg.get() / clientConnections.get()) / 20.0;
     double stdevPerClientThroughput = 0;
 
       String result = "[" + now + "] Server Throughput: " + serverThroughput +
@@ -44,8 +46,8 @@ public class ServerStatistics {
               + " messages/s";
 
     lastTime = now;
-    this.receivedMsg = 0;
-    this.sentMsg = 0;
+      this.receivedMsg.set(0);
+      this.sentMsg.set(0);
 
       return result;
   }
