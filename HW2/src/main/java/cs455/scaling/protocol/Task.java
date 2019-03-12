@@ -1,5 +1,6 @@
 package cs455.scaling.protocol;
 
+import cs455.scaling.server.Batch;
 import cs455.scaling.server.Server;
 import cs455.scaling.server.ThreadPoolManager;
 import java.io.IOException;
@@ -7,6 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.security.NoSuchAlgorithmException;
+import java.util.Iterator;
 
 public class Task {
 
@@ -56,28 +58,28 @@ public class Task {
         try {
 
             //FIXME focus on being able to add them correctly rather than removing yet
-//            if (dispatch) {
-//                Batch currentBatch = ThreadPoolManager.removeBatch();
-//                Iterator<SelectionKey> keys = currentBatch.getBatchMessages();
-//                while (keys.hasNext()) {
-//                    SelectionKey key = keys.next();
-//                    doWork(key);
-//                    keys.remove();
-//                }
-//            }
-
-            //Need to validate that we aren't trying to read from an already closed channel
-            if (this.key.isValid()) {
-
-                //An acceptable flag will show that we need to connect to a new client
-                if (this.key.isAcceptable()) {
-                    Server.register(this.key);
+            if (dispatch) {
+                Batch currentBatch = ThreadPoolManager.removeBatch();
+                Iterator<SelectionKey> keys = currentBatch.getBatchMessages();
+                while (keys.hasNext()) {
+                    SelectionKey key = keys.next();
+                    doWork(key);
+                    keys.remove();
                 }
+            } else {
+                //Need to validate that we aren't trying to read from an already closed channel
+                if (this.key.isValid()) {
 
-                //This will extract the key from the task and pass it into the linked list of batches
-                if (this.key.isReadable()) {
-                    //FIXME something is wrong with the build that now all I can register is one key
-                    ThreadPoolManager.addMsgKey(this.key);
+                    //An acceptable flag will show that we need to connect to a new client
+                    if (this.key.isAcceptable()) {
+                        Server.register(this.key);
+                    }
+
+                    //This will extract the key from the task and pass it into the linked list of batches
+                    if (this.key.isReadable()) {
+                        //FIXME something is wrong with the build that now all I can register is one key
+                        ThreadPoolManager.addMsgKey(this.key);
+                    }
                 }
             }
 

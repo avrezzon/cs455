@@ -39,7 +39,7 @@ public class ThreadPoolManager {
     }
 
     //The worker threads will query this to determine if they need to sleep
-    public synchronized static boolean isTaskQueueEmpty() {
+    public static boolean isTaskQueueEmpty() {
         synchronized (taskQueue) {
             if (taskQueue.isEmpty()) {
                 return true;
@@ -56,7 +56,7 @@ public class ThreadPoolManager {
     }
 
     //This is invoked once the Manager accepts the task that is current in his queue
-    public synchronized static void addTask(Task task) {
+    public static void addTask(Task task) {
         synchronized (taskQueue) {
             taskQueue.add(task);
             taskQueue.notifyAll();
