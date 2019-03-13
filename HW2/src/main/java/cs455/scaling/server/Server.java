@@ -42,7 +42,7 @@ public class Server {
     new Thread(threadPoolManagerThread).start();
     try {
       while (true) {
-        selector.selectNow();
+        selector.select();
         Set<SelectionKey> selectedKeys = selector.selectedKeys();
         Iterator<SelectionKey> iter = selectedKeys.iterator();
 
