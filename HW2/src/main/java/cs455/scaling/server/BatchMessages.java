@@ -4,6 +4,7 @@ package cs455.scaling.server;
 import cs455.scaling.protocol.Task;
 
 import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 
 public class BatchMessages {
@@ -26,23 +27,25 @@ public class BatchMessages {
     public void append(SelectionKey key) {
 
         Batch currentBatch = null;
-        synchronized (batchLL) {
-            currentBatch = this.batchLL.get(headNodePtr);
-            if (currentBatch.readyToDispatch()) {
+        if (key.attachment() != null) {
+            synchronized (batchLL) {
+                currentBatch = this.batchLL.get(headNodePtr);
+                if (currentBatch.readyToDispatch()) {
 
-                //Create a new link in the batchLL for the append currently happening
-                headNodePtr = headNodePtr + 1;
+                    //Create a new link in the batchLL for the append currently happening
+                    headNodePtr = headNodePtr + 1;
 
-                //create the new batch that the next current key will be able to append to
-                batchLL.add(new Batch(batchSize, batchTime));
+                    //create the new batch that the next current key will be able to append to
+                    batchLL.add(new Batch(batchSize, batchTime));
 
-                //Signal the task queue that I need to add a new task for the completed dispatch
-                ThreadPoolManager.addTask(new Task(true));
+                    //Signal the task queue that I need to add a new task for the completed dispatch
+                    ThreadPoolManager.addTask(new Task(true));
+                }
+
+                //Add the current key now to the selected batch that
+                currentBatch.append(key);
+                Server.stats.receivedMsg((SocketChannel) key.channel());
             }
-
-            //Add the current key now to the selected batch that
-            currentBatch.append(key);
-            Server.stats.receivedMsg();
         }
     }
 

@@ -26,7 +26,7 @@ public class SenderThread implements Runnable {
           //System.out.println("MSG: " + msg.getBytes());
         buffer = ByteBuffer.wrap(msg.getBytes());
           msg.calculateMsgHash();
-          Client.addSentPayload(msg.getHash());
+          Client.addSentPayload(msg.getHash().trim());
           socket.write(buffer);
         Thread.sleep(1000 / this.msgRate);
         buffer.clear();

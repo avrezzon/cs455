@@ -69,8 +69,8 @@ public class Server {
               socket.configureBlocking(false);
               socket.register(selector, SelectionKey.OP_READ);
 
+              stats.addConnection(socket);
               key.attach(null);
-              stats.addConnection();
           }
       } catch (NullPointerException ne) {
           //This means that the client has already registered

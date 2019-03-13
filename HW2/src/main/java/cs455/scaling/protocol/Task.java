@@ -51,7 +51,8 @@ public class Task {
                 buffer = ByteBuffer.wrap(payload.getHash().getBytes());
                 client.write(buffer);
                 buffer.clear();
-                Server.stats.sendMsg();
+                //FIXME
+                //Server.stats.sendMsg();
             }
         }
     }
@@ -66,6 +67,7 @@ public class Task {
                 while (keys.hasNext()) {
                     SelectionKey key = keys.next();
                     doWork(key);
+                    key.attach(null);
                     keys.remove();
 
                 }
