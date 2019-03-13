@@ -1,11 +1,9 @@
 package cs455.scaling.protocol;
 
-import cs455.scaling.server.Batch;
 import cs455.scaling.server.Server;
 import cs455.scaling.server.ThreadPoolManager;
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
-import java.util.Iterator;
 
 public class Task {
 
@@ -29,16 +27,7 @@ public class Task {
 
       if (dispatch) {
 
-        Batch currentBatch = ThreadPoolManager.removeBatch();
-        Iterator<ClientMessage> messages = currentBatch.getBatchMessages();
 
-        while (messages.hasNext()) {
-
-          ClientMessage clientMessage = messages.next();
-          clientMessage.sendMsgToSender();
-          messages.remove();
-
-        }
 
       } else {
         //Need to validate that we aren't trying to read from an already closed channel

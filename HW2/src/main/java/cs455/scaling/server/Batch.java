@@ -19,7 +19,7 @@ public class Batch {
   public Batch(int batchSize, int maxBatchTime) {
     this.maxBatchSize = batchSize;
     this.maxBatchTime = maxBatchTime;
-    this.dispatchTime = System.currentTimeMillis() / 1000 + this.maxBatchTime;
+    this.dispatchTime = -1;
     this.clientMessages = new LinkedList<>();
   }
 
@@ -42,6 +42,10 @@ public class Batch {
 
   }
 
+  public void startTimer() {
+    this.dispatchTime = System.currentTimeMillis() / 1000 + this.maxBatchTime;
+  }
+
   //This method will return an iterable of the Selection keys back to the task -->Task will have ea batch attached so I can call this
   public Iterator<ClientMessage> getBatchMessages() {
     return clientMessages.iterator();
@@ -50,11 +54,11 @@ public class Batch {
   //This method is called to determine the state of the batch whether or not is should dispatch
   public boolean readyToDispatch() {
     long now = System.currentTimeMillis() / 1000;
-    if (now == dispatchTime || clientMessages.size() == maxBatchSize) {
-      System.out.println("DISPACTHING MESSAGES FROM THE FOLLOWING CLIENTS:");
-      for (ClientMessage msg : this.clientMessages) {
-        System.out.println("\t" + msg.toString());
-      }
+    if ((now == dispatchTime || clientMessages.size() == maxBatchSize) && dispatchTime != -1) {
+//      System.out.println("DISPACTHING MESSAGES FROM THE FOLLOWING CLIENTS:");
+//      for (ClientMessage msg : this.clientMessages) {
+//        System.out.println("\t" + msg.toString());
+//      }
 
       return true;
     }

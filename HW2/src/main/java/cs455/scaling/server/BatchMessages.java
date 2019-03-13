@@ -1,8 +1,10 @@
 package cs455.scaling.server;
 
 
-import cs455.scaling.protocol.Task;
+import cs455.scaling.protocol.ClientMessage;
+import java.io.IOException;
 import java.nio.channels.SelectionKey;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 public class BatchMessages {
@@ -29,29 +31,39 @@ public class BatchMessages {
       currentBatch = this.batchLL.get(headNodePtr);
       if (currentBatch.readyToDispatch()) {
 
-        //Create a new link in the batchLL for the append currently happening
-        headNodePtr = headNodePtr + 1;
-
         //create the new batch that the next current key will be able to append to
         batchLL.add(new Batch(batchSize, batchTime));
 
-        //Signal the task queue that I need to add a new task for the completed dispatch
-        ThreadPoolManager.addTask(new Task(true));
+        currentBatch = this.batchLL.removeFirst();
+        ;
+        try {
+          Iterator<ClientMessage> messages = currentBatch.getBatchMessages();
+          while (messages.hasNext()) {
+            ClientMessage clientMessage = messages.next();
+            clientMessage.sendMsgToSender();
+            messages.remove();
+          }
+        } catch (IOException ie) {
+          System.out.println(
+              "Encountered IOEXCEPTION while trying to send message back to the client: " + ie
+                  .getMessage());
+        }
+
       }
 
       //Add the current key now to the selected batch that
+      currentBatch.startTimer();
       currentBatch.append(key);
     }
   }
 
+  //TODO clean this up if this next push works, instead of puting the batch into the task queue we will just process the messages right now why wait cha feel
   //This method will be invoked once the task that contains the dispatch info calls the .resolve()
-  public Batch getDispatchBatch() {
+  private Batch getDispatchBatch() {
     Batch dispatchBatch = null;
-    synchronized (batchLL) {
-      //All that I need to do is retrieve the batch and decrement the headNode
-      dispatchBatch = this.batchLL.removeFirst();
-      headNodePtr = headNodePtr - 1;
-    }
+    //All that I need to do is retrieve the batch and decrement the headNode
+    dispatchBatch = this.batchLL.removeFirst();
+    //headNodePtr = headNodePtr - 1;
     return dispatchBatch;
   }
 
