@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ServerStatistics {
 
     private AtomicInteger clientConnections;
+    private AtomicInteger sentMsg;
     private long lastTime;
     private ConcurrentHashMap<SocketChannel, Stats> connectionStats;
     private ArrayList<SocketChannel> connections;
@@ -22,7 +23,6 @@ public class ServerStatistics {
         }
 
         public double meanThroughput() {
-            System.out.println(this.toString());
             double val = this.receivedMsg / 20.0;
             this.receivedMsg = 0;
             return val;
@@ -40,6 +40,7 @@ public class ServerStatistics {
 
     public ServerStatistics() {
         this.clientConnections = new AtomicInteger(0);
+        this.sentMsg = new AtomicInteger(0);
         this.connections = new ArrayList<>();
         this.connectionStats = new ConcurrentHashMap<>();
         this.lastTime = System.currentTimeMillis() / 1000;
@@ -59,7 +60,6 @@ public class ServerStatistics {
     public synchronized void receivedMsg(SocketChannel client) {
         Stats s = this.connectionStats.get(client);
         s.recievedMsg();
-        //System.out.println(s.toString() );
     }
 
     private double meanClientThroughput() {
@@ -74,10 +74,10 @@ public class ServerStatistics {
         }
         return sumMeans;
     }
-//
-//    public synchronized void sendMsg() {
-//        this.sentMsg.getAndIncrement();
-//    }
+
+    public synchronized void sendMsg(SocketChannel id) {
+        this.sentMsg.getAndIncrement();
+    }
 
     public synchronized String toString() {
         long now = System.currentTimeMillis() / 1000;

@@ -49,7 +49,7 @@ public class ClientMessage {
       buffer = ByteBuffer.wrap(this.payload.getHash().getBytes());
       socket.write(buffer);
       buffer.clear();
-      //TODO update server throughput
+      Server.stats.sendMsg(socket);
     }
   }
 
