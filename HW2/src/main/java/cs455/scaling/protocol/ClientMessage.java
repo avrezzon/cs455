@@ -38,6 +38,13 @@ public class ClientMessage {
     }
   }
 
+  //Returns True if the payload is not null
+  public boolean verifyPayload() {
+    if (this.payload == null) {
+      return false;
+    }
+    return true;
+  }
 
   public void sendMsgToSender() throws IOException {
     if (this.payload != null) {
@@ -50,6 +57,8 @@ public class ClientMessage {
       socket.write(buffer);
       buffer.clear();
       Server.stats.sendMsg(socket);
+    } else {
+      System.out.println("sendMsgToSender() Null entry processed!!!!!!!!!!!");
     }
   }
 

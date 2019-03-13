@@ -26,13 +26,18 @@ public class Batch {
 
   //This is the method that will add the new key into the current head of the batch
   public void append(SelectionKey key) {
+    ClientMessage msg = null;
     synchronized (key) {
       try {
-        clientMessages.add(new ClientMessage(key));
+        msg = new ClientMessage(key);
+        if (msg.verifyPayload()) {
+          clientMessages.add(msg);
+        }
       } catch (IOException ie) {
         System.out.println("Encountered IOException: " + ie.getMessage());
       } catch (NullPointerException ne) {
         //The message has already been read
+        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
       }
     }
   }

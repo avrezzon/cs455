@@ -1,4 +1,5 @@
 Here is what needs to be done:
-* consider removing the registration out of the scope of the worker thread
-* check to see if the channel is null -> this might prevent it from the weird nullptr 
-* attach an object to show that the channel is being used
+* Right now neither of the server throughput or the client is correct
+   * Server throughput is low due to the fact that Im sure there are a bunch of messages that have a null payload ptr that is wasting time
+    to determine this
+      * this will indirectly affect the message mean throughput per client giving them a lower value than the correct number

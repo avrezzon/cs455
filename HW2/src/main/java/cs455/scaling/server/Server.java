@@ -73,7 +73,7 @@ public class Server {
         key.attach(null);
       }
     } catch (NullPointerException ne) {
-      //This means that the client has already registered
+      //System.err.println("SERVER: NULL POINTER ON REGISTER");
     }
   }
 
