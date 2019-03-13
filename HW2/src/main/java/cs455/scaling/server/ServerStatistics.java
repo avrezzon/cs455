@@ -75,6 +75,20 @@ public class ServerStatistics {
         return sumMeans;
     }
 
+    private double stdev(double avg) {
+        double standardDev = 0.0;
+        synchronized (connectionStats) {
+            synchronized (connections) {
+                for (SocketChannel client : connections) {
+                    standardDev += Math
+                        .pow(connectionStats.get(client).meanThroughput() - avg, 2.0);
+                }
+                standardDev = standardDev / clientConnections.get();
+            }
+        }
+        return standardDev;
+    }
+
     public synchronized void sendMsg(SocketChannel id) {
         this.sentMsg.getAndIncrement();
     }
@@ -84,7 +98,7 @@ public class ServerStatistics {
         double serverThroughput = 0.0;
 
         double meanClientThroughput = meanClientThroughput();
-        double stdevPerClientThroughput = 0;
+        double stdevPerClientThroughput = stdev(meanClientThroughput);
 
         String result = "[" + now + "] Server Throughput: " + serverThroughput +
                 " messages/s, Active Client Connections: " + this.clientConnections +
