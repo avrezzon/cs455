@@ -27,33 +27,31 @@ public class BatchMessages {
   public void append(SelectionKey key) {
 
     Batch currentBatch = null;
+    Batch dispatchBatch = null;
     synchronized (batchLL) {
-      currentBatch = this.batchLL.get(headNodePtr);
+      currentBatch = this.batchLL.get(0);
       if (currentBatch.readyToDispatch()) {
-
         //create the new batch that the next current key will be able to append to
         batchLL.add(new Batch(batchSize, batchTime));
-
-        currentBatch = this.batchLL.removeFirst();
-        ;
-        try {
-          Iterator<ClientMessage> messages = currentBatch.getBatchMessages();
-          while (messages.hasNext()) {
-            ClientMessage clientMessage = messages.next();
-            clientMessage.sendMsgToSender();
-            messages.remove();
-          }
-        } catch (IOException ie) {
-          System.out.println(
-              "Encountered IOEXCEPTION while trying to send message back to the client: " + ie
-                  .getMessage());
-        }
-
+        dispatchBatch = this.batchLL.removeFirst();
       }
-
       //Add the current key now to the selected batch that
       currentBatch.startTimer();
       currentBatch.append(key);
+    }
+    if (dispatchBatch != null) {
+      try {
+        Iterator<ClientMessage> messages = dispatchBatch.getBatchMessages();
+        while (messages.hasNext()) {
+          ClientMessage clientMessage = messages.next();
+          clientMessage.sendMsgToSender();
+          messages.remove();
+        }
+      } catch (IOException ie) {
+        System.out.println(
+            "Encountered IOEXCEPTION while trying to send message back to the client: " + ie
+                .getMessage());
+      }
     }
   }
 
