@@ -42,8 +42,7 @@ public class Server {
     new Thread(threadPoolManagerThread).start();
     try {
       while (true) {
-
-        selector.selectNow();
+          selector.selectNow();
         Set<SelectionKey> selectedKeys = selector.selectedKeys();
         Iterator<SelectionKey> iter = selectedKeys.iterator();
 
@@ -62,15 +61,19 @@ public class Server {
   }
 
   //This will only be called from the worker thread to register the client
-  public static void register(SelectionKey key) throws IOException {
-    if (key.attachment() != null) {
+  public synchronized static void register(SelectionKey key) throws IOException {
+      try {
+          if (key.attachment() != null) {
 
-      SocketChannel socket = serverSocket.accept();
-      socket.configureBlocking(false);
-      socket.register(selector, SelectionKey.OP_READ);
+              SocketChannel socket = serverSocket.accept();
+              socket.configureBlocking(false);
+              socket.register(selector, SelectionKey.OP_READ);
 
-      key.attach(null);
-      stats.addConnection();
+              stats.addConnection(socket);
+              key.attach(null);
+          }
+      } catch (NullPointerException ne) {
+          //This means that the client has already registered
     }
   }
 
