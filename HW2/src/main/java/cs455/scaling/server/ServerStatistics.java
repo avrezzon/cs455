@@ -95,7 +95,7 @@ public class ServerStatistics {
 
     public synchronized String toString() {
         long now = System.currentTimeMillis() / 1000;
-        double serverThroughput = 0.0;
+        double serverThroughput = this.sentMsg.get();
 
         double meanClientThroughput = meanClientThroughput();
         double stdevPerClientThroughput = stdev(meanClientThroughput);
