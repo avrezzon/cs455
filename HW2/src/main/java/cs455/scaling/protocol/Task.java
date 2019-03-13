@@ -4,10 +4,7 @@ import cs455.scaling.server.Batch;
 import cs455.scaling.server.Server;
 import cs455.scaling.server.ThreadPoolManager;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
-import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 
 public class Task {
@@ -26,50 +23,17 @@ public class Task {
         this.dispatch = dispatch;
     }
 
-    //This method will take the key within the batch and will read the 8KB byte array
-    //then it will calculate the hash of that message
-    //Sends the hashed message back to the client as a response
-    private void doWork(SelectionKey key) throws IOException {
-
-        ByteBuffer buffer = ByteBuffer.allocate(8000);
-        SocketChannel client = (SocketChannel) key.channel();
-
-        int bytesRead = client.read(buffer);
-
-        if (bytesRead == -1) {
-            client.close();
-            Server.stats.dropConnection();
-        } else {
-            if (bytesRead == 8000) {
-                Payload payload = new Payload(buffer.array());
-                try {
-                    payload.calculateMsgHash();
-                } catch (NoSuchAlgorithmException ne) {
-                    System.err.println(ne.getMessage() + ne.getStackTrace());
-                }
-
-                buffer = ByteBuffer.wrap(payload.getHash().getBytes());
-                client.write(buffer);
-                buffer.clear();
-                //FIXME
-                //Server.stats.sendMsg();
-            }
-        }
-    }
-
     //This will do the function based upon the type of action so that the worker thread can just call the resolve fn
     public void resolve() {
         try {
 
             if (dispatch) {
                 Batch currentBatch = ThreadPoolManager.removeBatch();
-                Iterator<SelectionKey> keys = currentBatch.getBatchMessages();
-                while (keys.hasNext()) {
-                    SelectionKey key = keys.next();
-                    doWork(key);
-                    key.attach(null);
-                    keys.remove();
-
+              Iterator<ClientMessage> messages = currentBatch.getBatchMessages();
+              while (messages.hasNext()) {
+                ClientMessage clientMessage = messages.next();
+                clientMessage.sendMsgToSender();
+                messages.remove();
                 }
             } else {
                 //Need to validate that we aren't trying to read from an already closed channel

@@ -1,10 +1,8 @@
 package cs455.scaling.server;
 
 import cs455.scaling.protocol.Task;
-
 import java.nio.channels.SelectionKey;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ThreadPoolManager {
@@ -63,12 +61,13 @@ public class ThreadPoolManager {
         }
     }
 
-    //HERE
+    //FIXME
+    //This needs to append a client info node along with the message into the 'link'
     public static void addMsgKey(SelectionKey key) {
         batchMessages.append(key);
     }
 
-    //HERE
+    //FIXME
     public static Batch removeBatch() {
         return batchMessages.getDispatchBatch();
     }
