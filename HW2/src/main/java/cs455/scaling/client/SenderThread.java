@@ -18,12 +18,10 @@ public class SenderThread implements Runnable {
   }
 
   public void run() {
-    System.out.println("The sender thread is up and running");
     while (socket != null) {
       try {
 
         Payload msg = new Payload();
-          //System.out.println("MSG: " + msg.getBytes());
         buffer = ByteBuffer.wrap(msg.getBytes());
           msg.calculateMsgHash();
           Client.addSentPayload(msg.getHash().trim());
@@ -36,14 +34,14 @@ public class SenderThread implements Runnable {
         System.out.println("The client sender thread is winding down: " + ie.getMessage());
         break;
       } catch (IOException ie) {
-          System.err.println("Issue trying to write the buffer to the socket: " + ie.getMessage());
-          break;
+
+        break;
       } catch (NoSuchAlgorithmException ne) {
-          System.err.println("Problem when calculating the hash: " + ne.getMessage());
-          break;
+        System.err.println("Problem when calculating the hash: " + ne.getMessage());
+        break;
       }
     }
-    System.out.println("The send thread is shutting down");
+    Client.shutdown();
   }
 
 }

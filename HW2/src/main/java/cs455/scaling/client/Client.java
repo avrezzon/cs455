@@ -1,7 +1,5 @@
 package cs455.scaling.client;
 
-import cs455.scaling.protocol.Payload;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -19,6 +17,7 @@ public class Client {
     public static ClientStatistics StatsCollector;
     private static ByteBuffer buffer;
     private ClientStatsThread stats;
+  private static volatile boolean shutdown;
 
     //The ctor holds the registration process for the client
     public Client(String host_name, int port_number, int messageRate) throws IOException {
@@ -30,7 +29,13 @@ public class Client {
         sentMessages = new LinkedList<>();
         StatsCollector = new ClientStatistics();
         stats = new ClientStatsThread();
+      this.shutdown = false;
+
     }
+
+  public static void shutdown() {
+    shutdown = true;
+  }
 
     public static void addSentPayload(String sentHash) {
         synchronized (sentMessages) {
@@ -43,6 +48,9 @@ public class Client {
         new Thread(this.stats).start();
         String response = null;
         while (true) try {
+          if (shutdown) {
+            System.exit(0);
+          }
             server.read(buffer); //Blocking call
             response = new String(buffer.array()).trim();
             boolean success = sentMessages.remove(response);
@@ -54,7 +62,7 @@ public class Client {
             buffer.clear();
 
         } catch (IOException e) {
-            e.printStackTrace();
+          shutdown();
         }
     }
 
