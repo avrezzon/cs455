@@ -40,8 +40,9 @@ public class ClientMessage {
   }
 
   //Returns True if the payload is not null
-  public boolean verifyPayload() {
+  public boolean verifyPayload(SelectionKey key) {
     if (this.payload == null) {
+      key.attach(null);
       return false;
     }
     return true;

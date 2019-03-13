@@ -30,7 +30,7 @@ public class Batch {
     synchronized (key) {
       try {
         msg = new ClientMessage(key);
-        if (msg.verifyPayload()) {
+        if (msg.verifyPayload(key)) {
           clientMessages.add(msg);
         }
       } catch (IOException ie) {
