@@ -25,7 +25,7 @@ public class ThreadPoolManagerThread implements Runnable {
 
     if (key.isValid() && key.attachment() == null) {
 
-      if (key.isAcceptable() || key.isReadable()) {
+      if (key.isAcceptable()) {
               key.attach(new Object());
       }
       pendingTasks

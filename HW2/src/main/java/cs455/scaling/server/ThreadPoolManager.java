@@ -67,9 +67,4 @@ public class ThreadPoolManager {
         batchMessages.append(key);
     }
 
-    //NOTE this has been removed due to the new batch dispatch idea
-//    //FIXME
-//    public static Batch removeBatch() {
-//        return batchMessages.getDispatchBatch();
-//    }
 }

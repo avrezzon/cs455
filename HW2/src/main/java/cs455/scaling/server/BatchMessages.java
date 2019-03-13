@@ -10,7 +10,6 @@ import java.util.LinkedList;
 public class BatchMessages {
 
   private LinkedList<Batch> batchLL;
-  private volatile int headNodePtr;
   private int batchSize;
   private int batchTime;
 
@@ -19,7 +18,6 @@ public class BatchMessages {
     this.batchLL = new LinkedList<>();
     this.batchLL.add(new Batch(batchSize, batchTime));
 
-    this.headNodePtr = 0;
     this.batchSize = batchSize;
     this.batchTime = batchTime;
   }
@@ -34,6 +32,7 @@ public class BatchMessages {
         //create the new batch that the next current key will be able to append to
         batchLL.add(new Batch(batchSize, batchTime));
         dispatchBatch = this.batchLL.removeFirst();
+        currentBatch = this.batchLL.get(0); //NOTE THIS WASNT HERE AND PROBS FIXED
       }
       //Add the current key now to the selected batch that
       currentBatch.startTimer();
@@ -54,15 +53,4 @@ public class BatchMessages {
       }
     }
   }
-
-  //TODO clean this up if this next push works, instead of puting the batch into the task queue we will just process the messages right now why wait cha feel
-  //This method will be invoked once the task that contains the dispatch info calls the .resolve()
-  private Batch getDispatchBatch() {
-    Batch dispatchBatch = null;
-    //All that I need to do is retrieve the batch and decrement the headNode
-    dispatchBatch = this.batchLL.removeFirst();
-    //headNodePtr = headNodePtr - 1;
-    return dispatchBatch;
-  }
-
 }

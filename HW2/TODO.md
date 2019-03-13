@@ -10,5 +10,7 @@ Here is what needs to be done:
       * The Mean throughput per client is low are around 1.0
         *I need to go through a simulation to see how big the task queue gets because sometimes it doesnt connect all of the clients 
                
+ * Double check what keys have objects on them because this could easily be an issue
+ * I am now getting through put from the clients but a high std deviation
  
  
