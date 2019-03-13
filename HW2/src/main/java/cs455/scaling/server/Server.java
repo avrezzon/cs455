@@ -42,7 +42,7 @@ public class Server {
     new Thread(threadPoolManagerThread).start();
     try {
       while (true) {
-        selector.selectNow();
+        selector.select();
         Set<SelectionKey> selectedKeys = selector.selectedKeys();
         Iterator<SelectionKey> iter = selectedKeys.iterator();
 
@@ -73,7 +73,7 @@ public class Server {
         key.attach(null);
       }
     } catch (NullPointerException ne) {
-      //System.err.println("SERVER: NULL POINTER ON REGISTER");
+      //0System.err.println("SERVER: NULL POINTER ON REGISTER");
     }
   }
 

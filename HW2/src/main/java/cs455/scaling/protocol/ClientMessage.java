@@ -36,6 +36,7 @@ public class ClientMessage {
         this.payload = null;
       }
     }
+    key.attach(null);
   }
 
   //Returns True if the payload is not null
