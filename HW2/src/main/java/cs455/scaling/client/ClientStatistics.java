@@ -1,25 +1,41 @@
 package cs455.scaling.client;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class ClientStatistics {
 
-  private int msgSent;
-  private int msgReceived;
+    private AtomicInteger msgSent;
+    private AtomicInteger msgReceived;
+    private AtomicInteger mismatch;
 
   public ClientStatistics() {
-    this.msgSent = 0;
-    this.msgReceived = 0;
+      this.msgSent = new AtomicInteger(0);
+      this.msgReceived = new AtomicInteger(0);
+      this.mismatch = new AtomicInteger(0);
   }
 
-  public synchronized void sentMsg() {
-    this.msgSent += 1;
+    public void sentMsg() {
+        msgSent.getAndIncrement();
   }
 
-  public synchronized void receivedMsg() {
-    this.msgReceived += 1;
+    public void receivedMsg() {
+        msgReceived.getAndIncrement();
+
   }
 
-  public synchronized String toString() {
-    return "[" + (System.currentTimeMillis() / 1000) + "] Total Sent Count: " + this.msgSent
-        + ", Total Received Count: " + this.msgReceived;
+    public void updateMismatch() {
+        mismatch.getAndIncrement();
+
+    }
+
+    public String toString() {
+        synchronized (msgSent) {
+            synchronized (msgReceived) {
+                synchronized (mismatch) {
+                    return "[" + (System.currentTimeMillis() / 1000) + "] Total Sent Count: " + this.msgSent
+                            + ", Total Received Count: " + this.msgReceived + " Bad messages: " + this.mismatch;
+                }
+            }
+        }
   }
 }

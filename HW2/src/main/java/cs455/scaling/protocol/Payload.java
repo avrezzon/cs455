@@ -36,5 +36,7 @@ public class Payload {
     return this.msg;
   }
 
-  public byte[] getHashBytes() { return this.hash.getBytes(); }
+    public String getHash() {
+        return this.hash;
+    }
 }

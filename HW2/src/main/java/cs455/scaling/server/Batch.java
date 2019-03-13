@@ -9,7 +9,6 @@ import java.util.LinkedList;
 //This is stored within the client node and is what the worker thread will append the new message contents to
 public class Batch {
 
-  public int length;
   private int maxBatchSize;
   private int maxBatchTime; //This is declared as volatile so that the time is synchronized among the threads
   private long dispatchTime;
@@ -26,7 +25,6 @@ public class Batch {
   //This is the method that will add the new key into the current head of the batch
   public void append(SelectionKey key) {
     clientMessages.add(key);
-
   }
 
   //This method will return an iterable of the Selection keys back to the task -->Task will have ea batch attached so I can call this
@@ -35,12 +33,13 @@ public class Batch {
   }
 
   //This method is called to determine the state of the batch whether or not is should dispatch
-  public synchronized boolean dispatch() {
+  public boolean readyToDispatch() {
     long now = System.currentTimeMillis() / 1000;
     if (now == dispatchTime || clientMessages.size() == maxBatchSize) {
       return true;
     }
     return false;
   }
+
 
 }
