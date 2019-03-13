@@ -1,5 +1,5 @@
 .gradle/
 .idea
 HW_comments/
-HW1/build/*
-HW2/build/*
+HW1/build/
+HW2/build/
