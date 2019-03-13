@@ -106,6 +106,7 @@ public class ServerStatistics {
                 + " messages/s, Std. Dev. Of Per-client Throughput: " + stdevPerClientThroughput
                 + " messages/s";
 
+        this.sentMsg.set(0);
         lastTime = now;
 
 
