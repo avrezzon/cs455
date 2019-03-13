@@ -4,3 +4,4 @@ Here is what needs to be done:
     to determine this
       * this will indirectly affect the message mean throughput per client giving them a lower value than the correct number
       * Server is still getting screwed
+      * Im noticing that in situations where the client size is 100, out of those clients the majority of them are not getting the hashed messages sent back

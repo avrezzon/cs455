@@ -49,18 +49,20 @@ public class ClientMessage {
   }
 
   public void sendMsgToSender() throws IOException {
-    if (this.payload != null) {
-      try {
-        this.payload.calculateMsgHash();
-      } catch (NoSuchAlgorithmException noa) {
-        System.out.println(noa.getMessage());
+    synchronized (socket) {
+      if (this.payload != null) {
+        try {
+          this.payload.calculateMsgHash();
+        } catch (NoSuchAlgorithmException noa) {
+          System.out.println(noa.getMessage());
+        }
+        buffer = ByteBuffer.wrap(this.payload.getHash().getBytes());
+        socket.write(buffer);
+        buffer.clear();
+        Server.stats.sendMsg(socket);
+      } else {
+        System.out.println("sendMsgToSender() Null entry processed!!!!!!!!!!!");
       }
-      buffer = ByteBuffer.wrap(this.payload.getHash().getBytes());
-      socket.write(buffer);
-      buffer.clear();
-      Server.stats.sendMsg(socket);
-    } else {
-      System.out.println("sendMsgToSender() Null entry processed!!!!!!!!!!!");
     }
   }
 

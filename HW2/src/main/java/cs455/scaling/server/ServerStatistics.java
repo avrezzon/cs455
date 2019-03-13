@@ -23,7 +23,7 @@ public class ServerStatistics {
         }
 
         public double meanThroughput() {
-            double val = this.receivedMsg / 20.0;
+            double val = this.receivedMsg / 10.0; //FIXME
             this.receivedMsg = 0;
             return val;
         }

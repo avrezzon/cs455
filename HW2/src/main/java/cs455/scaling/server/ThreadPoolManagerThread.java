@@ -22,12 +22,15 @@ public class ThreadPoolManagerThread implements Runnable {
   }
 
   public synchronized void addPendingTask(SelectionKey key) {
+
     if (key.isValid() && key.attachment() == null) {
-      if ((key.isAcceptable() || key.isReadable())) {
+
+      if (key.isAcceptable() || key.isReadable()) {
               key.attach(new Object());
-          }
-          pendingTasks.add(new Task(key)); /// we want duplicates on the batch of the same key for new messages
       }
+      pendingTasks
+          .add(new Task(key)); /// we want duplicates on the batch of the same key for new messages
+    }
   }
 
   private synchronized void acceptTask(Task task) {

@@ -27,8 +27,8 @@ public class Batch {
   //This is the method that will add the new key into the current head of the batch
   public void append(SelectionKey key) {
     ClientMessage msg = null;
-    synchronized (key) {
-      try {
+
+    try {
         msg = new ClientMessage(key);
         if (msg.verifyPayload(key)) {
           clientMessages.add(msg);
@@ -39,7 +39,7 @@ public class Batch {
         //The message has already been read
         System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
       }
-    }
+
   }
 
   //This method will return an iterable of the Selection keys back to the task -->Task will have ea batch attached so I can call this

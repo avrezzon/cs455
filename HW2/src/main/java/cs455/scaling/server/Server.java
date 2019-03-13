@@ -73,7 +73,7 @@ public class Server {
         key.attach(null);
       }
     } catch (NullPointerException ne) {
-      //0System.err.println("SERVER: NULL POINTER ON REGISTER");
+      //System.err.println("SERVER: NULL POINTER ON REGISTER");
     }
   }
 
