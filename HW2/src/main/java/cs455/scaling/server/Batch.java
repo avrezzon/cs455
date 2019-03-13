@@ -51,6 +51,11 @@ public class Batch {
   public boolean readyToDispatch() {
     long now = System.currentTimeMillis() / 1000;
     if (now == dispatchTime || clientMessages.size() == maxBatchSize) {
+      System.out.println("DISPACTHING MESSAGES FROM THE FOLLOWING CLIENTS:");
+      for (ClientMessage msg : this.clientMessages) {
+        System.out.println("\t" + msg.toString());
+      }
+
       return true;
     }
     return false;
