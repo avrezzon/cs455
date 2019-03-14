@@ -13,11 +13,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class ThreadPoolManagerThread implements Runnable {
 
   //This will be where all the pending tasks are waiting to be added to the taskQueue
-  private ConcurrentLinkedQueue<Task> pendingTasks;
   private ThreadPoolManager threadPoolManager;
 
   public ThreadPoolManagerThread(int threadPoolSize, int batchSize, int batchTime) {
-    pendingTasks = new ConcurrentLinkedQueue<>();
     threadPoolManager = new ThreadPoolManager(threadPoolSize, batchSize, batchTime);
   }
 
@@ -25,26 +23,19 @@ public class ThreadPoolManagerThread implements Runnable {
 
     if (key.isValid()) {
 
-      if (key.isAcceptable() && key.attachment() != null) {
+        if ((key.isAcceptable() || key.isReadable()) && key.attachment() == null) {
               key.attach(new Object());
       }
-      pendingTasks
-          .add(new Task(key)); /// we want duplicates on the batch of the same key for new messages
+        threadPoolManager.addTask(new Task(key));
     }
-  }
-
-  private synchronized void acceptTask(Task task) {
-    threadPoolManager.addTask(task);
-    notifyAll();
   }
 
   //This run function will be the thread to notify the worker threads about the
   public void run() {
     threadPoolManager.bootup();
     while (true) {
-      Task job = pendingTasks.poll();
-      if (job != null) {
-        acceptTask(job);
+        if (!threadPoolManager.isTaskQueueEmpty()) {
+            threadPoolManager.wakeupWorkers();
       }
     }
   }

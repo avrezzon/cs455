@@ -26,16 +26,17 @@ public class ClientMessage {
     this.buffer = ByteBuffer.allocate(8000);
 
     int bytesRead = socket.read(buffer);
-
-    if (bytesRead == -1) {
-      socket.close();
-      Server.stats.dropConnection();
-    } else {
-      if (bytesRead == 8000) {
-        this.payload = new Payload(buffer.array());
-        Server.stats.receivedMsg(socket);
+    synchronized (socket) {
+      if (bytesRead == -1) {
+        socket.close();
+        Server.stats.dropConnection();
       } else {
-        this.payload = null;
+        if (bytesRead == 8000) {
+          this.payload = new Payload(buffer.array());
+          Server.stats.receivedMsg(socket);
+        } else {
+          this.payload = null;
+        }
       }
     }
     key.attach(null);

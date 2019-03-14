@@ -37,8 +37,13 @@ public class ThreadPoolManager {
     }
 
     //The worker threads will query this to determine if they need to sleep
-    public static boolean isTaskQueueEmpty() {
+    public boolean isTaskQueueEmpty() {
         return taskQueue.isEmpty();
+    }
+
+    //Static version for worker threads
+    public static boolean availableTasks() {
+        return !taskQueue.isEmpty();
     }
 
     //Threads will retrieve the task from the queue when notified
@@ -46,18 +51,23 @@ public class ThreadPoolManager {
         return taskQueue.poll();
     }
 
-    //This is invoked once the Manager accepts the task that is current in his queue
-    public static void addTask(Task task) {
+
+    public void addTask(Task task) {
         taskQueue.add(task);
+    }
+
+    //This is invoked once the Manager accepts the task that is current in his queue
+    public void wakeupWorkers() {
         synchronized (taskQueue) {
             taskQueue.notifyAll();
         }
     }
 
-    //FIXME
     //This needs to append a client info node along with the message into the 'link'
     public static void addMsgKey(SelectionKey key) {
-        batchMessages.append(key);
+        if (key.attachment() != null) {
+            batchMessages.append(key);
+        }
     }
 
 }

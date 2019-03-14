@@ -38,6 +38,7 @@ public class BatchMessages {
       //Add the current key now to the selected batch that
       currentBatch.startTimer();
       currentBatch.append(key);
+      key.attach(null);
     }
 
     if (dispatchBatch != null) {
