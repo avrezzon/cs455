@@ -14,7 +14,6 @@ public class ClientMessage {
   private SocketChannel socket;
   private Payload payload;
   private ByteBuffer buffer;
-  //TODO ill add more variables as needed
 
   //This will only be created once the task has been accepted by the worker thread
   //upon initalizaton, the class will extract the message from the buffer so that when
