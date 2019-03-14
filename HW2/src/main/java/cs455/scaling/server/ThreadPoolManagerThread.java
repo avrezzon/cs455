@@ -22,7 +22,6 @@ public class ThreadPoolManagerThread implements Runnable {
   public synchronized void addPendingTask(SelectionKey key) {
 
     if (key.isValid()) {
-
         if ((key.isAcceptable() || key.isReadable()) && key.attachment() == null) {
               key.attach(new Object());
       }

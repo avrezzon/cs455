@@ -52,6 +52,7 @@ public class ClientMessage {
   }
 
   public void sendMsgToSender() throws IOException {
+    synchronized (socket) {
       if (this.payload != null) {
         try {
           this.payload.calculateMsgHash();
@@ -65,7 +66,7 @@ public class ClientMessage {
       } else {
         System.out.println("sendMsgToSender() Null entry processed!!!!!!!!!!!");
       }
-
+    }
   }
 
   public String toString() {
