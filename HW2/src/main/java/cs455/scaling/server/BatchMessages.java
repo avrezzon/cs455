@@ -26,18 +26,20 @@ public class BatchMessages {
 
     Batch currentBatch = null;
     Batch dispatchBatch = null;
+
     synchronized (batchLL) {
       currentBatch = this.batchLL.get(0);
       if (currentBatch.readyToDispatch()) {
         //create the new batch that the next current key will be able to append to
         batchLL.add(new Batch(batchSize, batchTime));
         dispatchBatch = this.batchLL.removeFirst();
-        currentBatch = this.batchLL.get(0); //NOTE THIS WASNT HERE AND PROBS FIXED
+        currentBatch = this.batchLL.get(0);
       }
       //Add the current key now to the selected batch that
       currentBatch.startTimer();
       currentBatch.append(key);
     }
+
     if (dispatchBatch != null) {
       try {
         Iterator<ClientMessage> messages = dispatchBatch.getBatchMessages();

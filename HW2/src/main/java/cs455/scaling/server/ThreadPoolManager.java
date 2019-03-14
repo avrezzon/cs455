@@ -38,25 +38,18 @@ public class ThreadPoolManager {
 
     //The worker threads will query this to determine if they need to sleep
     public static boolean isTaskQueueEmpty() {
-        synchronized (taskQueue) {
-            if (taskQueue.isEmpty()) {
-                return true;
-            }
-            return false;
-        }
+        return taskQueue.isEmpty();
     }
 
     //Threads will retrieve the task from the queue when notified
     public static Task getNextTask() {
-        synchronized (taskQueue) {
-            return taskQueue.poll();
-        }
+        return taskQueue.poll();
     }
 
     //This is invoked once the Manager accepts the task that is current in his queue
     public static void addTask(Task task) {
+        taskQueue.add(task);
         synchronized (taskQueue) {
-            taskQueue.add(task);
             taskQueue.notifyAll();
         }
     }
