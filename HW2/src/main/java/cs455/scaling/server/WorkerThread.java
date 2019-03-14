@@ -20,7 +20,7 @@ public class WorkerThread implements Runnable {
             while (true) {
                 synchronized (queue) {
                     //Only when the task queue is empty should a thread be put to sleep
-                    while (!ThreadPoolManager.availableTasks()) {
+                    if (!ThreadPoolManager.availableTasks()) {
                         queue.wait();
                     }
                 }

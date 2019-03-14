@@ -24,7 +24,7 @@ public class ThreadPoolManagerThread implements Runnable {
     if (key.isValid()) {
         if ((key.isAcceptable() || key.isReadable()) && key.attachment() == null) {
               key.attach(new Object());
-      }
+        }
         threadPoolManager.addTask(new Task(key));
     }
   }

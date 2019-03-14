@@ -59,7 +59,7 @@ public class ThreadPoolManager {
     //This is invoked once the Manager accepts the task that is current in his queue
     public void wakeupWorkers() {
         synchronized (taskQueue) {
-            taskQueue.notifyAll();
+            taskQueue.notify();
         }
     }
 
