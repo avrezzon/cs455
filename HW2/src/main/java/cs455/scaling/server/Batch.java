@@ -59,7 +59,6 @@ public class Batch {
 //      for (ClientMessage msg : this.clientMessages) {
 //        System.out.println("\t" + msg.toString());
 //      }
-
       return true;
     }
     return false;
