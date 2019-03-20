@@ -33,7 +33,8 @@ public class ClientStatistics {
             synchronized (msgReceived) {
                 synchronized (mismatch) {
                     return "[" + (System.currentTimeMillis() / 1000) + "] Total Sent Count: " + this.msgSent
-                            + ", Total Received Count: " + this.msgReceived + " Bad messages: " + this.mismatch;
+                        + ", Total Received Count: " + this.msgReceived
+                        + ", Total Bad messages received: " + this.mismatch;
                 }
             }
         }

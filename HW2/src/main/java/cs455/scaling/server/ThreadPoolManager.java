@@ -1,10 +1,8 @@
 package cs455.scaling.server;
 
 import cs455.scaling.protocol.Task;
-
 import java.nio.channels.SelectionKey;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ThreadPoolManager {
@@ -39,37 +37,37 @@ public class ThreadPoolManager {
     }
 
     //The worker threads will query this to determine if they need to sleep
-    public static boolean isTaskQueueEmpty() {
-        synchronized (taskQueue) {
-            if (taskQueue.isEmpty()) {
-                return true;
-            }
-            return false;
-        }
+    public boolean isTaskQueueEmpty() {
+        return taskQueue.isEmpty();
+    }
+
+    //Static version for worker threads
+    public static boolean availableTasks() {
+        return !taskQueue.isEmpty();
     }
 
     //Threads will retrieve the task from the queue when notified
     public static Task getNextTask() {
-        synchronized (taskQueue) {
-            return taskQueue.poll();
-        }
+        return taskQueue.poll();
+    }
+
+
+    public void addTask(Task task) {
+        taskQueue.add(task);
     }
 
     //This is invoked once the Manager accepts the task that is current in his queue
-    public static void addTask(Task task) {
+    public void wakeupWorkers() {
         synchronized (taskQueue) {
-            taskQueue.add(task);
-            taskQueue.notifyAll();
+            taskQueue.notify();
         }
     }
 
-    //HERE
+    //This needs to append a client info node along with the message into the 'link'
     public static void addMsgKey(SelectionKey key) {
-        batchMessages.append(key);
+        if (key.attachment() != null) {
+            batchMessages.append(key);
+        }
     }
 
-    //HERE
-    public static Batch removeBatch() {
-        return batchMessages.getDispatchBatch();
-    }
 }

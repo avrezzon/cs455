@@ -1,5 +1,7 @@
 package cs455.scaling.server;
 
+import cs455.scaling.protocol.ClientMessage;
+import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -12,30 +14,51 @@ public class Batch {
   private int maxBatchSize;
   private int maxBatchTime; //This is declared as volatile so that the time is synchronized among the threads
   private long dispatchTime;
-  private LinkedList<SelectionKey> clientMessages;
+  private LinkedList<ClientMessage> clientMessages;
 
   public Batch(int batchSize, int maxBatchTime) {
     this.maxBatchSize = batchSize;
     this.maxBatchTime = maxBatchTime;
-    this.dispatchTime = System.currentTimeMillis() / 1000 + this.maxBatchTime;
+    this.dispatchTime = -1;
     this.clientMessages = new LinkedList<>();
   }
 
 
   //This is the method that will add the new key into the current head of the batch
   public void append(SelectionKey key) {
-    clientMessages.add(key);
+    ClientMessage msg = null;
+
+    try {
+        msg = new ClientMessage(key);
+        if (msg.verifyPayload(key)) {
+          clientMessages.add(msg);
+        }
+      } catch (IOException ie) {
+        System.out.println("Encountered IOException: " + ie.getMessage());
+      } catch (NullPointerException ne) {
+        //The message has already been read
+        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+      }
+
+  }
+
+  public void startTimer() {
+    this.dispatchTime = System.currentTimeMillis() / 1000 + this.maxBatchTime;
   }
 
   //This method will return an iterable of the Selection keys back to the task -->Task will have ea batch attached so I can call this
-  public Iterator<SelectionKey> getBatchMessages() {
+  public Iterator<ClientMessage> getBatchMessages() {
     return clientMessages.iterator();
   }
 
   //This method is called to determine the state of the batch whether or not is should dispatch
   public boolean readyToDispatch() {
     long now = System.currentTimeMillis() / 1000;
-    if (now == dispatchTime || clientMessages.size() == maxBatchSize) {
+    if ((now == dispatchTime || clientMessages.size() == maxBatchSize) && dispatchTime != -1) {
+//      System.out.println("DISPACTHING MESSAGES FROM THE FOLLOWING CLIENTS:");
+//      for (ClientMessage msg : this.clientMessages) {
+//        System.out.println("\t" + msg.toString());
+//      }
       return true;
     }
     return false;
