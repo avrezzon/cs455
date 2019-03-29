@@ -19,9 +19,14 @@ public class Q1Mapper extends Mapper<LongWritable, Text, Text, IntWritable> {
     protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 
         String line = value.toString();
-        String[] song_values = str.split(",");
+        String[] song_values = line.split(",+");
+        try {
+            String artist = song_values[6];
+            context.write(new Text(), new IntWritable(1));
+        }catch(ArrayIndexOutOfBoundsException ae){
 
-
+        }
+        //TODO note that in the assignment, the artist name is not garunteed to be unique
 
     }
 }

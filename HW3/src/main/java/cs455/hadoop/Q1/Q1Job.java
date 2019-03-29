@@ -2,6 +2,8 @@ package cs455.hadoop.Q1;
 
 //Goal: Which artist has the most songs in the data set?
 
+//Note that for this question I will only need to look at the metadata to do this
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
