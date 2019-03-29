@@ -14,21 +14,21 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 /**
  * This is the main class. Hadoop will invoke the main method of this class.
  */
-public class WordCountJob {
+public class Q1Job {
 
   public static void main(String[] args) {
     try {
       Configuration conf = new Configuration();
       // Give the MapRed job a name. You'll see this name in the Yarn webapp.
-      Job job = Job.getInstance(conf, "word count");
+      Job job = Job.getInstance(conf, "question 1");
       // Current class.
-      job.setJarByClass(WordCountJob.class);
+      job.setJarByClass(Q1Job.class);
       // Mapper
-      job.setMapperClass(WordCountMapper.class);
+      job.setMapperClass(Q1Mapper.class);
       // Combiner. We use the reducer as the combiner in this case.
-      job.setCombinerClass(WordCountReducer.class);
+      job.setCombinerClass(Q1Reducer.class);
       // Reducer
-      job.setReducerClass(WordCountReducer.class);
+      job.setReducerClass(Q1Reducer.class);
       // Outputs from the Mapper.
       job.setMapOutputKeyClass(Text.class);
       job.setMapOutputValueClass(IntWritable.class);
