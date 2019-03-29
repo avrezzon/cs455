@@ -1,0 +1,5 @@
+You need to overwrite this environment variable every time you spawn a new shell to run a MapReduce program.
+export HADOOP_CONF_DIR=/path/to/extracted-client-config
+
+Now you can run your Hadoop program as usual. Make sure to include the paths using mount points.
+$HADOOP_HOME/bin/hadoop jar msd-analysis.jar cs455.hadoop.msd.AnalysisJob /data/analysis /home/analysis/output
