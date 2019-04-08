@@ -16,7 +16,7 @@ public class SongMapper extends Mapper<LongWritable, Text, Text, Text> {
         String songID = null; //1
         String popularity = null; //2
         String danceability = null; //4
-        String duration; //5
+        String duration = null; //5
         String fadeInEnd = null; //6
         String energy = null; //7
         String loudness = null; //10
@@ -51,6 +51,10 @@ public class SongMapper extends Mapper<LongWritable, Text, Text, Text> {
                 }catch(NumberFormatException ne){
 	    	        //This is a bad record
                 }
+            }
+
+            if(duration.length() != 0){
+	    	    context.write(new Text("Q5"), new Text("A" + songID + "\t" + duration));
             }
         }
     }

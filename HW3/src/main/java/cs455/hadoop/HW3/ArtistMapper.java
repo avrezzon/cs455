@@ -31,6 +31,7 @@ public class ArtistMapper extends Mapper<LongWritable, Text, Text, Text> {
 	    	context.write(new Text("Q2"), new Text("M" + artistUid + "\t" + artistName + "\t" + songId));
             context.write(new Text("Q3"), new Text("M" + songId + "\t" + title));
             context.write(new Text("Q4"), new Text("M" + artistUid + "\t" + artistName + "\t" + songId));
+            context.write(new Text("Q5"), new Text("M" + songId + "\t"  + title));
             //context.write(new Text("Q6"), new Text("M" + songId + "\t" + title));
         }
     }

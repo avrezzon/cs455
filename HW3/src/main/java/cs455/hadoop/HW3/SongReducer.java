@@ -152,6 +152,48 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
             }
         }
 
+        //NOTE with this question it says to capture song(s).  I will probably need to scrape the data again
+        //
+        if(statusCode.equals("Q5")){
+            double maxDuration = 0.0;
+            double minDuration = 0.0;
+
+            double songDuration = 0.0;
+
+            String maxDurationID;
+            String minDurationID;
+            String maxDurationTitle;
+            String minDurationTitle;
+
+            for(Text val : values) {
+                MetaOrAnalysis = val.toString().substring(0, 1);
+                dataSegment = val.toString().substring(1).split("\t");
+                if (MetaOrAnalysis.equals("M")) {
+                    SongMapping.put(dataSegment[0], dataSegment[1]);
+                }
+                if (MetaOrAnalysis.equals("A")) {
+                    try{
+                        songDuration = Double.parseDouble(dataSegment[1]);
+                        if(songDuration > maxDuration){
+                            maxDuration = songDuration;
+                            maxDurationID = dataSegment[0];
+                        }
+                        if(songDuration < minDuration){
+                            minDuration = songDuration;
+                            minDurationID = dataSegment[0];
+                        }
+                    }catch(NumberFormatException ne){
+                        //Bad record
+                    }
+                }
+            }
+            maxDurationTitle = SongMapping.getOrDefault(maxDurationID, "Song title was not present in the metadata set, Song ID: " + maxDurationID);
+            minDurationTitle = SongMapping.getOrDefault(minDurationID, "Song title was not present in the metadata set, Song ID: " + minDurationID);
+
+            mos.write("Q5", new Text("Longest song: " + maxDurationTitle), new Text((new Double(maxDuration)).toString()));
+            mos.write("Q5", new Text("Shortest song: " + minDurationTitle), new Text((new Double(minDuration)).toString()));
+        }
+
     }
 
     protected void cleanup(Context context) throws IOException, InterruptedException {

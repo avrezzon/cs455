@@ -42,6 +42,7 @@ public class SongAnalysisJob {
 	        MultipleOutputs.addNamedOutput(job, "Q2", TextOutputFormat.class, Text.class, Text.class);
 	        MultipleOutputs.addNamedOutput(job, "Q3", TextOutputFormat.class, Text.class, Text.class);
             MultipleOutputs.addNamedOutput(job, "Q4", TextOutputFormat.class, Text.class, Text.class);
+            MultipleOutputs.addNamedOutput(job, "Q5", TextOutputFormat.class, Text.class, Text.class);
 
             System.exit(job.waitForCompletion(true) ? 0 : 1);
 
