@@ -28,7 +28,10 @@ public class ArtistMapper extends Mapper<LongWritable, Text, Text, Text> {
 
             //This portion is used for question one.  Count the number of occurences that the artist is present in the data
             context.write(new Text("Q1"+artistUid), new Text(artistName));
+	    	context.write(new Text("Q2"), new Text("M" + artistUid + "\t" + artistName + "\t" + songId));
             context.write(new Text("Q3"), new Text("M" + songId + "\t" + title));
+            context.write(new Text("Q4"), new Text("M" + artistUid + "\t" + artistName + "\t" + songId));
+            //context.write(new Text("Q6"), new Text("M" + songId + "\t" + title));
         }
     }
 }

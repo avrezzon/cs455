@@ -15,9 +15,12 @@ public class SongMapper extends Mapper<LongWritable, Text, Text, Text> {
         String[] csvLine = (value.toString()).split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
         String songID = null; //1
         String popularity = null; //2
-        String danceability; //4
+        String danceability = null; //4
         String duration; //5
-        String loudness; //10
+        String fadeInEnd = null; //6
+        String energy = null; //7
+        String loudness = null; //10
+        String fadeOutStart = null; //13
 
         //throw out invalid data
         if(csvLine.length > 30){
@@ -26,11 +29,27 @@ public class SongMapper extends Mapper<LongWritable, Text, Text, Text> {
             popularity = csvLine[2];
             danceability = csvLine[4];
             duration = csvLine[5];
+            fadeInEnd = csvLine[6]
             loudness = csvLine[10];
+            fadeOutStart = csvLine[13];
 
-            if(popularity.matches("[^.0-9]")){
-                if(songID.length() != 0 && popularity.length() != 0) {
-                    context.write(new Text("Q3"), new Text("A" + songID + "\t" + popularity));
+			if(loudness.length() != 0){
+				//System.out.println("SongID: " + songID + " Loudness: " + loudness);
+				context.write(new Text("Q2"), new Text("A"+songID+"\t"+loudness));
+			}
+
+	    	if(popularity.length()!=0){
+	        	context.write(new Text("Q3"), new Text("A"+songID+"\t"+popularity));
+	    	}
+
+	    	if(fadeInEnd.length() != 0 && fadeOutStart.length() != 0){
+	    	    try {
+                    double fadeInTime = Double.parseDouble(fadeInEnd);
+                    double fadeOutTime = Double.parseDouble(fadeOutStart);
+                    double total = fadeInTime + fadeOutTime;
+                    context.write(new Text("Q4"), new Text("A"+ songID + "\t" + (new Double(total)).toString()));
+                }catch(NumberFormatException ne){
+	    	        //This is a bad record
                 }
             }
         }
