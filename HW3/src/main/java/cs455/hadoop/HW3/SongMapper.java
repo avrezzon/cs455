@@ -29,7 +29,7 @@ public class SongMapper extends Mapper<LongWritable, Text, Text, Text> {
             popularity = csvLine[2];
             danceability = csvLine[4];
             duration = csvLine[5];
-            fadeInEnd = csvLine[6]
+            fadeInEnd = csvLine[6];
             loudness = csvLine[10];
             fadeOutStart = csvLine[13];
 

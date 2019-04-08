@@ -134,6 +134,7 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
         if(statusCode.equals("Q4")){
 
             double songFadeTime;
+            HashSet<String> songs = null;
 
             for(Text val : values){
                 MetaOrAnalysis = val.toString().substring(0, 1);
@@ -212,22 +213,17 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
             for (String artistId : ArtistSongs.keySet()) {
                 songList = ArtistSongs.get(artistId);
                 for (String songID : songList) {
-                    artistLoudness += SongLoudness.getOrDefault(songID, 0.0);
-                    System.out.println("ArtistLoudness: " + artistLoudness);
+                    artistFade += SongFadeTime.getOrDefault(songID, 0.0);
                 }
-                System.out.println("\n\n\n\n");
-                artistAvg = artistLoudness / songList.size();
-                System.out.println("ArtistAverage: " + artistAvg);
-                if (maxLoudnessAvg < artistAvg) {
-                    maxLoudnessAvg = artistAvg;
-                    LoudestArtistID = artistId;
+                if (artistMaxFade < artistFade) {
+                    artistMaxFade = artistFade;
+                    MaxFadeArtistID = artistId;
                 }
-                artistLoudness = 0;
+                artistFade = 0;
             }
 
-            LoudestArtist = ArtistNames.get(LoudestArtistID);
-            mos.write("Q2", new Text(LoudestArtistID), new Text((new Double(maxLoudnessAvg).toString())));
-
+            MaxFadeArtist = ArtistNames.get(MaxFadeArtistID);
+            mos.write("Q4", new Text(MaxFadeArtist), new Text((new Double(artistMaxFade).toString())));
         }
 
         mos.close();
