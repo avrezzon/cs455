@@ -22,6 +22,12 @@ public class SongMapper extends Mapper<LongWritable, Text, Text, Text> {
         String loudness = null; //10
         String fadeOutStart = null; //13
 
+		String segment_start = null; //18
+		String segment_pitch = null; //20
+		String segment_timbre = null; //21
+		String segment_loudness_max = null; //22
+		String segment_loudness_max_time = null; //23
+		String segment_loudness_start = null; //24
         //throw out invalid data
         if(csvLine.length > 30){
 
@@ -56,6 +62,28 @@ public class SongMapper extends Mapper<LongWritable, Text, Text, Text> {
             if(duration.length() != 0){
 	    	    context.write(new Text("Q5"), new Text("A" + songID + "\t" + duration));
             }
+
+			/*if(true){
+
+				segment_start = csvLine[18];
+				segment_pitch = csvLine[20];
+				segment_timbre = csvLine[21];
+				segment_loudness_max = csvLine[22];
+				segment_loudness_max_time = csvLine[23];
+				segment_loudness_start = csvLine[24];
+				if(segment_start.length() != 0 && segment_pitch.length() != 0 && segment_timbre.length() != 0 &&
+				   segment_loudness_max.length() != 0 && segment_loudness_max_time.length() != 0 && segment_loudness_start.length() != 0){
+					//String[] temp = segment_start.split(" ");
+					//System.out.println(temp.length);
+
+					context.write(new Text("Q7-0"), new Text(segment_start));
+					context.write(new Text("Q7-1"), new Text(segment_pitch));
+					context.write(new Text("Q7-2"), new Text(segment_timbre));
+					context.write(new Text("Q7-3"), new Text(segment_loudness_max));
+					context.write(new Text("Q7-4"), new Text(segment_loudness_max_time));
+					context.write(new Text("Q7-5"), new Text(segment_loudness_start));
+				}
+			}*/
         }
     }
 }

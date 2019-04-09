@@ -6,6 +6,9 @@ import org.apache.hadoop.mapreduce.Reducer;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
 
@@ -152,16 +155,17 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
             }
         }
 
-        //NOTE with this question it says to capture song(s).  I will probably need to scrape the data again
-        //
+        //FIXME with this question it says to capture song(s).  I will probably need to scrape the data again
         if(statusCode.equals("Q5")){
             double maxDuration = 0.0;
-            double minDuration = 0.0;
+            double minDuration = 99999.0;
 
             double songDuration = 0.0;
 
-            String maxDurationID;
-            String minDurationID;
+			ArrayList<SongDuration> songList = new ArrayList<>();
+
+            String maxDurationID = null;
+            String minDurationID = null;
             String maxDurationTitle;
             String minDurationTitle;
 
@@ -182,16 +186,48 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
                             minDuration = songDuration;
                             minDurationID = dataSegment[0];
                         }
+						songList.add(new SongDuration(dataSegment[0], songDuration));
                     }catch(NumberFormatException ne){
                         //Bad record
                     }
                 }
             }
-            maxDurationTitle = SongMapping.getOrDefault(maxDurationID, "Song title was not present in the metadata set, Song ID: " + maxDurationID);
+
+			//Finding the median of the dataset now
+			SongDuration[] song_list = new SongDuration[songList.size()];
+			song_list = songList.toArray(song_list);
+			Arrays.sort(song_list, new Comparator<SongDuration>(){
+				public int compare(SongDuration song1, SongDuration song2){
+					if(song1.time < song2.time) return -1;
+					if(song1.time == song2.time) return 0;
+					return 1; 
+				}
+			});
+			//Updates the value of songList to the sorted fashion
+			songList = new ArrayList<SongDuration>(Arrays.asList(song_list));
+
+			maxDurationTitle = SongMapping.getOrDefault(maxDurationID, "Song title was not present in the metadata set, Song ID: " + maxDurationID);
             minDurationTitle = SongMapping.getOrDefault(minDurationID, "Song title was not present in the metadata set, Song ID: " + minDurationID);
 
-            mos.write("Q5", new Text("Longest song: " + maxDurationTitle), new Text((new Double(maxDuration)).toString()));
-            mos.write("Q5", new Text("Shortest song: " + minDurationTitle), new Text((new Double(minDuration)).toString()));
+            mos.write("Q5", new Text("Longest song spent fading: " + maxDurationTitle), new Text((new Double(maxDuration)).toString()));
+            mos.write("Q5", new Text("Shortest song spent fading: " + minDurationTitle), new Text((new Double(minDuration)).toString()));
+
+			if(songList.size() % 2 == 0){
+				int idx = songList.size() / 2;
+				SongDuration median = songList.get(idx);
+				String title = SongMapping.getOrDefault(median.songID, "Song title was not present in the metadata set, Song ID: " + median.songID);
+				mos.write("Q5", new Text("Median song spent fading: " + title), new Text((new Double(median.time)).toString()));
+			}else{
+				int idx = songList.size() / 2;
+				SongDuration song1 = songList.get(idx);
+				SongDuration song2 = songList.get(idx + 1);
+
+				String title1 = SongMapping.getOrDefault(song1.songID, "Song title was not present in the metadata set, Song ID: " + song1.songID);
+				String title2 = SongMapping.getOrDefault(song2.songID, "Song title was not present in the metadata set, Song ID: " + song2.songID);
+
+				mos.write("Q5", new Text("Median song #1 spent fading: " + title1), new Text((new Double(song1.time)).toString()));
+				mos.write("Q5", new Text("Median song #2 spent fading: " + title2), new Text((new Double(song2.time)).toString()));
+			}
         }
 
     }
@@ -243,7 +279,6 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
             mos.write("Q2", new Text(LoudestArtistID), new Text((new Double(maxLoudnessAvg).toString())));
         }
 
-        //TODO finish this
         //Q4 portion
         if(!SongFadeTime.isEmpty() && !ArtistSongs.isEmpty()){
             double artistMaxFade = 0.0;
@@ -265,6 +300,7 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
             }
 
             MaxFadeArtist = ArtistNames.get(MaxFadeArtistID);
+	
             mos.write("Q4", new Text(MaxFadeArtist), new Text((new Double(artistMaxFade).toString())));
         }
 
