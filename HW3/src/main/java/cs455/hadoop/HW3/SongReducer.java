@@ -13,7 +13,7 @@ import java.util.Comparator;
 import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
 
 import java.io.IOException;
-
+import java.math.BigDecimal;
 
 public class SongReducer extends Reducer<Text, Text, Text, Text> {
 
@@ -100,10 +100,13 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
             }
         }
 
+        //Q3 portion
+        //Kevin said that there are multiple songs that have a score of one so i can either list all of those songs OR
+        //just display the first value
         if (statusCode.equals("Q3")) {
 
-            double songPopScore = 0.0;
-            double curMax = 0.0;
+            BigDecimal songPopScore = null;
+            BigDecimal curMax = BigDecimal.valueOf(0.0);
             String MaxSongId = null;
             String LoudestSong = null;
 
@@ -115,9 +118,12 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
                 }
                 if (MetaOrAnalysis.equals("A")) {
                     try {
-                        songPopScore = Double.parseDouble(dataSegment[1]);
-                        if (songPopScore > curMax) {
-                            curMax = songPopScore;
+                        //songPopScore = BigDecimal.valueOf(Double.parseDouble(dataSegment[1]));
+                        songPopScore = new BigDecimal(dataSegment[1]);
+                        mos.write("Q3Debug", new Text(dataSegment[0]), new Text(songPopScore.toString()));
+                        if (songPopScore.compareTo(curMax) == 1) {
+                            //curMax = BigDecimal.valueOf(Double.parseDouble(dataSegment[1]));
+                            curMax = new BigDecimal(dataSegment[1]);
                             MaxSongId = dataSegment[0];
                         }
                         //SongScore.put(dataSegment[0], songPopScore);
@@ -127,11 +133,8 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
                 }
             }
 
-            LoudestSong = SongMapping.getOrDefault(MaxSongId, "N/A");
-            if (LoudestSong.equals("N/A")) {
-                LoudestSong = "The title of the song with the highest value for loudness was not present within the metadata set, Song ID: " + MaxSongId;
-            }
-            mos.write("Q3", new Text(LoudestSong), new Text((new Double(curMax).toString())));
+            LoudestSong = SongMapping.getOrDefault(MaxSongId, "The title of the song with the highest value for loudness was not present within the metadata set, Song ID: " + MaxSongId);
+            mos.write("Q3", new Text(MaxSongId), new Text(curMax.toString())); //TODO ask
         }
 
         if(statusCode.equals("Q4")){
@@ -230,11 +233,14 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
 			}
         }
 
+        //TODO I need to ass my porion for the 6th question
+        //Apr 10 --> I asked Keving about whether or not I need to write out this question and he said I dont have to
+
     }
 
     protected void cleanup(Context context) throws IOException, InterruptedException {
 
-        //Q1 portion
+        //Q1 portion VERIFIED
         if (!(ArtistMapping.isEmpty() && SongCount.isEmpty())) {
             int max = 0;
             String artistId = null;
@@ -249,7 +255,7 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
             mos.write("Q1", new Text(artistName), new Text((new Integer(max)).toString()));
         }
 
-        //Q2 portion
+        //Q2 portion VERIFIED
         if (!(ArtistSongs.isEmpty() && ArtistNames.isEmpty() && SongLoudness.isEmpty())) {
 
             double artistLoudness = 0;
@@ -276,7 +282,7 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
             }
 
             LoudestArtist = ArtistNames.get(LoudestArtistID);
-            mos.write("Q2", new Text(LoudestArtistID), new Text((new Double(maxLoudnessAvg).toString())));
+            mos.write("Q2", new Text(LoudestArtist), new Text((new Double(maxLoudnessAvg).toString())));
         }
 
         //Q4 portion

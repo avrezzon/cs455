@@ -40,11 +40,11 @@ public class SongMapper extends Mapper<LongWritable, Text, Text, Text> {
             fadeOutStart = csvLine[13];
 
 			if(loudness.length() != 0){
-				//System.out.println("SongID: " + songID + " Loudness: " + loudness);
 				context.write(new Text("Q2"), new Text("A"+songID+"\t"+loudness));
 			}
 
 	    	if(popularity.length()!=0){
+                System.out.println("SongID: " + songID + " Popularity: " + popularity);
 	        	context.write(new Text("Q3"), new Text("A"+songID+"\t"+popularity));
 	    	}
 
@@ -63,8 +63,9 @@ public class SongMapper extends Mapper<LongWritable, Text, Text, Text> {
 	    	    context.write(new Text("Q5"), new Text("A" + songID + "\t" + duration));
             }
 
-			/*if(true){
+            //TODO create the map task for Q6
 
+			/*if(true){
 				segment_start = csvLine[18];
 				segment_pitch = csvLine[20];
 				segment_timbre = csvLine[21];
