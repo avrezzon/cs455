@@ -40,16 +40,12 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
     protected void setup(Context context) throws IOException, InterruptedException {
         super.setup(context);
         mos = new MultipleOutputs(context);
-
         ArtistMapping = new HashMap<>();
         SongCount = new HashMap<>();
-
         ArtistSongs = new HashMap<>();
         ArtistNames = new HashMap<>();
         SongLoudness = new HashMap<>();
-
         SongMapping = new HashMap<>();
-
         SongFadeTime = new HashMap<>();
     }
 
@@ -61,6 +57,7 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
         String MetaOrAnalysis = null;
         String[] dataSegment = null;
 
+		//Q1 Is good XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
         if (statusCode.equals("Q1")) {
 
             int count = 0;
@@ -76,6 +73,7 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
             SongCount.put(artistId, count);
         }
 
+		//Q2 is good XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
         if (statusCode.equals("Q2")) {
             double Loudness;
             HashSet<String> songs = null;
@@ -103,6 +101,7 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
         //Q3 portion
         //Kevin said that there are multiple songs that have a score of one so i can either list all of those songs OR
         //just display the first value
+		//Currently this only outputs the first instance of 1.0 Q3 OK CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         if (statusCode.equals("Q3")) {
 
             BigDecimal songPopScore = null;
@@ -118,15 +117,13 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
                 }
                 if (MetaOrAnalysis.equals("A")) {
                     try {
-                        //songPopScore = BigDecimal.valueOf(Double.parseDouble(dataSegment[1]));
                         songPopScore = new BigDecimal(dataSegment[1]);
-                        mos.write("Q3Debug", new Text(dataSegment[0]), new Text(songPopScore.toString()));
+                        //This waas used to determine if there was any data that had a value of 1.0
+						//mos.write("Q3Debug", new Text(dataSegment[0]), new Text(songPopScore.toString()));
                         if (songPopScore.compareTo(curMax) == 1) {
-                            //curMax = BigDecimal.valueOf(Double.parseDouble(dataSegment[1]));
                             curMax = new BigDecimal(dataSegment[1]);
                             MaxSongId = dataSegment[0];
                         }
-                        //SongScore.put(dataSegment[0], songPopScore);
                     } catch (NumberFormatException ne) {
                         //This is just a bad record
                     }
@@ -134,9 +131,10 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
             }
 
             LoudestSong = SongMapping.getOrDefault(MaxSongId, "The title of the song with the highest value for loudness was not present within the metadata set, Song ID: " + MaxSongId);
-            mos.write("Q3", new Text(MaxSongId), new Text(curMax.toString())); //TODO ask
+            mos.write("Q3", new Text(MaxSongId), new Text(curMax.toString()));
         }
 
+		//Q4 Is good XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
         if(statusCode.equals("Q4")){
 
             double songFadeTime;
@@ -159,6 +157,7 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
         }
 
         //FIXME with this question it says to capture song(s).  I will probably need to scrape the data again
+		//Q5 needs to get fixed to capture the values of the same FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
         if(statusCode.equals("Q5")){
             double maxDuration = 0.0;
             double minDuration = 99999.0;
@@ -235,7 +234,6 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
 
         //TODO I need to ass my porion for the 6th question
         //Apr 10 --> I asked Keving about whether or not I need to write out this question and he said I dont have to
-
     }
 
     protected void cleanup(Context context) throws IOException, InterruptedException {
@@ -269,9 +267,8 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
                 songList = ArtistSongs.get(artistId);
                 for (String songID : songList) {
                     artistLoudness += SongLoudness.getOrDefault(songID, 0.0);
-                    System.out.println("ArtistLoudness: " + artistLoudness);
                 }
-                System.out.println("\n\n\n\n");
+
                 artistAvg = artistLoudness / songList.size();
                 System.out.println("ArtistAverage: " + artistAvg);
                 if (maxLoudnessAvg < artistAvg) {

@@ -44,7 +44,6 @@ public class SongMapper extends Mapper<LongWritable, Text, Text, Text> {
 			}
 
 	    	if(popularity.length()!=0){
-                System.out.println("SongID: " + songID + " Popularity: " + popularity);
 	        	context.write(new Text("Q3"), new Text("A"+songID+"\t"+popularity));
 	    	}
 
@@ -63,9 +62,11 @@ public class SongMapper extends Mapper<LongWritable, Text, Text, Text> {
 	    	    context.write(new Text("Q5"), new Text("A" + songID + "\t" + duration));
             }
 
-            //TODO create the map task for Q6
-
-			/*if(true){
+            //For this segment I will be creating data average data segments of length 10
+            //the segment has to be greater than 99
+			//original thought was do a segment of 100 but when I do that, then I will lose values up to 1-99
+			//by grouping them in 10% buckets i only lose upto 0-9 values
+			if(true){
 				segment_start = csvLine[18];
 				segment_pitch = csvLine[20];
 				segment_timbre = csvLine[21];
@@ -74,8 +75,8 @@ public class SongMapper extends Mapper<LongWritable, Text, Text, Text> {
 				segment_loudness_start = csvLine[24];
 				if(segment_start.length() != 0 && segment_pitch.length() != 0 && segment_timbre.length() != 0 &&
 				   segment_loudness_max.length() != 0 && segment_loudness_max_time.length() != 0 && segment_loudness_start.length() != 0){
-					//String[] temp = segment_start.split(" ");
-					//System.out.println(temp.length);
+					String[] temp = segment_start.split(" ");
+					System.out.println(temp.length);
 
 					context.write(new Text("Q7-0"), new Text(segment_start));
 					context.write(new Text("Q7-1"), new Text(segment_pitch));
@@ -84,7 +85,7 @@ public class SongMapper extends Mapper<LongWritable, Text, Text, Text> {
 					context.write(new Text("Q7-4"), new Text(segment_loudness_max_time));
 					context.write(new Text("Q7-5"), new Text(segment_loudness_start));
 				}
-			}*/
+			}
         }
     }
 }
