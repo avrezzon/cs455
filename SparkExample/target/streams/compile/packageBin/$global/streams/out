@@ -1,0 +1,17 @@
+[info] Packaging /s/bach/m/under/avrezzon/cs455/cs455/SparkExample/target/scala-2.11/sparkexample_2.11-1.0.jar ...
+[debug] Input file mappings:
+[debug] 	SparkExample.class
+[debug] 	  /s/bach/m/under/avrezzon/cs455/cs455/SparkExample/target/scala-2.11/classes/SparkExample.class
+[debug] 	SparkExample$.class
+[debug] 	  /s/bach/m/under/avrezzon/cs455/cs455/SparkExample/target/scala-2.11/classes/SparkExample$.class
+[debug] 	SparkExample$$anonfun$2.class
+[debug] 	  /s/bach/m/under/avrezzon/cs455/cs455/SparkExample/target/scala-2.11/classes/SparkExample$$anonfun$2.class
+[debug] 	SparkExample$$anonfun$3$$anonfun$apply$1.class
+[debug] 	  /s/bach/m/under/avrezzon/cs455/cs455/SparkExample/target/scala-2.11/classes/SparkExample$$anonfun$3$$anonfun$apply$1.class
+[debug] 	SparkExample$$anonfun$3.class
+[debug] 	  /s/bach/m/under/avrezzon/cs455/cs455/SparkExample/target/scala-2.11/classes/SparkExample$$anonfun$3.class
+[debug] 	SparkExample$$anonfun$1.class
+[debug] 	  /s/bach/m/under/avrezzon/cs455/cs455/SparkExample/target/scala-2.11/classes/SparkExample$$anonfun$1.class
+[debug] 	SparkExample$$anonfun$2$$anonfun$apply$2.class
+[debug] 	  /s/bach/m/under/avrezzon/cs455/cs455/SparkExample/target/scala-2.11/classes/SparkExample$$anonfun$2$$anonfun$apply$2.class
+[info] Done packaging.
