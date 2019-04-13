@@ -5,57 +5,94 @@ package cs455.hadoop.HW3;
 
 class AverageSongSegments{
 
-    private Double[] summedValues;
-    private Double[] avgValues;
-    private long count;
-
-    public AverageSongSegments(){
-        summedValues = new Double[10];
-        avgValues = new Double[10];
-        for(int i = 0; i < 10; i++){
-            summedValues[i] = 0.0;
-        }
-        count = 0;
-    }
-
-    public void appendNewSongSegment(String unparsedValues){
+    public static String normalizeMapper(String unparsedValues, boolean isFlattened){
         String[] seperatedValues = unparsedValues.split(" ");
+        String result = null;
+        double[] summedValues = new double[10];
         double temp = 0.0;
         Double parsedVal = 0.0;
         int inc = seperatedValues.length / 10;
 
         if(seperatedValues.length >= 100) {
-            for (int idx = 0; idx < 10; idx++) {
-                for (int list_idx = idx * 10; list_idx < ((idx * 10) + inc); list_idx++) {
-                    try{
-                        parsedVal = Double.parseDouble(seperatedValues[list_idx]);
-                        temp += parsedVal;
-                    }catch(NumberFormatException ne){
-                        //bad data
+
+            if(!isFlattened) {
+                for (int idx = 0; idx < 10; idx++) {
+                    for (int list_idx = idx * 10; list_idx < ((idx * 10) + inc); list_idx++) {
+                        try {
+                            parsedVal = Double.parseDouble(seperatedValues[list_idx]);
+                            temp += parsedVal;
+                        } catch (NumberFormatException ne) {
+                            //bad data
+                        }
                     }
+                    summedValues[idx] = (temp / (double) inc);
                 }
-                summedValues[idx] += temp;
+            }else{
+                inc = seperatedValues.length/22;
+                for (int idx = 0; idx < 10; idx++) {
+                    for (int list_idx = idx * 10; list_idx < ((idx * 10) + inc); list_idx++) {
+                        try {
+                            parsedVal = Double.parseDouble(seperatedValues[list_idx]);
+                            temp += parsedVal;
+                        } catch (NumberFormatException ne) {
+                            //bad data
+                        }
+                    }
+                    summedValues[idx] = (temp / (double) inc);
+                }
             }
-            this.count += 1;
+
+            for(int i = 0; i < 10; i++){
+                if(i == 9){
+                    result += summedValues[i];
+                }else{
+                    result += summedValues[i] + " ";
+                }
+            }
+            return result;
         }
+        return "N/A";
     }
 
-    private void normalizeBuckets(){
+    //PRECONDITION: values when split will be of length of 10
+    public static String normalizeReducer(Iterable<String> values){
+
+        long count = 0;
+        Double[] buckets = new Double[10];
+        Double parsedValue = 0.0;
+        String[] seperatedValues = null;
+        String result = null;
+
+        //Init the buckets
         for(int i = 0; i < 10; i++){
-            this.avgValues[i] = this.summedValues[i] / double(this.count);
+            buckets[i] = 0.0;
         }
-    }
 
-    public String toString(){
-        String res = "";
-
-        normalizeBuckets();
+        for(String val : values){
+            seperatedValues = val.split(" ");
+            for(int i = 0; i < 10; i++){
+                try{
+                    parsedValue = Double.parseDouble(seperatedValues[i]);
+                    buckets[i] += parsedValue;
+                }catch(NumberFormatException ne){
+                    //bad data
+                }
+            }
+            count++;
+        }
 
         for(int i = 0; i < 10; i++){
-            res += this.avgValues[i] + " ";
+            buckets[i] = buckets[i] / count;
         }
 
-        return res;
-    }
+        for(int i = 0; i < 10; i++){
+            if(i == 9){
+                result += buckets[i];
+            }else{
+                result += buckets[i] + " ";
+            }
+        }
 
+        return result;
+    }
 }

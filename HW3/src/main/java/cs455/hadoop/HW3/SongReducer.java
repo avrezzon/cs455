@@ -34,6 +34,13 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
 
     private HashMap<String, Double> SongFadeTime;
 
+    private AverageSongSegments segment_start_Avg;
+    private AverageSongSegments segment_pitch_Avg;
+    private AverageSongSegments segment_timbre_Avg;
+    private AverageSongSegments segment_loudness_max_Avg;
+    private AverageSongSegments segment_loudness_max_time_Avg;
+    private AverageSongSegments segment_loudness_start_Avg;
+
     private MultipleOutputs mos;
 
     @Override
@@ -47,6 +54,13 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
         SongLoudness = new HashMap<>();
         SongMapping = new HashMap<>();
         SongFadeTime = new HashMap<>();
+
+        segment_start_Avg = new AverageSongSegments();
+        segment_pitch_Avg = new AverageSongSegments();
+        segment_timbre_Avg = new AverageSongSegments();
+        segment_loudness_max_Avg = new AverageSongSegments();
+        segment_loudness_max_time_Avg = new AverageSongSegments();
+        segment_loudness_start_Avg = new AverageSongSegments();
     }
 
 
@@ -234,6 +248,50 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
 
         //TODO I need to ass my porion for the 6th question
         //Apr 10 --> I asked Keving about whether or not I need to write out this question and he said I dont have to
+
+        if(statusCode.equals("Q7")){
+            String type = key.toString().substring(2);
+            /*switch(type){
+                case "0":
+                    for(Text val : values){
+                        segment_start_Avg.appendNewSongSegment(val.toString());
+                    }
+                    mos.write("Q7", new Text("Average start segment"), new Text(segment_start_Avg.toString()));
+                    break;
+                case "1":
+                    for(Text val : values){
+                        segment_pitch_Avg.appendNewSongSegment(val.toString());
+                    }
+                    mos.write("Q7", new Text("Average pitch segment"), new Text(segment_pitch_Avg.toString()));
+                    break;
+                case "2":
+                    for(Text val : values){
+                        segment_timbre_Avg.appendNewSongSegment(val.toString());
+                    }
+                    mos.write("Q7", new Text("Average timbre segment"), new Text(segment_loudness_max_Avg.toString()));
+                    break;
+                case "3":
+                    for(Text val : values){
+                        segment_loudness_max_Avg.appendNewSongSegment(val.toString());
+                    }
+                    mos.write("Q7", new Text("Average loudness max segment"), new Text(segment_loudness_max_Avg.toString()));
+                    break;
+                case "4":
+                    for(Text val : values){
+                        segment_loudness_max_time_Avg.appendNewSongSegment(val.toString());
+                    }
+                    mos.write("Q7", new Text("Average loudness max time segment"), new Text(segment_loudness_max_time_Avg.toString()));
+                    break;
+                case "5":
+                    for(Text val : values){
+                        segment_loudness_start_Avg.appendNewSongSegment(val.toString());
+                    }
+                    mos.write("Q7", new Text("Average loudness start segment"), new Text(segment_loudness_start_Avg.toString()));
+                    break;
+                default:
+                    break;
+            }*/
+        }
     }
 
     protected void cleanup(Context context) throws IOException, InterruptedException {
