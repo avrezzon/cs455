@@ -31,15 +31,7 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
 
     //These are the structures used for Q3
     private HashMap<String, String> SongMapping;
-
     private HashMap<String, Double> SongFadeTime;
-
-    private AverageSongSegments segment_start_Avg;
-    private AverageSongSegments segment_pitch_Avg;
-    private AverageSongSegments segment_timbre_Avg;
-    private AverageSongSegments segment_loudness_max_Avg;
-    private AverageSongSegments segment_loudness_max_time_Avg;
-    private AverageSongSegments segment_loudness_start_Avg;
 
     private MultipleOutputs mos;
 
@@ -47,6 +39,7 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
     protected void setup(Context context) throws IOException, InterruptedException {
         super.setup(context);
         mos = new MultipleOutputs(context);
+
         ArtistMapping = new HashMap<>();
         SongCount = new HashMap<>();
         ArtistSongs = new HashMap<>();
@@ -54,13 +47,6 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
         SongLoudness = new HashMap<>();
         SongMapping = new HashMap<>();
         SongFadeTime = new HashMap<>();
-
-        segment_start_Avg = new AverageSongSegments();
-        segment_pitch_Avg = new AverageSongSegments();
-        segment_timbre_Avg = new AverageSongSegments();
-        segment_loudness_max_Avg = new AverageSongSegments();
-        segment_loudness_max_time_Avg = new AverageSongSegments();
-        segment_loudness_start_Avg = new AverageSongSegments();
     }
 
 
@@ -71,7 +57,7 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
         String MetaOrAnalysis = null;
         String[] dataSegment = null;
 
-		//Q1 Is good XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+		//Q1 is complete
         if (statusCode.equals("Q1")) {
 
             int count = 0;
@@ -87,10 +73,17 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
             SongCount.put(artistId, count);
         }
 
-		//Q2 is good XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+		//Q2 FIXME so it sounds like the artist should be Autotrash 2.587
+        //TODO FIX that if an artist has a value of 0.0 then i just should not include it in the set
         if (statusCode.equals("Q2")) {
             double Loudness;
+            double artistLoudness = 0.0;
+            double artistAvg = 0.0;
+            double maxLoudnessAvg = 0.0;
+            HashSet<String> songList = null;
             HashSet<String> songs = null;
+            String LoudestArtist = null;
+            String LoudestArtistID = null;
 
             for (Text val : values) {
                 MetaOrAnalysis = val.toString().substring(0, 1);
@@ -110,6 +103,26 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
                     }
                 }
             }
+
+            for (String artistId : ArtistSongs.keySet()) {
+                songList = ArtistSongs.get(artistId);
+                for (String songID : songList) {
+                    artistLoudness += SongLoudness.getOrDefault(songID, 0.0);
+                }
+
+                artistAvg = artistLoudness / songList.size();
+
+                if (maxLoudnessAvg < artistAvg) {
+                    maxLoudnessAvg = artistAvg;
+                    LoudestArtistID = artistId;
+                }
+
+                artistLoudness = 0.0;
+            }
+
+            LoudestArtist = ArtistNames.get(LoudestArtistID);
+            mos.write("Q2", new Text("Artist with the average loudest songs"), new Text(" "));
+            mos.write("Q2", new Text(LoudestArtist), new Text((new Double(maxLoudnessAvg).toString())));
         }
 
         //Q3 portion
@@ -121,7 +134,7 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
             BigDecimal songPopScore = null;
             BigDecimal curMax = BigDecimal.valueOf(0.0);
             String MaxSongId = null;
-            String LoudestSong = null;
+            String HottestSong = null;
 
             for (Text val : values) {
                 MetaOrAnalysis = val.toString().substring(0, 1);
@@ -144,11 +157,12 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
                 }
             }
 
-            LoudestSong = SongMapping.getOrDefault(MaxSongId, "The title of the song with the highest value for loudness was not present within the metadata set, Song ID: " + MaxSongId);
-            mos.write("Q3", new Text(MaxSongId), new Text(curMax.toString()));
+            HottestSong = SongMapping.getOrDefault(MaxSongId, "The title of the song with the highest value for loudness was not present within the metadata set, Song ID: " + MaxSongId);
+            mos.write("Q3", new Text("Hottest Song"), new Text(" "));
+            mos.write("Q3", new Text(HottestSong), new Text(curMax.toString()));
         }
 
-		//Q4 Is good XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+		//Q4
         if(statusCode.equals("Q4")){
 
             double songFadeTime;
@@ -180,10 +194,9 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
 
 			ArrayList<SongDuration> songList = new ArrayList<>();
 
+            String title = null;
             String maxDurationID = null;
             String minDurationID = null;
-            String maxDurationTitle;
-            String minDurationTitle;
 
             for(Text val : values) {
                 MetaOrAnalysis = val.toString().substring(0, 1);
@@ -222,75 +235,76 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
 			//Updates the value of songList to the sorted fashion
 			songList = new ArrayList<SongDuration>(Arrays.asList(song_list));
 
-			maxDurationTitle = SongMapping.getOrDefault(maxDurationID, "Song title was not present in the metadata set, Song ID: " + maxDurationID);
-            minDurationTitle = SongMapping.getOrDefault(minDurationID, "Song title was not present in the metadata set, Song ID: " + minDurationID);
+			ArrayList<SongDuration> ShortestSongs = new ArrayList<>();
+			ArrayList<SongDuration> LongestSongs = new ArrayList<>();
+			ArrayList<SongDuration> MedianSongs = new ArrayList<>();
+			double shortestTime = songList.get(0).time;
+            double longestTime = songList.get(songList.size()-1).time;
+			double medianTime = songList.get(songList.size() / 2).time;
 
-            mos.write("Q5", new Text("Longest song spent fading: " + maxDurationTitle), new Text((new Double(maxDuration)).toString()));
-            mos.write("Q5", new Text("Shortest song spent fading: " + minDurationTitle), new Text((new Double(minDuration)).toString()));
+			for(SongDuration song : songList){
+			    if(song.time == shortestTime){
+			        ShortestSongs.add(song);
+                }
+                if(song.time == longestTime){
+			        LongestSongs.add(song);
+                }
+                if(song.time == medianTime){
+                    MedianSongs.add(song);
+                }
+            }
 
-			if(songList.size() % 2 == 0){
-				int idx = songList.size() / 2;
-				SongDuration median = songList.get(idx);
-				String title = SongMapping.getOrDefault(median.songID, "Song title was not present in the metadata set, Song ID: " + median.songID);
-				mos.write("Q5", new Text("Median song spent fading: " + title), new Text((new Double(median.time)).toString()));
-			}else{
-				int idx = songList.size() / 2;
-				SongDuration song1 = songList.get(idx);
-				SongDuration song2 = songList.get(idx + 1);
+            for(SongDuration song : ShortestSongs){
+			    title = SongMapping.getOrDefault(song.songID, "Song title was not present in the metadata set, Song ID: " + song.songID);
+			    mos.write("Q5", new Text("Shortest Songs: "), new Text(title + " " + shortestTime + " seconds"));
+            }
+            for(SongDuration song : LongestSongs){
+                title = SongMapping.getOrDefault(song.songID, "Song title was not present in the metadata set, Song ID: " + song.songID);
+                mos.write("Q5", new Text("Longest Songs: "), new Text(title + " " + longestTime + " seconds"));
+            }
+            for(SongDuration song : MedianSongs){
+                title = SongMapping.getOrDefault(song.songID, "Song title was not present in the metadata set, Song ID: " + song.songID);
+                mos.write("Q5", new Text("Median Songs: "), new Text(title + " " + medianTime + " seconds"));
+            }
 
-				String title1 = SongMapping.getOrDefault(song1.songID, "Song title was not present in the metadata set, Song ID: " + song1.songID);
-				String title2 = SongMapping.getOrDefault(song2.songID, "Song title was not present in the metadata set, Song ID: " + song2.songID);
-
-				mos.write("Q5", new Text("Median song #1 spent fading: " + title1), new Text((new Double(song1.time)).toString()));
-				mos.write("Q5", new Text("Median song #2 spent fading: " + title2), new Text((new Double(song2.time)).toString()));
-			}
+            mos.write("Q5", new Text("Number of songs in the set: "), new Text(Integer.toString(songList.size())));
         }
 
-        //TODO I need to ass my porion for the 6th question
         //Apr 10 --> I asked Keving about whether or not I need to write out this question and he said I dont have to
+        if(statusCode.equals("Q6"))mos.write("Q6", new Text("There is no song that has a value for energy or dancability"), new Text("Question 6 ommited"));
 
         if(statusCode.equals("Q7")){
             String type = key.toString().substring(2);
-            /*switch(type){
+            switch(type){
                 case "0":
-                    for(Text val : values){
-                        segment_start_Avg.appendNewSongSegment(val.toString());
-                    }
-                    mos.write("Q7", new Text("Average start segment"), new Text(segment_start_Avg.toString()));
+                    mos.write("Q7", new Text("Average start segment"), new Text( AverageSongSegments.normalizeReducer(values)));
                     break;
                 case "1":
-                    for(Text val : values){
-                        segment_pitch_Avg.appendNewSongSegment(val.toString());
-                    }
-                    mos.write("Q7", new Text("Average pitch segment"), new Text(segment_pitch_Avg.toString()));
+                    mos.write("Q7", new Text("Average pitch segment"), new Text( AverageSongSegments.normalizeReducer(values)));
                     break;
                 case "2":
-                    for(Text val : values){
-                        segment_timbre_Avg.appendNewSongSegment(val.toString());
-                    }
-                    mos.write("Q7", new Text("Average timbre segment"), new Text(segment_loudness_max_Avg.toString()));
+                    mos.write("Q7", new Text("Average timbre segment"), new Text(AverageSongSegments.normalizeReducer(values)));
                     break;
                 case "3":
-                    for(Text val : values){
-                        segment_loudness_max_Avg.appendNewSongSegment(val.toString());
-                    }
-                    mos.write("Q7", new Text("Average loudness max segment"), new Text(segment_loudness_max_Avg.toString()));
+                    mos.write("Q7", new Text("Average loudness max segment"), new Text( AverageSongSegments.normalizeReducer(values)));
                     break;
                 case "4":
-                    for(Text val : values){
-                        segment_loudness_max_time_Avg.appendNewSongSegment(val.toString());
-                    }
-                    mos.write("Q7", new Text("Average loudness max time segment"), new Text(segment_loudness_max_time_Avg.toString()));
+                    mos.write("Q7", new Text("Average loudness max time segment"), new Text(AverageSongSegments.normalizeReducer(values)));
                     break;
                 case "5":
-                    for(Text val : values){
-                        segment_loudness_start_Avg.appendNewSongSegment(val.toString());
-                    }
-                    mos.write("Q7", new Text("Average loudness start segment"), new Text(segment_loudness_start_Avg.toString()));
+                    mos.write("Q7", new Text("Average loudness start segment"), new Text(AverageSongSegments.normalizeReducer(values)));
                     break;
                 default:
                     break;
-            }*/
+            }
+        }
+
+        if(statusCode.equals("Q?")){
+            long temp = 0;
+            for(Text val : values){
+                temp += 1;
+            }
+            mos.write("Debug", new Text("Song count in the analysis file: "), new Text(Long.toString(temp)));
         }
     }
 
@@ -311,35 +325,6 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
             mos.write("Q1", new Text(artistName), new Text((new Integer(max)).toString()));
         }
 
-        //Q2 portion VERIFIED
-        if (!(ArtistSongs.isEmpty() && ArtistNames.isEmpty() && SongLoudness.isEmpty())) {
-
-            double artistLoudness = 0;
-            double artistAvg = 0.0;
-            double maxLoudnessAvg = 0.0;
-            HashSet<String> songList = null;
-            String LoudestArtist = null;
-            String LoudestArtistID = null;
-
-            for (String artistId : ArtistSongs.keySet()) {
-                songList = ArtistSongs.get(artistId);
-                for (String songID : songList) {
-                    artistLoudness += SongLoudness.getOrDefault(songID, 0.0);
-                }
-
-                artistAvg = artistLoudness / songList.size();
-                System.out.println("ArtistAverage: " + artistAvg);
-                if (maxLoudnessAvg < artistAvg) {
-                    maxLoudnessAvg = artistAvg;
-                    LoudestArtistID = artistId;
-                }
-                artistLoudness = 0;
-            }
-
-            LoudestArtist = ArtistNames.get(LoudestArtistID);
-            mos.write("Q2", new Text(LoudestArtist), new Text((new Double(maxLoudnessAvg).toString())));
-        }
-
         //Q4 portion
         if(!SongFadeTime.isEmpty() && !ArtistSongs.isEmpty()){
             double artistMaxFade = 0.0;
@@ -348,7 +333,7 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
             String MaxFadeArtist = null;
             String MaxFadeArtistID = null;
 
-            for (String artistId : ArtistSongs.keySet()) {
+            for (String artistId : ArtistNames.keySet()) {
                 songList = ArtistSongs.get(artistId);
                 for (String songID : songList) {
                     artistFade += SongFadeTime.getOrDefault(songID, 0.0);
@@ -361,7 +346,8 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
             }
 
             MaxFadeArtist = ArtistNames.get(MaxFadeArtistID);
-	
+
+            mos.write("Q4", new Text("Artist that spent the most time fading"), new Text(" "));
             mos.write("Q4", new Text(MaxFadeArtist), new Text((new Double(artistMaxFade).toString())));
         }
 

@@ -1,13 +1,13 @@
 package cs455.hadoop.HW3;
 
-
+import org.apache.hadoop.io.Text;
 //This will be used to evaluate all of the logic of combining the data
 
 class AverageSongSegments{
 
     public static String normalizeMapper(String unparsedValues, boolean isFlattened){
         String[] seperatedValues = unparsedValues.split(" ");
-        String result = null;
+        String result = "";
         double[] summedValues = new double[10];
         double temp = 0.0;
         Double parsedVal = 0.0;
@@ -55,21 +55,21 @@ class AverageSongSegments{
     }
 
     //PRECONDITION: values when split will be of length of 10
-    public static String normalizeReducer(Iterable<String> values){
+    public static String normalizeReducer(Iterable<Text> values){
 
         long count = 0;
         Double[] buckets = new Double[10];
         Double parsedValue = 0.0;
         String[] seperatedValues = null;
-        String result = null;
+        String result = "";
 
         //Init the buckets
         for(int i = 0; i < 10; i++){
             buckets[i] = 0.0;
         }
 
-        for(String val : values){
-            seperatedValues = val.split(" ");
+        for(Text val : values){
+            seperatedValues = val.toString().split(" ");
             for(int i = 0; i < 10; i++){
                 try{
                     parsedValue = Double.parseDouble(seperatedValues[i]);

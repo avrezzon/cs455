@@ -12,6 +12,7 @@ public class SongMapper extends Mapper<LongWritable, Text, Text, Text> {
     @Override
     protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 
+
         String[] csvLine = (value.toString()).split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
         String songID = null; //1
         String popularity = null; //2
@@ -58,7 +59,8 @@ public class SongMapper extends Mapper<LongWritable, Text, Text, Text> {
                 try {
                     double fadeInTime = Double.parseDouble(fadeInEnd);
                     double fadeOutTime = Double.parseDouble(fadeOutStart);
-                    double total = fadeInTime + fadeOutTime;
+                    double durationTime = Double.parseDouble(duration);
+                    double total = fadeInTime + (durationTime - fadeOutTime);
                     context.write(new Text("Q4"), new Text("A" + songID + "\t" + (new Double(total)).toString()));
                 } catch (NumberFormatException ne) {
                     //This is a bad record
@@ -76,17 +78,22 @@ public class SongMapper extends Mapper<LongWritable, Text, Text, Text> {
 
             if (segment_start.length() != 0 && segment_pitch.length() != 0 && segment_timbre.length() != 0 &&
                     segment_loudness_max.length() != 0 && segment_loudness_max_time.length() != 0 && segment_loudness_start.length() != 0) {
-                String[] temp = segment_timbre.split(" ");
-                String[] temp2 = segment_pitch.split(" ");
-                String[] temp3 = segment_start.split(" ");
-                System.out.println(temp.length/12 + " : " + temp2.length/12 + " : " + temp3.length);
-                context.write(new Text("Q70"), new Text(AverageSongSegments.normalizeMapper(segment_start, false)));
-                context.write(new Text("Q71"), new Text(segment_pitch));
-                context.write(new Text("Q72"), new Text(segment_timbre));
-                context.write(new Text("Q73"), new Text(segment_loudness_max));
-                context.write(new Text("Q74"), new Text(segment_loudness_max_time));
-                context.write(new Text("Q75"), new Text(segment_loudness_start));
+
+                String result = AverageSongSegments.normalizeMapper(segment_start, false);
+                if(!result.equals("N/A"))   context.write(new Text("Q70"), new Text(result));
+                result = AverageSongSegments.normalizeMapper(segment_pitch, true);
+                if(!result.equals("N/A"))   context.write(new Text("Q71"), new Text(result));
+                result = AverageSongSegments.normalizeMapper(segment_timbre, true);
+                if(!result.equals("N/A"))   context.write(new Text("Q72"), new Text(result));
+                result = AverageSongSegments.normalizeMapper(segment_loudness_max, true);
+                if(!result.equals("N/A"))   context.write(new Text("Q73"), new Text(result));
+                result = AverageSongSegments.normalizeMapper(segment_loudness_max_time, true);
+                if(!result.equals("N/A"))   context.write(new Text("Q74"), new Text(result));
+                result = AverageSongSegments.normalizeMapper(segment_loudness_start, true);
+                if(!result.equals("N/A"))   context.write(new Text("Q75"), new Text(result));
             }
+
+            context.write(new Text("Q?"), new Text("1"));
 
         }
     }
