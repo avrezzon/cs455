@@ -18,26 +18,19 @@ import java.math.BigDecimal;
 public class SongReducer extends Reducer<Text, Text, Text, Text> {
 
     //TODO for all of these questions try to wrap it in a way where I am not releiant only on the cleanup method.
-
-    //These are the data structures used for the first question
-    private HashMap<String, String> ArtistMapping;
-    private HashMap<String, Integer> SongCount;
-
-    //These are the data structures used for the second question
-    //This will be: Artist name : {set of all the songs that the artist has done}
     private HashMap<String, HashSet<String>> ArtistSongs;
     private HashMap<String, String> ArtistNames;
-    private HashMap<String, Double> SongLoudness;
+    private HashMap<String, Long> ArtistReference;
+    private String maxArtist;
 
-    //These are the structures used for Q3
+    private HashMap<String, Integer> SongCount;
     private HashMap<String, String> SongMapping;
     private HashMap<String, Double> SongFadeTime;
+    private HashMap<String, Double> SongLoudness;
 
-	private HashMap<String, SongSegment> SongSegmentLookup;
-	private SongSegmentAnalyzer ssa;
+    private HashMap<String, SongSegment> SongSegmentLookup;
+    private SongSegmentAnalyzer ssa;
 
-	private HashMap<String, Long> ArtistReference;
-	private String maxArtist;
 
     private MultipleOutputs mos;
 
@@ -46,17 +39,18 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
         super.setup(context);
         mos = new MultipleOutputs(context);
 
-        ArtistMapping = new HashMap<>();
-        SongCount = new HashMap<>();
         ArtistSongs = new HashMap<>();
         ArtistNames = new HashMap<>();
+        maxArtist = null;
+        ArtistReference = new HashMap<>();
+
+        SongCount = new HashMap<>();
         SongLoudness = new HashMap<>();
         SongMapping = new HashMap<>();
         SongFadeTime = new HashMap<>();
-		SongSegmentLookup = new HashMap<>();
-		ssa = new SongSegmentAnalyzer();
-		maxArtist = null;
-        ArtistReference = new HashMap<>();
+        SongSegmentLookup = new HashMap<>();
+
+        ssa = new SongSegmentAnalyzer();
     }
 
 
@@ -79,7 +73,7 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
                 artistName = val.toString();
             }
 
-            ArtistMapping.put(artistId, artistName);
+            ArtistNames.put(artistId, artistName);
             SongCount.put(artistId, count);
         }
 
@@ -112,26 +106,7 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
                     }
                 }
             }
-
-            for (String artistId : ArtistSongs.keySet()) {
-                songList = ArtistSongs.get(artistId);
-                for (String songID : songList) {
-                    artistLoudness += SongLoudness.getOrDefault(songID, 0.0);
-                }
-
-                artistAvg = artistLoudness / songList.size();
-
-                if (maxLoudnessAvg < artistAvg) {
-                    maxLoudnessAvg = artistAvg;
-                    LoudestArtistID = artistId;
-                }
-
-                artistLoudness = 0.0;
-            }
-
-            LoudestArtist = ArtistNames.get(LoudestArtistID);
-            mos.write("Q2", new Text("Artist with the average loudest songs"), new Text(" "));
-            mos.write("Q2", new Text(LoudestArtist), new Text((new Double(maxLoudnessAvg).toString())));
+            //This stuff has been moved to a seperate function
         }
 
         //Q3 portion
@@ -179,12 +154,12 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
             for(Text val : values){
                 MetaOrAnalysis = val.toString().substring(0, 1);
                 dataSegment = val.toString().substring(1).split("\t");
-                if(MetaOrAnalysis.equals("M")){
-                    ArtistNames.put(dataSegment[0], dataSegment[1]);
-                    songs = ArtistSongs.getOrDefault(dataSegment[0], new HashSet<String>());
-                    songs.add(dataSegment[2]);
-                    ArtistSongs.put(dataSegment[0], songs);
-                }
+//                if(MetaOrAnalysis.equals("M")){
+//                    ArtistNames.put(dataSegment[0], dataSegment[1]);
+//                    songs = ArtistSongs.getOrDefault(dataSegment[0], new HashSet<String>());
+//                    songs.add(dataSegment[2]);
+//                    ArtistSongs.put(dataSegment[0], songs);
+//                }
                 if(MetaOrAnalysis.equals("A")){
                     songFadeTime = Double.parseDouble(dataSegment[1]);
                     SongFadeTime.put(dataSegment[0], songFadeTime);
@@ -208,9 +183,9 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
             for(Text val : values) {
                 MetaOrAnalysis = val.toString().substring(0, 1);
                 dataSegment = val.toString().substring(1).split("\t");
-                if (MetaOrAnalysis.equals("M")) {
-                    SongMapping.put(dataSegment[0], dataSegment[1]);
-                }
+//                if (MetaOrAnalysis.equals("M")) {
+//                    SongMapping.put(dataSegment[0], dataSegment[1]);
+//                }
                 if (MetaOrAnalysis.equals("A")) {
                     try{
                         songDuration = Double.parseDouble(dataSegment[1]);
@@ -329,27 +304,28 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
 
 
         //I received a GC overhead exception will need to revise FIXME
-//        if(statusCode.equals("Q0")){
-//            String[] similar_artists = null;
-//            long maxCount = 0;
-//
-//            long count;
-//            for(Text val : values){
-//                similar_artists = val.toString().split(" ");
-//                for(int i = 0; i < similar_artists.length; i++){
-//                    count = ArtistReference.getOrDefault(similar_artists[i], new Long(0));
-//                    count += 1;
-//                    ArtistReference.put(similar_artists[i], count);
-//                }
-//            }
-//            for(String artist : ArtistReference.keySet()){
-//                if(maxCount < ArtistReference.get(artist)){
-//                    maxCount = ArtistReference.get(artist);
-//                    maxArtist = artist;
-//                }
-//            }
-//            mos.write("Q10", new Text("Most influential artist: " + maxArtist), new Text("Score: " + maxCount));
-//        }
+
+        if(statusCode.equals("Q0")){
+            String[] similar_artists = null;
+            long maxCount = 0;
+
+            long count;
+            for(Text val : values){
+                similar_artists = val.toString().split(" ");
+                for(int i = 0; i < similar_artists.length; i++){
+                    count = ArtistReference.getOrDefault(similar_artists[i], new Long(0));
+                    count += 1;
+                    ArtistReference.put(similar_artists[i], count);
+                }
+            }
+            for(String artist : ArtistReference.keySet()){
+                if(maxCount < ArtistReference.get(artist)){
+                    maxCount = ArtistReference.get(artist);
+                    maxArtist = artist;
+                }
+            }
+            mos.write("Q10", new Text("Most influential artist: " + maxArtist), new Text("Score: " + maxCount));
+        }
 
         if(statusCode.equals("Q?")){
             long temp = 0;
@@ -364,7 +340,7 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
     protected void cleanup(Context context) throws IOException, InterruptedException {
 
         //Q1 portion
-        if (!(ArtistMapping.isEmpty() && SongCount.isEmpty())) {
+        if (!(ArtistNames.isEmpty() && SongCount.isEmpty())) {
             int max = 0;
             String artistId = null;
             String artistName = null;
@@ -374,9 +350,11 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
                     artistId = key;
                 }
             }
-            artistName = ArtistMapping.get(artistId);
+            artistName = ArtistNames.get(artistId);
             mos.write("Q1", new Text(artistName), new Text((new Integer(max)).toString()));
         }
+
+        Q2();
 
         //Q4 portion
         if(!SongFadeTime.isEmpty() && !ArtistSongs.isEmpty()){
@@ -469,5 +447,36 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
 
 
         mos.close();
+    }
+
+    private void Q2()throws IOException, InterruptedException{
+
+        double artistLoudness = 0.0;
+        double artistAvg = 0.0;
+        double maxLoudnessAvg = 0.0;
+        HashSet<String> songList = null;
+        HashSet<String> songs = null;
+        String LoudestArtist = null;
+        String LoudestArtistID = null;
+
+        for (String artistId : ArtistSongs.keySet()) {
+            songList = ArtistSongs.get(artistId);
+            for (String songID : songList) {
+                artistLoudness += SongLoudness.getOrDefault(songID, 0.0);
+            }
+
+            artistAvg = artistLoudness / songList.size();
+
+            if (maxLoudnessAvg < artistAvg) {
+                maxLoudnessAvg = artistAvg;
+                LoudestArtistID = artistId;
+            }
+
+            artistLoudness = 0.0;
+        }
+
+        LoudestArtist = ArtistNames.get(LoudestArtistID);
+        mos.write("Q2", new Text("Artist with the average loudest songs"), new Text(" "));
+        mos.write("Q2", new Text(LoudestArtist), new Text((new Double(maxLoudnessAvg).toString())));
     }
 }
