@@ -1,5 +1,7 @@
 package cs455.hadoop.HW3;
 
+import java.util.Arrays;
+import java.util.ArrayList;
 import org.apache.hadoop.io.Text;
 //This will be used to evaluate all of the logic of combining the data
 
@@ -55,13 +57,12 @@ class AverageSongSegments{
     }
 
     //PRECONDITION: values when split will be of length of 10
-    public static String normalizeReducer(Iterable<Text> values){
+    public static double[] normalizeReducer(ArrayList<Text> values){
 
         long count = 0;
-        Double[] buckets = new Double[10];
+        double[] buckets = new double[10];
         Double parsedValue = 0.0;
         String[] seperatedValues = null;
-        String result = "";
 
         //Init the buckets
         for(int i = 0; i < 10; i++){
@@ -73,7 +74,7 @@ class AverageSongSegments{
             for(int i = 0; i < 10; i++){
                 try{
                     parsedValue = Double.parseDouble(seperatedValues[i]);
-                    buckets[i] += parsedValue;
+                    buckets[i] += parsedValue.doubleValue();
                 }catch(NumberFormatException ne){
                     //bad data
                 }
@@ -85,14 +86,18 @@ class AverageSongSegments{
             buckets[i] = buckets[i] / count;
         }
 
-        for(int i = 0; i < 10; i++){
+        return Arrays.copyOf(buckets, buckets.length);
+    }
+
+	public static String toString(double[] buckets){
+		String result = "";
+		for(int i = 0; i < 10; i++){
             if(i == 9){
                 result += buckets[i];
             }else{
                 result += buckets[i] + " ";
             }
         }
-
         return result;
-    }
+	}
 }

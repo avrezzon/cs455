@@ -14,6 +14,7 @@ public class SongMapper extends Mapper<LongWritable, Text, Text, Text> {
 
 
         String[] csvLine = (value.toString()).split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+
         String songID = null; //1
         String popularity = null; //2
         String danceability = null; //4
@@ -78,21 +79,65 @@ public class SongMapper extends Mapper<LongWritable, Text, Text, Text> {
 
             if (segment_start.length() != 0 && segment_pitch.length() != 0 && segment_timbre.length() != 0 &&
                     segment_loudness_max.length() != 0 && segment_loudness_max_time.length() != 0 && segment_loudness_start.length() != 0) {
+				String Q8Line = songID + "\t";
+				String defaultArray = "0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0";
 
-                String result = AverageSongSegments.normalizeMapper(segment_start, false);
-                if(!result.equals("N/A"))   context.write(new Text("Q70"), new Text(result));
-                result = AverageSongSegments.normalizeMapper(segment_pitch, true);
-                if(!result.equals("N/A"))   context.write(new Text("Q71"), new Text(result));
-                result = AverageSongSegments.normalizeMapper(segment_timbre, true);
-                if(!result.equals("N/A"))   context.write(new Text("Q72"), new Text(result));
-                result = AverageSongSegments.normalizeMapper(segment_loudness_max, true);
-                if(!result.equals("N/A"))   context.write(new Text("Q73"), new Text(result));
-                result = AverageSongSegments.normalizeMapper(segment_loudness_max_time, true);
-                if(!result.equals("N/A"))   context.write(new Text("Q74"), new Text(result));
-                result = AverageSongSegments.normalizeMapper(segment_loudness_start, true);
-                if(!result.equals("N/A"))   context.write(new Text("Q75"), new Text(result));
+				String result = AverageSongSegments.normalizeMapper(segment_start, false);
+                if(!result.equals("N/A")){
+					context.write(new Text("Q70"), new Text(result));
+					Q8Line += result + "\t";
+				}else{
+					Q8Line += defaultArray + "\t";
+				}
+
+				result = AverageSongSegments.normalizeMapper(segment_pitch, true);
+                if(!result.equals("N/A")){
+					context.write(new Text("Q71"), new Text(result));
+					Q8Line += result + "\t";
+				}else{ 
+                    Q8Line += defaultArray + "\t";
+                }
+
+
+				result = AverageSongSegments.normalizeMapper(segment_timbre, true);
+                if(!result.equals("N/A")){
+					context.write(new Text("Q72"), new Text(result));
+					Q8Line += result + "\t";
+				}else{ 
+                    Q8Line += defaultArray + "\t";
+                }
+
+
+				result = AverageSongSegments.normalizeMapper(segment_loudness_max, false);
+                if(!result.equals("N/A")){
+					context.write(new Text("Q73"), new Text(result));
+					Q8Line += result + "\t";
+				}else{ 
+                    Q8Line += defaultArray + "\t";
+                }
+
+
+				result = AverageSongSegments.normalizeMapper(segment_loudness_max_time, false);
+                if(!result.equals("N/A")){
+					context.write(new Text("Q74"), new Text(result));
+					Q8Line += result + "\t";
+				}else{ 
+                    Q8Line += defaultArray + "\t";
+                }
+
+
+				result = AverageSongSegments.normalizeMapper(segment_loudness_start, false);
+				if(!result.equals("N/A")){
+					context.write(new Text("Q75"), new Text(result));
+					Q8Line += result;
+				}else{ 
+                    Q8Line += defaultArray + "\t";
+                }
+
+				context.write(new Text("Q8"), new Text(Q8Line));
             }
 
+            //This is used as a count for the total number of songs present in the data set
             context.write(new Text("Q?"), new Text("1"));
 
         }

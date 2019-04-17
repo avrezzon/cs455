@@ -1,4 +1,4 @@
-package cs455.hadoop.wordcount;
+package cs455.hadoop.Reference;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;

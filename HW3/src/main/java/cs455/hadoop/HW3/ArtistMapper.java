@@ -17,6 +17,7 @@ public class ArtistMapper extends Mapper<LongWritable, Text, Text, Text> {
         String artistUid = null;
         String songId = null;
         String title = null;
+        String similarArtists = null;
 
         //throw out invalid data
         if(csvLine.length > 14){
@@ -25,14 +26,14 @@ public class ArtistMapper extends Mapper<LongWritable, Text, Text, Text> {
             artistName = csvLine[7];
             songId = csvLine[8];
             title = csvLine[9];
+            similarArtists = csvLine[10];
 
-            //This portion is used for question one.  Count the number of occurences that the artist is present in the data
             context.write(new Text("Q1"+artistUid), new Text(artistName));
 	    	context.write(new Text("Q2"), new Text("M" + artistUid + "\t" + artistName + "\t" + songId));
             context.write(new Text("Q3"), new Text("M" + songId + "\t" + title));
             context.write(new Text("Q4"), new Text("M" + artistUid + "\t" + artistName + "\t" + songId));
             context.write(new Text("Q5"), new Text("M" + songId + "\t"  + title));
-            //context.write(new Text("Q6"), new Text("M" + songId + "\t" + title));
+            //context.write(new Text("Q0"), new Text(similarArtists));
         }
     }
 }

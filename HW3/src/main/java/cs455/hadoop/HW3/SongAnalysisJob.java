@@ -40,16 +40,17 @@ public class SongAnalysisJob {
 
             FileOutputFormat.setOutputPath(job, new Path(args[2]));
 
+            MultipleOutputs.addNamedOutput(job, "Debug", TextOutputFormat.class, Text.class, Text.class);
             MultipleOutputs.addNamedOutput(job, "Q1", TextOutputFormat.class, Text.class, Text.class);
 	        MultipleOutputs.addNamedOutput(job, "Q2", TextOutputFormat.class, Text.class, Text.class);
 	        MultipleOutputs.addNamedOutput(job, "Q3", TextOutputFormat.class, Text.class, Text.class);
-	        MultipleOutputs.addNamedOutput(job, "Debug", TextOutputFormat.class, Text.class, Text.class);
             MultipleOutputs.addNamedOutput(job, "Q4", TextOutputFormat.class, Text.class, Text.class);
             MultipleOutputs.addNamedOutput(job, "Q5", TextOutputFormat.class, Text.class, Text.class);
             MultipleOutputs.addNamedOutput(job, "Q6", TextOutputFormat.class, Text.class, Text.class);
-            //NOTE Question 6 has been omitted from the submission
-
             MultipleOutputs.addNamedOutput(job, "Q7", TextOutputFormat.class, Text.class, Text.class);
+            MultipleOutputs.addNamedOutput(job, "Q8", TextOutputFormat.class, Text.class, Text.class);
+            MultipleOutputs.addNamedOutput(job, "Q9", TextOutputFormat.class, Text.class, Text.class);
+            MultipleOutputs.addNamedOutput(job, "Q10", TextOutputFormat.class, Text.class, Text.class);
 
             System.exit(job.waitForCompletion(true) ? 0 : 1);
 

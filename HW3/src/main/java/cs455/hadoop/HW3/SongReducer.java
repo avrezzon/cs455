@@ -33,6 +33,12 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
     private HashMap<String, String> SongMapping;
     private HashMap<String, Double> SongFadeTime;
 
+	private HashMap<String, SongSegment> SongSegmentLookup;
+	private SongSegmentAnalyzer ssa;
+
+	private HashMap<String, Long> ArtistReference;
+	private String maxArtist;
+
     private MultipleOutputs mos;
 
     @Override
@@ -47,6 +53,10 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
         SongLoudness = new HashMap<>();
         SongMapping = new HashMap<>();
         SongFadeTime = new HashMap<>();
+		SongSegmentLookup = new HashMap<>();
+		ssa = new SongSegmentAnalyzer();
+		maxArtist = null;
+        ArtistReference = new HashMap<>();
     }
 
 
@@ -59,7 +69,7 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
 
 		//Q1 is complete
         if (statusCode.equals("Q1")) {
-
+//SEGMENT
             int count = 0;
             String artistName = null;
             String artistId = key.toString().substring(2);
@@ -73,8 +83,7 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
             SongCount.put(artistId, count);
         }
 
-		//Q2 FIXME so it sounds like the artist should be Autotrash 2.587
-        //TODO FIX that if an artist has a value of 0.0 then i just should not include it in the set
+
         if (statusCode.equals("Q2")) {
             double Loudness;
             double artistLoudness = 0.0;
@@ -90,7 +99,7 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
                 dataSegment = val.toString().substring(1).split("\t");
                 if (MetaOrAnalysis.equals("M")) {
                     ArtistNames.put(dataSegment[0], dataSegment[1]);
-                    songs = ArtistSongs.getOrDefault(dataSegment[0], new HashSet<String>());
+                    songs = ArtistSongs.getOrDefault(dataSegment[0], new HashSet<>());
                     songs.add(dataSegment[2]);
                     ArtistSongs.put(dataSegment[0], songs);
                 }
@@ -128,7 +137,7 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
         //Q3 portion
         //Kevin said that there are multiple songs that have a score of one so i can either list all of those songs OR
         //just display the first value
-		//Currently this only outputs the first instance of 1.0 Q3 OK CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+		//Currently this only outputs the first instance of 1.0 Q3
         if (statusCode.equals("Q3")) {
 
             BigDecimal songPopScore = null;
@@ -145,8 +154,7 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
                 if (MetaOrAnalysis.equals("A")) {
                     try {
                         songPopScore = new BigDecimal(dataSegment[1]);
-                        //This waas used to determine if there was any data that had a value of 1.0
-						//mos.write("Q3Debug", new Text(dataSegment[0]), new Text(songPopScore.toString()));
+
                         if (songPopScore.compareTo(curMax) == 1) {
                             curMax = new BigDecimal(dataSegment[1]);
                             MaxSongId = dataSegment[0];
@@ -184,8 +192,7 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
             }
         }
 
-        //FIXME with this question it says to capture song(s).  I will probably need to scrape the data again
-		//Q5 needs to get fixed to capture the values of the same FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+		//Q5 portion
         if(statusCode.equals("Q5")){
             double maxDuration = 0.0;
             double minDuration = 99999.0;
@@ -270,34 +277,79 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
             mos.write("Q5", new Text("Number of songs in the set: "), new Text(Integer.toString(songList.size())));
         }
 
-        //Apr 10 --> I asked Keving about whether or not I need to write out this question and he said I dont have to
-        if(statusCode.equals("Q6"))mos.write("Q6", new Text("There is no song that has a value for energy or dancability"), new Text("Question 6 ommited"));
-
         if(statusCode.equals("Q7")){
+
+            ArrayList<Text> values_cpy = new ArrayList<>();
+            for(Text val : values){
+                values_cpy.add(val);
+            }
+
             String type = key.toString().substring(2);
+			double[] result = AverageSongSegments.normalizeReducer(values_cpy);
             switch(type){
                 case "0":
-                    mos.write("Q7", new Text("Average start segment"), new Text( AverageSongSegments.normalizeReducer(values)));
+					ssa.updateValues(result, 0, values_cpy);
+                    mos.write("Q7", new Text("Average start segment"), new Text( AverageSongSegments.toString(result)));
                     break;
                 case "1":
-                    mos.write("Q7", new Text("Average pitch segment"), new Text( AverageSongSegments.normalizeReducer(values)));
+					ssa.updateValues(result, 1, values_cpy);
+                    mos.write("Q7", new Text("Average pitch segment"), new Text( AverageSongSegments.toString(result)));
                     break;
                 case "2":
-                    mos.write("Q7", new Text("Average timbre segment"), new Text(AverageSongSegments.normalizeReducer(values)));
+					ssa.updateValues(result, 2, values_cpy);
+                    mos.write("Q7", new Text("Average timbre segment"), new Text(AverageSongSegments.toString(result)));
                     break;
                 case "3":
-                    mos.write("Q7", new Text("Average loudness max segment"), new Text( AverageSongSegments.normalizeReducer(values)));
+					ssa.updateValues(result, 3, values_cpy);
+                    mos.write("Q7", new Text("Average loudness max segment"), new Text( AverageSongSegments.toString(result)));
                     break;
                 case "4":
-                    mos.write("Q7", new Text("Average loudness max time segment"), new Text(AverageSongSegments.normalizeReducer(values)));
+					ssa.updateValues(result, 4, values_cpy);
+                    mos.write("Q7", new Text("Average loudness max time segment"), new Text(AverageSongSegments.toString(result)));
                     break;
                 case "5":
-                    mos.write("Q7", new Text("Average loudness start segment"), new Text(AverageSongSegments.normalizeReducer(values)));
+					ssa.updateValues(result, 5, values_cpy);
+                    mos.write("Q7", new Text("Average loudness start segment"), new Text(AverageSongSegments.toString(result)));
                     break;
                 default:
                     break;
             }
         }
+
+        if(statusCode.equals("Q8")){
+			for(Text val : values){
+				dataSegment = val.toString().split("\t");
+				SongSegmentLookup.put(dataSegment[0], new SongSegment(dataSegment[0], dataSegment[1], dataSegment[2], dataSegment[3], dataSegment[4], dataSegment[5], dataSegment[6]));
+			}
+        }
+
+//        if(statusCode.equals("Q9")){
+//
+//        }
+
+
+        //I received a GC overhead exception will need to revise FIXME
+//        if(statusCode.equals("Q0")){
+//            String[] similar_artists = null;
+//            long maxCount = 0;
+//
+//            long count;
+//            for(Text val : values){
+//                similar_artists = val.toString().split(" ");
+//                for(int i = 0; i < similar_artists.length; i++){
+//                    count = ArtistReference.getOrDefault(similar_artists[i], new Long(0));
+//                    count += 1;
+//                    ArtistReference.put(similar_artists[i], count);
+//                }
+//            }
+//            for(String artist : ArtistReference.keySet()){
+//                if(maxCount < ArtistReference.get(artist)){
+//                    maxCount = ArtistReference.get(artist);
+//                    maxArtist = artist;
+//                }
+//            }
+//            mos.write("Q10", new Text("Most influential artist: " + maxArtist), new Text("Score: " + maxCount));
+//        }
 
         if(statusCode.equals("Q?")){
             long temp = 0;
@@ -308,9 +360,10 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
         }
     }
 
+    //NOTE that this is only invoked once and allows me to have reference to stuff from above
     protected void cleanup(Context context) throws IOException, InterruptedException {
 
-        //Q1 portion VERIFIED
+        //Q1 portion
         if (!(ArtistMapping.isEmpty() && SongCount.isEmpty())) {
             int max = 0;
             String artistId = null;
@@ -350,6 +403,70 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
             mos.write("Q4", new Text("Artist that spent the most time fading"), new Text(" "));
             mos.write("Q4", new Text(MaxFadeArtist), new Text((new Double(artistMaxFade).toString())));
         }
+
+		//Apr 10 --> I asked Kevin about whether or not I need to write out this question and he said I dont have to
+        mos.write("Q6", new Text("There is no song that has a value for energy or dancability"), new Text("Question 6 ommited"));
+
+
+        String uniqueArtist = null;
+        String averageArtist = null;
+        double uniqueVal = Double.MIN_VALUE;
+        double averageVal = Double.MAX_VALUE;
+        double score = 0.0;
+        for(String artistID : ArtistSongs.keySet()){
+            score = ssa.getArtistScore(SongSegmentLookup, ArtistSongs.get(artistID));
+//            mos.write("Q8breakdown", new Text(artistID), new Text("Score: " + score));
+            if(score < averageVal){
+                averageArtist = artistID;
+                averageVal = score;
+            }
+            if(score > uniqueVal){
+                uniqueArtist = artistID;
+                uniqueVal = score;
+            }
+        }
+        mos.write("Q8", new Text("Most average artist: " + ArtistNames.get(averageArtist)), new Text("Score: " + averageVal));
+        mos.write("Q8", new Text("Most unique artist: " + ArtistNames.get(uniqueArtist)), new Text("Score: " + uniqueVal));
+
+//		String temp = AverageSongSegments.toString(ssa.segment_start_avg);
+//		mos.write("Q8", new Text("start_avg"), new Text(temp));
+//
+//		temp = AverageSongSegments.toString(ssa.segment_start_stdev);
+//		mos.write("Q8", new Text("start_stdev"), new Text(temp));
+//
+//		temp = AverageSongSegments.toString(ssa.segment_pitch_avg);
+//        mos.write("Q8", new Text("pitch_avg"), new Text(temp));
+//
+//        temp = AverageSongSegments.toString(ssa.segment_pitch_stdev);
+//        mos.write("Q8", new Text("pitch_stdev"), new Text(temp));
+//
+//        temp = AverageSongSegments.toString(ssa.segment_timbre_avg);
+//        mos.write("Q8", new Text("timbre_avg"), new Text(temp));
+//
+//        temp = AverageSongSegments.toString(ssa.segment_timbre_stdev);
+//        mos.write("Q8", new Text("timbre_stdev"), new Text(temp));
+//
+//        temp = AverageSongSegments.toString(ssa.segment_loudness_max_avg);
+//        mos.write("Q8", new Text("loudness_max__avg"), new Text(temp));
+//
+//        temp = AverageSongSegments.toString(ssa.segment_loudness_max_stdev);
+//        mos.write("Q8", new Text("start_stdev"), new Text(temp));
+//
+//        temp = AverageSongSegments.toString(ssa.segment_loudness_max_time_avg);
+//        mos.write("Q8", new Text("loudness_max_time_avg"), new Text(temp));
+//
+//        temp = AverageSongSegments.toString(ssa.segment_loudness_max_time_stdev);
+//        mos.write("Q8", new Text("loudness_max_time_stdev"), new Text(temp));
+//
+//        temp = AverageSongSegments.toString(ssa.segment_loudness_start_avg);
+//        mos.write("Q8", new Text("loudness_start_avg"), new Text(temp));
+//
+//        temp = AverageSongSegments.toString(ssa.segment_loudness_start_stdev);
+//        mos.write("Q8", new Text("loudness_start_stdev"), new Text(temp));
+
+        //Sanity check
+        mos.write("Debug", new Text("Map"), new Text("Reduce"));
+
 
         mos.close();
     }
