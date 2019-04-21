@@ -3,9 +3,13 @@
 HW_comments/
 HW1/build/
 HW2/build/
-conf/
+HW3/build/
 HW1/README.txt
 HW1/Rezzonico_Anthony_HW1-PC.tar
 HW2/Anthony-Rezzonico-HW2-WC.pdf
 hadoop-conf.tar
 Anthony-Rezzonico-HW2-PC.tar
+SampleData/
+SparkExample/target/
+SparkExample/project/
+spark-2.4.1-bin-hadoop2.7/

@@ -1,0 +1,11 @@
+<configuration>
+  <property>
+    <name>fs.default.name</name>
+    <value>hdfs://dover:42079</value>
+  </property>
+  <property>
+    <name>hadoop.tmp.dir</name>
+    <value>file:///tmp/${user.name}-tmp</value>
+    <final>true</final>
+  </property>
+</configuration>
