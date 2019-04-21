@@ -25,9 +25,46 @@ class SongSegmentAnalyzer{
 	public double[] segment_loudness_start_stdev; 
 
 	public SongSegmentAnalyzer(){
-		//this.SongScore = new HashMap<>();
-		//this.uniqueSongs = new ArrayList<>();
-		//this.averageSongs = new ArrayList<>();
+
+	}
+
+	private void setup(){
+		this.segment_start_avg = new double[10];
+		this.segment_start_stdev = new double[10];
+		this.segment_pitch_avg = new double[10];
+		this.segment_pitch_stdev = new double[10];
+		this.segment_loudness_max_avg = new double[10];
+		this.segment_loudness_max_stdev = new double[10];
+		this.segment_loudness_max_time_avg = new double[10];
+		this.segment_loudness_max_time_stdev = new double[10];
+		this.segment_loudness_start_avg = new double[10];
+		this.segment_loudness_start_stdev = new double[10];
+	}
+
+	public void createAverages(HashSet<String> songs, HashMap<String, SongSegment> songDetails){
+		SongSegment song_info = null;
+		setup();
+		long count = 0;
+		for(String songID : songs){
+			song_info = songDetails.get(songID);
+			for(int i = 0; i < 10; i++){
+				this.segment_start_avg[i] += song_info.segment_start[i];
+				this.segment_pitch_avg[i] += song_info.segment_pitch[i];
+				this.segment_timbre_avg[i] += song_info.segment_timbre[i];
+				this.segment_loudness_max_avg[i] += song_info.segment_loudness_max[i];
+				this.segment_loudness_max_time_avg[i] += song_info.segment_loudness_max_time[i];
+				this.segment_loudness_start_avg[i] += song_info.segment_loudness_start[i];
+			}
+			count++;
+		}
+		for(int i = 0; i < 10; i++){
+			this.segment_start_avg[i] = this.segment_start_avg[i] / count;
+			this.segment_pitch_avg[i] = this.segment_pitch_avg[i] / count;
+			this.segment_timbre_avg[i] = this.segment_timbre_avg[i] / count;
+			this.segment_loudness_max_avg[i] = this.segment_loudness_max_avg[i] / count;
+			this.segment_loudness_max_time_avg[i] = this.segment_loudness_max_time_avg[i] / count;
+			this.segment_loudness_start_avg[i] = this.segment_loudness_start_avg[i] / count;
+		}
 	}
 
 	private double[] createStdev(ArrayList<Text> values, double[] avgs){

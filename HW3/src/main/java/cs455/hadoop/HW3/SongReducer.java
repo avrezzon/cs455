@@ -328,28 +328,27 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
 //        }
 
 
-        //I received a GC overhead exception will need to revise FIXME
-//        if(statusCode.equals("Q0")){
-//            String[] similar_artists = null;
-//            long maxCount = 0;
-//
-//            long count;
-//            for(Text val : values){
-//                similar_artists = val.toString().split(" ");
-//                for(int i = 0; i < similar_artists.length; i++){
-//                    count = ArtistReference.getOrDefault(similar_artists[i], new Long(0));
-//                    count += 1;
-//                    ArtistReference.put(similar_artists[i], count);
-//                }
-//            }
-//            for(String artist : ArtistReference.keySet()){
-//                if(maxCount < ArtistReference.get(artist)){
-//                    maxCount = ArtistReference.get(artist);
-//                    maxArtist = artist;
-//                }
-//            }
-//            mos.write("Q10", new Text("Most influential artist: " + maxArtist), new Text("Score: " + maxCount));
-//        }
+        if(statusCode.equals("Q0")){
+            String[] similar_artists = null;
+            long maxCount = 0;
+
+            long count;
+            for(Text val : values){
+                similar_artists = val.toString().split(" ");
+                for(int i = 0; i < similar_artists.length; i++){
+                    count = ArtistReference.getOrDefault(similar_artists[i], new Long(0));
+                    count += 1;
+                    ArtistReference.put(similar_artists[i], count);
+                }
+            }
+            for(String artist : ArtistReference.keySet()){
+                if(maxCount < ArtistReference.get(artist)){
+                    maxCount = ArtistReference.get(artist);
+                    maxArtist = artist;
+                }
+            }
+            mos.write("Q10", new Text("Most influential artist: " + ArtistNames.getOrDefault(maxArtist,maxArtist)), new Text("Score: " + maxCount));
+        }
 
         if(statusCode.equals("Q?")){
             long temp = 0;
@@ -428,6 +427,16 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
         mos.write("Q8", new Text("Most average artist: " + ArtistNames.get(averageArtist)), new Text("Score: " + averageVal));
         mos.write("Q8", new Text("Most unique artist: " + ArtistNames.get(uniqueArtist)), new Text("Score: " + uniqueVal));
 
+        SongSegmentAnalyzer mostInfluential = new SongSegmentAnalyzer();
+        mostInfluential.createAverages(ArtistSongs.get(maxArtist), SongSegmentLookup);
+        mos.write("Q10", new Text("Stats for the artists songs"), new Text(" "));
+        mos.write("Q10", new Text("Average start segment"), new Text( AverageSongSegments.toString(mostInfluential.segment_start_avg)));
+        mos.write("Q10", new Text("Average pitch segment"), new Text( AverageSongSegments.toString(mostInfluential.segment_pitch_avg)));
+        mos.write("Q10", new Text("Average timbre segment"), new Text( AverageSongSegments.toString(mostInfluential.segment_timbre_avg)));
+        mos.write("Q10", new Text("Average loudness max segment"), new Text( AverageSongSegments.toString(mostInfluential.segment_loudness_max_avg)));
+        mos.write("Q10", new Text("Average loudness max time segment"), new Text( AverageSongSegments.toString(mostInfluential.segment_loudness_max_time_avg)));
+        mos.write("Q10", new Text("Average loudness start segment"), new Text( AverageSongSegments.toString(mostInfluential.segment_loudness_start_avg)));
+
 //		String temp = AverageSongSegments.toString(ssa.segment_start_avg);
 //		mos.write("Q8", new Text("start_avg"), new Text(temp));
 //
@@ -463,6 +472,9 @@ public class SongReducer extends Reducer<Text, Text, Text, Text> {
 //
 //        temp = AverageSongSegments.toString(ssa.segment_loudness_start_stdev);
 //        mos.write("Q8", new Text("loudness_start_stdev"), new Text(temp));
+
+        //Q10 PORTION
+
 
         //Sanity check
         mos.write("Debug", new Text("Map"), new Text("Reduce"));
