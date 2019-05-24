@@ -1,6 +1,6 @@
 # HW1-PC README
 
-## *View the project description HW1-PC and the written components HW1-WC*
+## *View the project description CS455-Spring19-HW1-PC and the written components CS455-Spring19-HW1-WC*
 
 Here is a layout of what is present in the project submission:
 Things to note for the submmision I was not able to finish and send the messages to the peer nodes.  This was because I though I had manipulated the RegisterRequest to handle both the MessagingNode to Registry Request and the MessagingNode to MessagingNode.  After attempting to initiate the task message to ensure they were working I realized that I did't set up the connections correctly.  Since this was found close to the project submission, I felt that this was important to explain during the grading process.  I knew how to complete the rest of the project but I tried to focus on getting this to work but I ran out of time.  While some of the things do not work please run and test all of the functions.
